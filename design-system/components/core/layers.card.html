@@ -1,0 +1,33 @@
+<!-- @dsCard group="Components" viewport="700x420" name="Core · Capas y datos" subtitle="Sheet, DatePicker y DataTable" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:20px;background:var(--surface-card)}.lbl{font:var(--fw-bold) var(--fs-overline) var(--font-sans);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-subtle);margin-bottom:10px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { Sheet, DatePicker, DataTable, Button, EmptyState, Avatar } = window.WaykaDesignSystem_51ee47;
+function Fila({name,owner,visit}){return(<div style={{display:'flex',gap:14,alignItems:'center',padding:'10px 16px',borderTop:'1px solid var(--border-subtle)'}}>
+<span style={{flex:'0 0 40px'}}><Avatar name={name} size={32} /></span>
+<span style={{flex:'1 1 160px',font:'var(--text-body-strong)',color:'var(--text-strong)'}}>{name}</span>
+<span style={{flex:'1 1 140px',font:'var(--text-body)',color:'var(--text-muted)'}}>{owner}</span>
+<span style={{flex:'0 0 100px',textAlign:'right',font:'var(--text-body)',color:'var(--text-muted)'}}>{visit}</span></div>)}
+function Demo(){const[o,setO]=React.useState(true);const[f,setF]=React.useState('2026-08-27');
+return(<div style={{display:'grid',gridTemplateColumns:'300px 1fr',gap:22,alignItems:'start'}}>
+<div style={{display:'grid',gap:22}}>
+<div><div className="lbl">DatePicker</div><DatePicker label="Fecha del control" value={f} onChange={setF} /></div>
+<div><div className="lbl">Sheet · móvil</div>
+<div style={{position:'relative',isolation:'isolate',height:220,width:260,borderRadius:'var(--radius-lg)',overflow:'hidden',border:'1px solid var(--border-subtle)',background:'var(--surface-sunken)'}}>
+<Sheet open={o} title="Filtrar agenda" onClose={()=>setO(true)} footer={<Button block size="touch">Aplicar</Button>}>
+<div style={{font:'var(--text-body)',color:'var(--text-muted)'}}>Especie, profesional y estado de la cita.</div></Sheet></div></div></div>
+<div><div className="lbl">DataTable</div>
+<div style={{border:'1px solid var(--border-default)',borderRadius:'var(--radius-lg)',overflow:'hidden'}}>
+<DataTable columns={[{key:'a',width:40},{key:'p',label:'Paciente',grow:'1 1 160px'},{key:'t',label:'Tutor',grow:'1 1 140px'},{key:'v',label:'Última visita',width:100,align:'right'}]} empty={<EmptyState title="Sin resultados" />}>
+<Fila name="Kiara" owner="Julia Fernández" visit="12 mar" />
+<Fila name="Tobi" owner="Marcos Ruiz" visit="04 mar" />
+<Fila name="Nube" owner="Ana Ledesma" visit="27 feb" />
+</DataTable></div></div>
+</div>)}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script></body></html>

@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Wayka",
+    "slug": "wayka",
+    "scheme": "wayka",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": ["expo-router", "expo-secure-store", "expo-font", "expo-splash-screen"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wayka.app"
+    },
+    "android": {
+      "package": "com.wayka.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static"
+    }
+  }
+}

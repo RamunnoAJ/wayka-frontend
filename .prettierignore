@@ -1,0 +1,10 @@
+node_modules
+dist
+.expo
+android
+ios
+docs
+CLAUDE.md
+AGENTS.md
+design-system
+public/fonts

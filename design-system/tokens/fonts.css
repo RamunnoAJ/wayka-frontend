@@ -1,0 +1,11 @@
+/* Satoshi (Indian Type Foundry) — binarios reales en assets/fonts/.
+   Se usa la variable (300–900) con fallbacks estaticos para navegadores sin soporte. */
+@font-face{font-family:"Satoshi";src:url("../assets/fonts/Satoshi-Variable.woff2") format("woff2-variations");font-weight:300 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Satoshi";src:url("../assets/fonts/Satoshi-VariableItalic.woff2") format("woff2-variations");font-weight:300 900;font-style:italic;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-Light.woff2") format("woff2");font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-Medium.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-BoldItalic.woff2") format("woff2");font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:"Satoshi Static";src:url("../assets/fonts/Satoshi-Black.woff2") format("woff2");font-weight:900;font-style:normal;font-display:swap}

@@ -1,0 +1,8 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font:var(--text-body);color:var(--text-body);background:var(--surface-page);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p{margin:0}
+a{color:var(--text-link);text-decoration:none}
+a:hover{color:var(--text-link-hover);text-decoration:underline}
+::selection{background:var(--wayka-lila-claro);color:var(--wayka-violeta-oscuro)}
+:focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
+@keyframes wayka-spin{to{transform:rotate(360deg)}}

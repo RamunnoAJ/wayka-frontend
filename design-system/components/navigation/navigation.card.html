@@ -1,0 +1,28 @@
+<!-- @dsCard group="Components" viewport="700x380" name="Navegación" subtitle="Sidebar web, cabecera de página y barras móviles" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:20px;background:var(--surface-card)}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.stack{display:grid;gap:14px}.lbl{font:var(--fw-bold) var(--fs-overline) var(--font-sans);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-subtle)}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { SidebarNav, MobileTabBar, MobileHeader, PageHeader, SearchField, Button, AppointmentCard, StatusDot } = window.WaykaDesignSystem_51ee47;
+const NAV=[{value:'agenda',label:'Agenda',icon:'calendar-days',badge:8},{value:'pacientes',label:'Pacientes',icon:'paw-print'},{value:'clinica',label:'Clínica',icon:'building-2'}];
+function Demo(){const[v,setV]=React.useState('pacientes');const[t,setT]=React.useState('mascotas');
+return(<div style={{display:'flex',gap:18,alignItems:'stretch',height:340}}>
+<div style={{height:'100%',borderRadius:'var(--radius-md)',overflow:'hidden'}}>
+<SidebarNav items={NAV} value={v} onChange={setV} clinic="Veterinaria San Roque" user={{name:'Ana Rossi',role:'Veterinaria'}} logoSrc="../../assets/wayka-logo.svg" />
+</div>
+<div style={{flex:1,minWidth:0}}>
+<PageHeader title="Pacientes" subtitle="248 activos" actions={<Button size="sm" iconLeft="plus">Nuevo</Button>}><SearchField /></PageHeader>
+<div className="row" style={{gap:16,marginTop:-24,marginBottom:14}}><StatusDot status="pendiente" label="Pendiente" /><StatusDot status="cumplido" label="Cumplido" /><StatusDot status="vencido" label="Vencido" /></div>
+<AppointmentCard status="vencido" time="09:30" title="Control post-quirúrgico" patient="Mora · Fernández" compact />
+</div>
+<div style={{width:200,border:'1px solid var(--border-default)',borderRadius:'var(--radius-lg)',overflow:'hidden',display:'flex',flexDirection:'column',background:'var(--surface-page)'}}>
+<MobileHeader title="Mis mascotas" tone="dark" action={<div style={{width:44}} />} />
+<div style={{flex:1}} />
+<MobileTabBar items={[{value:'mascotas',label:'Mascotas',icon:'paw-print'},{value:'agenda',label:'Agenda',icon:'calendar-days'},{value:'perfil',label:'Perfil',icon:'user'}]} value={t} onChange={setT} />
+</div></div>)}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script></body></html>

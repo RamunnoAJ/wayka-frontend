@@ -1,0 +1,55 @@
+<!-- @dsCard group="Móvil vet" viewport="820x760" name="App del veterinario" subtitle="Agenda, pacientes, ficha y carga rápida — paridad con la web" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Wayka · App veterinario</title><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="../clinica-web/data.js"></script>
+<style>body{display:grid;place-items:center;min-height:100vh;background:var(--neutral-100);padding:28px}
+.phones{display:flex;gap:28px;align-items:flex-start}
+.phone{width:372px;height:700px;background:var(--surface-page);border:10px solid var(--wayka-oscuro);border-radius:38px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.phone .scroll{flex:1;overflow:auto}
+.cap{font:var(--fw-semibold) var(--fs-caption) var(--font-sans);color:var(--text-subtle);text-align:center;margin-top:10px}</style>
+</head><body><div id="root"></div>
+
+<script type="text/babel" src="VetScreens.jsx"></script>
+<script type="text/babel">
+const { MobileHeader, MobileTabBar, Toast, IconButton } = window.WaykaDesignSystem_51ee47;
+function App(){
+  const [tab,setTab]=React.useState('pacientes');
+  const [openId,setOpenId]=React.useState(null);
+  const [toast,setToast]=React.useState(false);
+  const patient = window.WaykaData.patients.find(p=>p.id===openId);
+  const titles={agenda:'Agenda de hoy',pacientes:'Pacientes',cargar:'Cargar evento',perfil:'Mi perfil'};
+  return (
+    <div className="phones">
+      <div>
+        <div className="phone">
+          <MobileHeader title={patient?patient.name:titles[tab]} onBack={patient?()=>setOpenId(null):undefined}
+            action={<IconButton icon="bell" label="Notificaciones" />} />
+          <div className="scroll">
+            {patient ? <VetPatientDetail patient={patient} />
+              : tab==='agenda' ? <VetAgenda onOpen={setOpenId} />
+              : tab==='pacientes' ? <VetPatients onOpen={setOpenId} />
+              : tab==='cargar' ? <VetQuickForm onSave={()=>{setToast(true);setTimeout(()=>setToast(false),2600);}} />
+              : <VetProfile />}
+          </div>
+          <MobileTabBar items={window.VET_TABS} value={tab} onChange={v=>{setTab(v);setOpenId(null);}} />
+        </div>
+        <div className="cap">Navegable · tocá un paciente</div>
+      </div>
+      <div>
+        <div className="phone">
+          <MobileHeader title="Mora" onBack={()=>{}} action={<IconButton icon="share-2" label="Derivar" />} />
+          <div className="scroll"><VetPatientDetail patient={window.WaykaData.patients[0]} /></div>
+          <MobileTabBar items={window.VET_TABS} value="pacientes" onChange={()=>{}} />
+        </div>
+        <div className="cap">Ficha: alergias y medicación primero</div>
+      </div>
+      {toast && <div style={{position:'fixed',left:0,right:0,bottom:28,display:'grid',justifyItems:'center'}}>
+        <Toast tone="success" title="Evento guardado" description="Se notificó al tutor." /></div>}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script></body></html>

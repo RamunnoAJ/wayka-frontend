@@ -1,0 +1,148 @@
+:root{
+/* --- Marca (hex derivados de los nombres de los logos: VALORES A CONFIRMAR) --- */
+--wayka-naranja-claro:#E9A76F;
+--wayka-naranja:#D97B47;
+--wayka-naranja-oscuro:#B85F2E;
+--wayka-lila:#B4A3D6;
+--wayka-lila-claro:#EBE6F4;
+--wayka-violeta:#493B6B;
+--wayka-violeta-oscuro:#332850;
+--wayka-oscuro:#201A2B;
+--wayka-blanco:#FFFFFF;
+
+/* --- Tema por rol. Default = veterinario/clinica: LILA como primario, naranja de acento.
+   Superficies del tutor: <body data-theme="tutor"> invierte primario y acento.
+   Los tonos oscuros (violeta, naranja oscuro) son acentos, hovers y texto sobre los claros. --- */
+--color-primary:var(--wayka-lila);
+--color-primary-hover:#897AAC; /* congelado: era color-mix(in oklab,lila 62%,violeta) */
+--color-primary-fg:#FFFFFF;
+/* Relleno solido con texto blanco encima: el primario claro no llega a AA,
+   asi que todo lo que se pinta lleno usa este tono, no --color-primary. */
+--color-primary-fill:var(--wayka-violeta);
+--color-primary-fill-hover:var(--wayka-violeta-oscuro);
+--color-primary-strong:var(--wayka-violeta);
+--color-primary-soft:var(--wayka-lila-claro);
+--color-accent:var(--wayka-naranja-claro);
+--color-accent-hover:var(--wayka-naranja);
+--color-accent-strong:var(--wayka-naranja-oscuro);
+--color-accent-soft:#F9EEE4;
+
+/* --- Neutrales: grises templados hacia el violeta --- */
+--neutral-0:#FFFFFF;
+--neutral-25:#FBFAFC;
+--neutral-50:#F6F4F8;
+--neutral-100:#EDEAF1;
+--neutral-200:#DFDBE5;
+--neutral-300:#C6C0CE;
+--neutral-400:#A099AA;
+--neutral-500:#7B7386;
+--neutral-600:#5D5568;
+--neutral-700:#443D4E;
+--neutral-800:#2C2635;
+--neutral-900:#201A2B;
+
+/* --- Semanticos de estado (desaturados: no compiten con el primario) --- */
+--danger-50:#FBEEEC;
+--danger-100:#F4D8D4;
+--danger-500:#B04438;
+--danger-600:#8F3229;
+--warning-50:#FAF3E4;
+--warning-100:#F2E3C2;
+--warning-500:#A9761F;
+--warning-600:#855C13;
+--success-50:#EAF3EE;
+--success-100:#CFE5D9;
+--success-500:#31795A;
+--success-600:#245C43;
+--info-50:#EBF0F7;
+--info-100:#D5E0EE;
+--info-500:#4A6FA5;
+--info-600:#38557F;
+
+/* --- Navegacion y cabeceras: superficie OSCURA, no el lila claro (contraste AA con blanco) --- */
+--surface-nav:var(--wayka-violeta-oscuro);
+--surface-nav-deep:var(--wayka-oscuro);
+--surface-nav-item:rgba(255,255,255,.10);
+--surface-nav-item-hover:rgba(255,255,255,.06);
+--text-on-nav:#FFFFFF;
+--text-on-nav-muted:rgba(255,255,255,.62);
+--border-on-nav:rgba(255,255,255,.10);
+--nav-accent:var(--wayka-lila);
+
+/* --- Alias semanticos: superficie --- */
+--surface-page:var(--neutral-25);
+--surface-card:var(--neutral-0);
+--surface-raised:var(--neutral-0);
+--surface-sunken:var(--neutral-50);
+--surface-inverse:var(--wayka-violeta-oscuro);
+--surface-brand:var(--color-primary);
+--surface-brand-soft:var(--color-primary-soft);
+--surface-accent-soft:var(--color-primary-soft);
+--surface-hover:var(--neutral-50);
+--surface-selected:var(--color-primary-soft);
+--surface-disabled:var(--neutral-100);
+
+/* --- Alias semanticos: texto --- */
+--text-strong:var(--neutral-900);
+--text-body:var(--neutral-800);
+--text-muted:var(--neutral-600);
+--text-subtle:var(--neutral-500);
+--text-inverse:var(--neutral-0);
+--text-brand:var(--color-primary-strong);
+--text-accent:var(--color-primary-strong);
+--text-link:var(--color-primary-strong);
+--text-link-hover:var(--color-primary-fill-hover);
+--text-danger:var(--danger-600);
+--text-success:var(--success-600);
+--text-warning:var(--warning-600);
+
+/* --- Alias semanticos: borde --- */
+--border-subtle:var(--neutral-100);
+--border-default:var(--neutral-200);
+--border-strong:var(--neutral-300);
+--border-brand:var(--color-primary);
+--border-focus:var(--color-primary-strong);
+--border-danger:var(--danger-500);
+
+/* --- Autoridad del dato: FIJA, no se invierte con el tema (violeta=vet, naranja=tutor) --- */
+--clinical-accent:var(--wayka-violeta);
+--clinical-surface:var(--neutral-50);
+--clinical-border:var(--neutral-200);
+--owner-accent:var(--wayka-naranja-oscuro);
+--owner-surface:#F9EEE4;
+--owner-border:#EFDCC9;
+
+/* --- Estados de cita --- */
+--appt-pending:var(--color-primary-strong);
+--appt-pending-surface:var(--color-primary-soft);
+--appt-done:var(--success-500);
+--appt-done-surface:var(--success-50);
+--appt-overdue:var(--danger-500);
+--appt-overdue-surface:var(--danger-50);
+
+/* --- Alerta critica: solo la alergia conserva fondo tintado --- */
+--alert-allergy-surface:var(--danger-50);
+--alert-allergy-border:#EDC7C1;
+--alert-allergy-text:var(--danger-600);
+--alert-medication-surface:var(--neutral-50);
+--alert-medication-border:var(--neutral-200);
+--alert-medication-text:var(--color-primary-strong);
+}
+
+/* --- Tema TUTOR: naranja claro como primario, lila/violeta de acento --- */
+[data-theme="tutor"]{
+--color-primary:var(--wayka-naranja-claro);
+--color-primary-hover:#D78B57; /* congelado: era color-mix(in oklab,naranja-claro 62%,naranja-oscuro) */
+--color-primary-fg:#FFFFFF;
+--color-primary-fill:#A34F1D;
+--color-primary-fill-hover:#864016;
+--color-primary-strong:var(--wayka-naranja-oscuro);
+--color-primary-soft:#F9EEE4;
+--color-accent:var(--wayka-lila);
+--color-accent-hover:var(--wayka-violeta);
+--color-accent-strong:var(--wayka-violeta);
+--color-accent-soft:var(--wayka-lila-claro);
+--surface-nav:#A34F1D;
+--surface-nav-deep:#864016;
+--nav-accent:var(--wayka-naranja-claro);
+}

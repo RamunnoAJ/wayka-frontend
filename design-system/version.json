@@ -1,0 +1,50 @@
+{
+  "name": "wayka-design-system",
+  "version": "1.1.1",
+  "released": "2026-08-25",
+  "tokenFiles": [
+    "tokens/meta.css",
+    "tokens/fonts.css",
+    "tokens/colors.css",
+    "tokens/typography.css",
+    "tokens/spacing.css",
+    "tokens/radius.css",
+    "tokens/elevation.css",
+    "tokens/motion.css"
+  ],
+  "themes": {
+    "default": ":root",
+    "tutor": "[data-theme=\"tutor\"]"
+  },
+  "parseExceptions": [
+    {
+      "token": "--text-*",
+      "file": "tokens/typography.css",
+      "reason": "shorthand font compuesto — descomponer usando --fw-*/--fs-*/--lh-*"
+    },
+    {
+      "token": "--shadow-*",
+      "file": "tokens/elevation.css",
+      "reason": "cadena box-shadow — tabla de equivalencias en RESPUESTA-PENDIENTES.md"
+    },
+    {
+      "token": "--ring-*",
+      "file": "tokens/elevation.css",
+      "reason": "cadena box-shadow de foco — en nativo se resuelve con borde"
+    },
+    {
+      "token": "--transition-control",
+      "file": "tokens/motion.css",
+      "reason": "lista de transiciones CSS"
+    },
+    {
+      "token": "--dur-fast|normal|slow",
+      "file": "tokens/motion.css",
+      "reason": "redeclarados dentro de @media (prefers-reduced-motion) — segundo juego de valores"
+    }
+  ],
+  "unconfirmed": [
+    "Hexadecimales de marca (--wayka-*): derivados de los nombres de archivo de los logos, sin confirmar por la marca.",
+    "Colores de relleno de los SVG de logo: los originales llegaron con <defs> vacio."
+  ]
+}

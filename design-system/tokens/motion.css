@@ -1,0 +1,19 @@
+:root{
+--ease-standard:cubic-bezier(.2,.7,.3,1); /* @kind other */
+--ease-out:cubic-bezier(.16,1,.3,1); /* @kind other */
+--ease-in:cubic-bezier(.6,0,.9,.4); /* @kind other */
+--dur-instant:80ms; /* @kind other */
+--dur-fast:140ms; /* @kind other */
+--dur-normal:220ms; /* @kind other */
+--dur-slow:340ms; /* @kind other */
+/* EXCEPCION: lista de transiciones CSS, no un valor escalar. En nativo usar
+   --dur-fast + --ease-standard y animar las propiedades a mano. */
+--transition-control:background-color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard); /* @kind other */
+}
+/* EXCEPCION: override dentro de @media. El espejo en JS debe leerlo como un
+   segundo juego de duraciones, no sobreescribir el bloque :root. */
+@media (prefers-reduced-motion:reduce){:root{
+--dur-fast:0ms; /* @kind other */
+--dur-normal:0ms; /* @kind other */
+--dur-slow:0ms; /* @kind other */
+}}
