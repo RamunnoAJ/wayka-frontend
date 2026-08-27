@@ -9,6 +9,7 @@
  */
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const DIAS_DE_SEMANA = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
 /** `2026-08-27` → `Date` local, sin corrimiento de zona. */
 export function desdeIso(iso: string): Date {
@@ -26,6 +27,22 @@ export function aIso(fecha: Date): string {
 export function fechaCorta(iso: string): string {
   const d = desdeIso(iso);
   return `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/** `2026-08-31` → `lun`. */
+export function diaDeSemanaCorto(iso: string): string {
+  return DIAS_DE_SEMANA[desdeIso(iso).getDay()] ?? '';
+}
+
+/**
+ * `2026-08-31` → `lun 31 ago 2026`.
+ *
+ * El día de la semana va adelante y no entre paréntesis porque es lo primero
+ * que se lee al elegir cuándo agendar: quien busca un turno piensa en "el
+ * martes", no en el número del día.
+ */
+export function fechaConDiaDeSemana(iso: string): string {
+  return `${diaDeSemanaCorto(iso)} ${fechaCorta(iso)}`;
 }
 
 /** Edad en años y meses cumplidos. Debajo del año, solo meses. */
@@ -84,9 +101,15 @@ export function horaCorta(iso: string): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-/** `5 sep 2026 · 09:30`, que es como se lee un turno. */
+/**
+ * `sáb 5 sep 2026 · 09:30`, que es como se lee un turno.
+ *
+ * Lleva el día de la semana por el mismo motivo que el selector: para decidir
+ * si reagendar hace falta saber qué día cae la cita que se está moviendo, y el
+ * número del día solo no lo dice.
+ */
 export function momentoCorto(iso: string): string {
-  return `${fechaCorta(diaDeInstante(iso))} · ${horaCorta(iso)}`;
+  return `${fechaConDiaDeSemana(diaDeInstante(iso))} · ${horaCorta(iso)}`;
 }
 
 export function tamanoDeArchivo(bytes: number): string {

@@ -16,7 +16,7 @@ import {
   type OpcionDeSelect,
 } from '../../components';
 import { sombra, useTheme, type Tokens } from '../../theme';
-import { aIso, diaDeInstante, fechaCorta, horaCorta } from '../paciente/formato';
+import { aIso, diaDeInstante, fechaConDiaDeSemana, horaCorta } from '../paciente/formato';
 
 import { useAgenda } from './queries';
 
@@ -137,7 +137,7 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
               <View key={dia} style={estilos.dia}>
                 <View style={estilos.diaTitulo}>
                   <Text style={[texto('h3'), { color: t['--text-strong'] }]}>
-                    {fechaCorta(dia)}
+                    {fechaConDiaDeSemana(dia)}
                   </Text>
                   {dia === hoy ? (
                     <Text

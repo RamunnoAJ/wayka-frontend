@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ESTADO_DE_CITA, esReagendable, type EstadoDeCita, type TipoDeCita } from '../../api/cita';
 import { EmptyState, InlineError, SkeletonText, StatusDot } from '../../components';
 import { sombra, useTheme, type Tokens } from '../../theme';
-import { diaDeInstante, fechaCorta, horaCorta } from '../paciente/formato';
+import { diaDeInstante, fechaConDiaDeSemana, horaCorta } from '../paciente/formato';
 
 import { useAgenda } from '../agenda/queries';
 
@@ -88,7 +88,7 @@ export function MisCitas() {
                           {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${paciente_nombre}`}
                         </Text>
                         <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                          {`${fechaCorta(diaDeInstante(cita.fecha_programada))} a las ${horaCorta(cita.fecha_programada)}`}
+                          {`${fechaConDiaDeSemana(diaDeInstante(cita.fecha_programada))} a las ${horaCorta(cita.fecha_programada)}`}
                         </Text>
                         <StatusDot status={cita.estado} label={ETIQUETA_DE_ESTADO[cita.estado]} />
                         <Text style={[texto('caption'), { color: t['--text-muted'] }]}>
@@ -128,7 +128,7 @@ export function MisCitas() {
                           {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${paciente_nombre}`}
                         </Text>
                         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                          {`${fechaCorta(diaDeInstante(cita.fecha_programada))} · ${ETIQUETA_DE_ESTADO[cita.estado]}`}
+                          {`${fechaConDiaDeSemana(diaDeInstante(cita.fecha_programada))} · ${ETIQUETA_DE_ESTADO[cita.estado]}`}
                         </Text>
                       </View>
                     );

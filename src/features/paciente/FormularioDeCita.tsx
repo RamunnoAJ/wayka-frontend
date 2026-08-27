@@ -7,7 +7,7 @@ import { TIPO_DE_CITA, type CrearCitaEntrada, type TipoDeCita } from '../../api/
 import { Button, Checkbox, InlineError, Select, type OpcionDeSelect } from '../../components';
 import { useTheme } from '../../theme';
 
-import { aIso, fechaCorta } from './formato';
+import { aIso, fechaConDiaDeSemana } from './formato';
 
 /**
  * Alta y reagenda de una cita.
@@ -63,7 +63,10 @@ export function FormularioDeCita({
     return Array.from({ length: DIAS_OFRECIDOS }, (_, i) => {
       const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i);
       const iso = aIso(d);
-      return { value: iso, label: i === 0 ? `Hoy · ${fechaCorta(iso)}` : fechaCorta(iso) };
+      const conDia = fechaConDiaDeSemana(iso);
+      if (i === 0) return { value: iso, label: `Hoy · ${conDia}` };
+      if (i === 1) return { value: iso, label: `Mañana · ${conDia}` };
+      return { value: iso, label: conDia };
     });
   }, []);
 
