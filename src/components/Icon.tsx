@@ -1,6 +1,8 @@
 import {
   Archive,
   ArrowLeft,
+  Bell,
+  Building2,
   CalendarCheck,
   CalendarClock,
   CalendarDays,
@@ -18,6 +20,7 @@ import {
   FileText,
   Image as ImageIcon,
   LoaderCircle,
+  LogOut,
   Lock,
   Mail,
   Microscope,
@@ -95,6 +98,11 @@ const REGISTRO = {
   'file-text': FileText,
   image: ImageIcon,
   microscope: Microscope,
+
+  // Shell de navegación.
+  bell: Bell,
+  'building-2': Building2,
+  'log-out': LogOut,
 } as const satisfies Record<string, ComponentType<LucideProps>>;
 
 export type NombreDeIcono = keyof typeof REGISTRO;

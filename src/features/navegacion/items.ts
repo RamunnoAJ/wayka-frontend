@@ -1,0 +1,89 @@
+import type { NombreDeIcono } from '../../components';
+import { TIPO_USUARIO, type TipoUsuario } from '../../constants/roles';
+
+/**
+ * Qué secciones ve cada rol. Es la traducción directa de Alcance de Plataformas:
+ * el menú no puede ofrecer algo que el rol no alcanza, aunque el guard y el
+ * backend lo rechacen igual.
+ */
+export interface ItemDeNavegacion {
+  /** Ruta del grupo, tal como la resuelve Expo Router. */
+  href: string;
+  /** Prefijo con el que se decide si la sección está activa. */
+  prefijo: string;
+  label: string;
+  /** Etiqueta corta para la barra inferior, donde no entra la larga. */
+  labelCorta?: string;
+  icono: NombreDeIcono;
+}
+
+const VETERINARIO: ItemDeNavegacion[] = [
+  {
+    href: '/(veterinario)/citas',
+    prefijo: '/citas',
+    label: 'Agenda',
+    icono: 'calendar-days',
+  },
+  {
+    href: '/(veterinario)/pacientes',
+    prefijo: '/pacientes',
+    label: 'Pacientes',
+    icono: 'paw-print',
+  },
+  {
+    href: '/(veterinario)/tutores',
+    prefijo: '/tutores',
+    label: 'Tutores',
+    icono: 'user-round',
+  },
+];
+
+// El clínica_admin no tiene "Pacientes" ni "Agenda" y no es un olvido: su rol
+// alcanza datos administrativos, no las mascotas atendidas ni su calendario.
+const CLINICA_ADMIN: ItemDeNavegacion[] = [
+  {
+    href: '/(clinica-admin)/panel',
+    prefijo: '/panel',
+    label: 'Mi clínica',
+    icono: 'building-2',
+  },
+  {
+    href: '/(clinica-admin)/veterinarios',
+    prefijo: '/veterinarios',
+    label: 'Veterinarios',
+    icono: 'user-round',
+  },
+];
+
+const TUTOR: ItemDeNavegacion[] = [
+  {
+    href: '/(tutor)/mascotas',
+    prefijo: '/mascotas',
+    label: 'Mis mascotas',
+    labelCorta: 'Mascotas',
+    icono: 'paw-print',
+  },
+  { href: '/(tutor)/citas', prefijo: '/citas', label: 'Citas', icono: 'calendar-days' },
+  { href: '/(tutor)/notificaciones', prefijo: '/notificaciones', label: 'Avisos', icono: 'bell' },
+  {
+    href: '/(tutor)/mis-datos',
+    prefijo: '/mis-datos',
+    label: 'Mis datos',
+    labelCorta: 'Mis datos',
+    icono: 'user-round',
+  },
+];
+
+export const NAVEGACION_POR_ROL: Record<TipoUsuario, ItemDeNavegacion[]> = {
+  [TIPO_USUARIO.VETERINARIO]: VETERINARIO,
+  [TIPO_USUARIO.CLINICA_ADMIN]: CLINICA_ADMIN,
+  [TIPO_USUARIO.TUTOR]: TUTOR,
+};
+
+/**
+ * Sección activa a partir de la ruta. Se compara por prefijo y no por igualdad
+ * porque una ficha (`/pacientes/abc`) tiene que dejar iluminada su sección.
+ */
+export function itemActivo(items: ItemDeNavegacion[], ruta: string): ItemDeNavegacion | undefined {
+  return items.find((item) => ruta === item.prefijo || ruta.startsWith(`${item.prefijo}/`));
+}
