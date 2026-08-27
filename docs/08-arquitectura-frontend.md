@@ -118,13 +118,12 @@ Este documento no define tokens visuales, tipografía ni paleta — eso es respo
 
 ## 10. Testing
 
-Pendiente de un documento propio (análogo a Estándares de Desarrollo del backend, sección 3), una vez que haya pantallas reales sobre las que decidir qué se prueba con qué herramienta. No se fija acá para no repetir el problema que Estándares de Desarrollo ya nombra: un estándar de testing definido antes de tener código tiende a no ajustarse a lo que el código termina necesitando.
+Definido en [10-estandares-desarrollo-frontend.md](10-estandares-desarrollo-frontend.md), escrito recién con las pantallas del alcance ya construidas — que es lo que esta sección dejaba pendiente a propósito.
 
 ## 11. Fuera de alcance de este documento
 
 - **Sistema de diseño / tokens visuales en sí** (paleta, tipografía, densidad) — depende del brief ya entregado por Claude Design. Cómo se integra técnicamente esa entrega con este codebase está en `09-design-system-integracion.md`, no acá.
 - **Adaptación de los 39 componentes entregados a primitivas de React Native** — ver `09-design-system-integracion.md`, sección 6, marcado ahí como pendiente de planificación aparte.
-- **Estándares de testing y comentarios de frontend** — próximo documento, análogo a 06-estandares-de-desarrollo.md.
 - **Almacenamiento seguro del token de refresco en web** — marcado como decisión abierta en la sección 6, no resuelto acá.
 - **CI/CD y pipelines de EAS Build / EAS Submit** — ya marcado como pendiente en Arquitectura del Sistema, sección 6.
 - **Offline-first / sincronización sin conexión** — no contemplado para el MVP.

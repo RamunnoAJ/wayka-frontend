@@ -86,7 +86,7 @@ Propios de este repo:
 
 5. **[docs/08-arquitectura-frontend.md](docs/08-arquitectura-frontend.md)** — estructura de rutas, carpetas, decisiones de router/estado/cliente de API
 6. **[docs/09-design-system-integracion.md](docs/09-design-system-integracion.md)** — cómo conviven el CSS entregado por Claude Design y la capa de tokens JS/TS para nativo, sin tocar los componentes heredados todavía
-7. **docs/10-estandares-desarrollo-frontend.md** — pendiente (testing, convenciones de componentes) — se define con pantallas reales ya construidas, no antes
+7. **[docs/10-estandares-desarrollo-frontend.md](docs/10-estandares-desarrollo-frontend.md)** — testing y filosofía de comentarios del cliente
 
 ## Notas para trabajar en este repo
 
