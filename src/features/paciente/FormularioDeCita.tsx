@@ -4,6 +4,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { Clinica } from '../../api/clinica';
 import { turnosDelDia } from '../clinica/grilla';
 import { TIPO_DE_CITA, type CrearCitaEntrada, type TipoDeCita } from '../../api/cita';
+import type { Veterinario } from '../../api/veterinario';
+import { useAgenda } from '../agenda/queries';
 import { Button, Checkbox, InlineError, Select, type OpcionDeSelect } from '../../components';
 import { useTheme } from '../../theme';
 
@@ -25,11 +27,17 @@ const TIPOS: OpcionDeSelect<TipoDeCita>[] = [
   { value: TIPO_DE_CITA.CIRUGIA, label: 'Cirugía programada' },
 ];
 
+/** Valor del selector cuando la cita queda de la clínica, sin repartir. */
+const SIN_PROFESIONAL = '';
+
 interface FormularioDeCitaProps {
   clinica: Clinica | undefined;
+  /** Plantel de la clínica, para poder asignar. Vacío deja el selector afuera. */
+  plantel?: Veterinario[];
   /** En la reagenda el tipo no se toca: qué control corresponde es criterio clínico. */
   soloFechaYAviso?: boolean;
-  valorInicial?: Partial<CrearCitaEntrada>;
+  /** `id` deja que el formulario se excluya al calcular quién está ocupado. */
+  valorInicial?: Partial<CrearCitaEntrada> & { id?: string };
   enviando: boolean;
   error?: string;
   etiquetaGuardar: string;
@@ -39,6 +47,7 @@ interface FormularioDeCitaProps {
 
 export function FormularioDeCita({
   clinica,
+  plantel = [],
   soloFechaYAviso = false,
   valorInicial,
   enviando,
@@ -57,6 +66,7 @@ export function FormularioDeCita({
   );
   const [turno, setTurno] = useState<string | null>(valorInicial?.fecha_programada ?? null);
   const [notificar, setNotificar] = useState(valorInicial?.notificar_tutor ?? true);
+  const [profesional, setProfesional] = useState(valorInicial?.veterinario_id ?? SIN_PROFESIONAL);
 
   const dias: OpcionDeSelect[] = useMemo(() => {
     const hoy = new Date();
@@ -72,6 +82,45 @@ export function FormularioDeCita({
 
   const turnos = useMemo(() => (clinica ? turnosDelDia(clinica, dia) : []), [clinica, dia]);
   const disponibles = turnos.filter((t) => t.disponible);
+
+  // Quién ya está ocupado ese día. Se pide la agenda del día entero y no una
+  // consulta por turno: son pocas citas y una sola consulta sirve para todos los
+  // horarios que el usuario pruebe.
+  const agendaDelDia = useAgenda({
+    desde: `${dia}T00:00:00`,
+    hasta: `${dia}T23:59:59`,
+    estado: 'pendiente',
+    limite: 200,
+  });
+
+  const ocupadosEnElTurno = useMemo(() => {
+    if (!turno) return new Set<string>();
+    const ocupados = new Set<string>();
+    for (const fila of agendaDelDia.data ?? []) {
+      const mismoMomento =
+        new Date(fila.cita.fecha_programada).getTime() === new Date(turno).getTime();
+      // La propia cita no cuenta como ocupación de sí misma al reagendar.
+      const esOtraCita = fila.cita.id !== valorInicial?.id;
+      if (mismoMomento && esOtraCita && fila.cita.veterinario_id) {
+        ocupados.add(fila.cita.veterinario_id);
+      }
+    }
+    return ocupados;
+  }, [agendaDelDia.data, turno, valorInicial?.id]);
+
+  const opcionesDeProfesional: OpcionDeSelect[] = [
+    { value: SIN_PROFESIONAL, label: 'Sin asignar · queda de la clínica' },
+    ...plantel.map((veterinario) => ({
+      value: veterinario.id,
+      label: ocupadosEnElTurno.has(veterinario.id)
+        ? `${veterinario.nombre} · ocupado a esa hora`
+        : veterinario.nombre,
+    })),
+  ];
+
+  // Si el turno cambia y quien estaba elegido quedó ocupado, se suelta la
+  // asignación en vez de mandar algo que el backend va a rechazar.
+  const profesionalElegido = ocupadosEnElTurno.has(profesional) ? SIN_PROFESIONAL : profesional;
 
   if (!clinica) {
     return (
@@ -174,6 +223,16 @@ export function FormularioDeCita({
         )}
       </View>
 
+      {plantel.length > 0 ? (
+        <Select
+          label="Profesional"
+          hint="Opcional: una cita puede quedar de la clínica y repartirse después."
+          options={opcionesDeProfesional}
+          value={profesionalElegido}
+          onChange={setProfesional}
+        />
+      ) : null}
+
       <Checkbox label="Avisarle al tutor por la app" checked={notificar} onChange={setNotificar} />
 
       {error ? <InlineError compact title="No se pudo agendar" description={error} /> : null}
@@ -184,7 +243,15 @@ export function FormularioDeCita({
           disabled={!turno}
           loading={enviando}
           onPress={() =>
-            turno && onGuardar({ tipo, fecha_programada: turno, notificar_tutor: notificar })
+            turno &&
+            onGuardar({
+              tipo,
+              fecha_programada: turno,
+              notificar_tutor: notificar,
+              // Cadena vacía saca la asignación al reagendar; en el alta la deja
+              // sin repartir, que es lo mismo desde el lado del usuario.
+              veterinario_id: profesionalElegido,
+            })
           }
         >
           {etiquetaGuardar}

@@ -221,6 +221,7 @@ export function FichaDePaciente({
         <SeccionCalendario
           citas={citas.data}
           clinica={clinica.data}
+          plantel={plantel.data ? [...plantel.data.values()] : undefined}
           error={citas.isError}
           onReintentar={() => citas.refetch()}
           esMovil={esMovil}
@@ -233,6 +234,7 @@ export function FichaDePaciente({
               cambios: {
                 fecha_programada: entrada.fecha_programada,
                 notificar_tutor: entrada.notificar_tutor,
+                veterinario_id: entrada.veterinario_id,
               },
             })
           }

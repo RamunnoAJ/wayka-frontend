@@ -9,6 +9,7 @@ import {
   type TipoDeCita,
 } from '../../api/cita';
 import type { Clinica } from '../../api/clinica';
+import type { Veterinario } from '../../api/veterinario';
 import { Button, EmptyState, Icon, IconButton, InlineError } from '../../components';
 import { useTheme, type Tokens } from '../../theme';
 
@@ -69,6 +70,8 @@ interface CalendarioProps {
   citas: Cita[] | undefined;
   /** Define la grilla de horas ofrecidas. Es la clínica que atiende a la mascota. */
   clinica: Clinica | undefined;
+  /** Plantel de esa clínica, para poder asignar profesional. */
+  plantel: Veterinario[] | undefined;
   error: boolean;
   onReintentar: () => void;
   esMovil: boolean;
@@ -83,6 +86,7 @@ interface CalendarioProps {
 export function SeccionCalendario({
   citas,
   clinica,
+  plantel,
   error,
   onReintentar,
   esMovil,
@@ -129,6 +133,7 @@ export function SeccionCalendario({
     formulario === 'nueva' && !bloqueado ? (
       <FormularioDeCita
         clinica={clinica}
+        plantel={plantel}
         enviando={guardando}
         error={errorAlGuardar}
         etiquetaGuardar="Agendar"
@@ -352,11 +357,14 @@ export function SeccionCalendario({
                       criterio clínico, no del calendario (Reglas de Negocio, 3.2). */}
                   <FormularioDeCita
                     clinica={clinica}
+                    plantel={plantel}
                     soloFechaYAviso
                     valorInicial={{
+                      id: cita.id,
                       tipo: cita.tipo,
                       fecha_programada: cita.fecha_programada,
                       notificar_tutor: cita.notificar_tutor,
+                      veterinario_id: cita.veterinario_id ?? undefined,
                     }}
                     enviando={guardando}
                     error={errorAlGuardar}

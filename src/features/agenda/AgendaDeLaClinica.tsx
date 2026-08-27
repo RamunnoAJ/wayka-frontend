@@ -40,6 +40,9 @@ const VENTANAS: OpcionDeSelect[] = [
   { value: '90', label: 'Próximos 3 meses' },
 ];
 
+/** Valor del filtro cuando no se acota a nadie. Vacío para que la API no lo reciba. */
+const TODOS_LOS_PROFESIONALES = '';
+
 const ESTADOS: OpcionDeSelect[] = [
   { value: 'pendiente', label: 'Pendientes' },
   { value: 'vencido', label: 'Vencidas' },
@@ -64,6 +67,8 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
   const { t, px, texto } = useTheme();
   const [dias, setDias] = useState('7');
   const [estado, setEstado] = useState('pendiente');
+  const [profesional, setProfesional] = useState(TODOS_LOS_PROFESIONALES);
+  const plantel = usePlantel();
 
   const filtros = useMemo(() => {
     const hoy = new Date();
@@ -75,9 +80,10 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
       ...(estado === 'vencido' ? {} : { desde: inicio.toISOString() }),
       hasta: fin.toISOString(),
       ...(estado === 'todas' ? {} : { estado: estado as EstadoDeCita }),
+      ...(profesional === TODOS_LOS_PROFESIONALES ? {} : { veterinario_id: profesional }),
       limite: 200,
     };
-  }, [dias, estado]);
+  }, [dias, estado, profesional]);
 
   const agenda = useAgenda(filtros);
 
@@ -120,6 +126,23 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
             <View style={estilos.campo}>
               <Select label="Ventana" options={VENTANAS} value={dias} onChange={setDias} />
             </View>
+            <View style={estilos.campo}>
+              <Select
+                label="Profesional"
+                options={[
+                  { value: TODOS_LOS_PROFESIONALES, label: 'Toda la clínica' },
+                  // Lo que todavía hay que repartir: es la lista de trabajo del
+                  // admin de la agenda, no un profesional más.
+                  { value: SIN_ASIGNAR, label: 'Sin asignar' },
+                  ...(plantel.data ?? []).map((veterinario) => ({
+                    value: veterinario.id,
+                    label: veterinario.nombre,
+                  })),
+                ]}
+                value={profesional}
+                onChange={setProfesional}
+              />
+            </View>
           </View>
 
           {agenda.isPending ? (
@@ -154,7 +177,7 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                   </Text>
                 </View>
 
-                {filas.map(({ cita, paciente_nombre, paciente_especie }) => {
+                {filas.map(({ cita, paciente_nombre, paciente_especie, veterinario_nombre }) => {
                   const colores = tono(t, cita.estado);
                   return (
                     <Pressable
@@ -188,7 +211,11 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                           {paciente_nombre}
                         </Text>
                         <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
-                          {ETIQUETA_DE_TIPO[cita.tipo]}
+                          {/* Sin profesional no es un dato faltante: es una cita
+                              de la clínica que todavía no se repartió. */}
+                          {veterinario_nombre
+                            ? `${ETIQUETA_DE_TIPO[cita.tipo]} · ${veterinario_nombre}`
+                            : `${ETIQUETA_DE_TIPO[cita.tipo]} · sin asignar`}
                         </Text>
                       </View>
                       {cita.estado !== ESTADO_DE_CITA.PENDIENTE ? (

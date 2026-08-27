@@ -34,6 +34,12 @@ export interface Cita {
    * atención de la clínica del paciente y sobre su grilla de turnos (regla 2.2).
    */
   fecha_programada: string;
+  /**
+   * Profesional que va a atender, o null si la cita es de la clínica y todavía
+   * no se repartió. Es **asignación y no autoría**: se cambia mientras la cita
+   * siga pendiente, y no acota quién la alcanza — eso lo resuelve la mascota.
+   */
+  veterinario_id?: string | null;
   estado: EstadoDeCita;
   notificar_tutor: boolean;
   created_at: string;
@@ -51,7 +57,16 @@ export interface FiltrosDeAgenda extends FiltrosDeCitas {
   desde?: string;
   /** ISO 8601. Acota a las citas cuyo momento es anterior. */
   hasta?: string;
+  /** Id de un profesional, o `SIN_ASIGNAR` para lo que falta repartir. */
+  veterinario_id?: string;
 }
+
+/**
+ * Valor literal con el que la agenda pide lo que todavía no se repartió. Es una
+ * palabra y no un uuid reservado porque un uuid mágico sería un valor válido que
+ * significa otra cosa.
+ */
+export const SIN_ASIGNAR = 'sin_asignar';
 
 /**
  * Una cita del listado de alcance, con lo mínimo de la mascota para mostrarla.
@@ -61,6 +76,8 @@ export interface CitaConPaciente {
   cita: Cita;
   paciente_nombre: string;
   paciente_especie?: string;
+  /** Viene en la misma consulta para que la agenda no pida uno por fila. */
+  veterinario_nombre?: string | null;
 }
 
 export interface CrearCitaEntrada {
@@ -71,9 +88,22 @@ export interface CrearCitaEntrada {
    */
   fecha_programada: string;
   notificar_tutor?: boolean;
+  /** Omitirlo deja la cita de la clínica, para repartirla después. */
+  veterinario_id?: string;
 }
 
-export type ActualizarCitaEntrada = Partial<CrearCitaEntrada>;
+export interface ActualizarCitaEntrada {
+  tipo?: TipoDeCita;
+  fecha_programada?: string;
+  notificar_tutor?: boolean;
+  /**
+   * Asigna o reasigna. **Cadena vacía saca la asignación** y deja la cita de la
+   * clínica otra vez — mismo criterio que `identificador_externo` en Paciente:
+   * el contrato usa el valor vacío porque un campo ausente y uno en null no se
+   * distinguen una vez deserializados.
+   */
+  veterinario_id?: string;
+}
 
 function rutaDePaciente(pacienteId: string): string {
   return `/pacientes/${pacienteId}/citas`;
