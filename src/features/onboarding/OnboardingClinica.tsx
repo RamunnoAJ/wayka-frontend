@@ -10,13 +10,14 @@ import { PasoPrimerVeterinario } from './PasoPrimerVeterinario';
 import { PasoSinContrato } from './PasoSinContrato';
 
 /**
- * Activación de la clínica (handoff "Onboarding Clínica"), rol clínica_admin,
- * solo web.
+ * Puesta en marcha de la clínica (handoff "Onboarding Clínica"), rol
+ * clínica_admin, solo web.
  *
- * De los cinco pasos del diseño, uno está implementado contra la API real —el
- * alta del primer veterinario, que es el único con endpoint— y tres declaran
- * qué les falta en el contrato. El paso de demostración con datos de ejemplo no
- * toca la API y queda como recorrido guiado.
+ * De los cinco pasos del diseño, el alta del primer veterinario va contra la API
+ * real y el de la cuenta quedó resuelto por el canje del token
+ * (`(auth)/activacion`). Los que siguen declarando qué les falta en el contrato
+ * son los de datos de la clínica y activación de la agenda. El paso de
+ * demostración no toca la API y queda como recorrido guiado.
  */
 export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
   const { t, px, texto } = useTheme();
@@ -42,13 +43,20 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
           ]}
         >
           {paso === 'cuenta' ? (
-            <PasoSinContrato
-              titulo="Tu cuenta ya está creada"
-              descripcion="El alta de la clínica y de su cuenta de administración las hace el equipo de Wayka por fuera de la aplicación."
-              motivo={PASOS[0].bloqueadoPor ?? ''}
-              onSaltear={() => avanzar('cuenta')}
-              etiquetaSaltear="Ver Wayka andando"
-            />
+            <View style={estilos.demo}>
+              <View style={estilos.intro}>
+                <Text style={[texto('h1'), { color: t['--text-strong'] }]}>
+                  Tu cuenta ya está activa
+                </Text>
+                <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
+                  El equipo de Wayka dio de alta tu clínica y vos estrenaste la contraseña con el
+                  token de activación. Desde acá en adelante lo configurás vos.
+                </Text>
+              </View>
+              <Button size="lg" onPress={() => avanzar('cuenta')}>
+                Ver Wayka andando
+              </Button>
+            </View>
           ) : null}
 
           {paso === 'demo' ? (

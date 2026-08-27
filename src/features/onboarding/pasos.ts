@@ -2,19 +2,23 @@
  * Activación de una clínica nueva, tal como la diseñó el handoff "Onboarding
  * Clínica": cinco pasos con una barra de progreso que arranca ya empezada.
  *
- * Tres de los cinco **no son implementables contra el contrato actual** y están
- * marcados con `bloqueadoPor`. No se implementan a medias ni se inventan
- * campos: los documentos de `../../../docs` son el contrato del proyecto
- * (CLAUDE.md), y una pantalla que escribe datos que la API no tiene es código
- * muerto que además miente sobre lo que el sistema guarda.
+ * Los que todavía **no son implementables contra el contrato** están marcados
+ * con `bloqueadoPor`. No se implementan a medias ni se inventan campos: los
+ * documentos de `../../../docs` son el contrato del proyecto (CLAUDE.md), y una
+ * pantalla que escribe datos que la API no tiene es código muerto que además
+ * miente sobre lo que el sistema guarda.
+ *
+ * El paso de la cuenta se desbloqueó al definirse el proceso 4.16: la contraseña
+ * se estrena en `(auth)/activacion`, antes de llegar acá. Cuando el
+ * administrador entra a este flujo su cuenta ya está activa, así que el paso
+ * solo lo confirma.
  */
 export const PASOS = [
   {
     clave: 'cuenta',
     etiqueta: 'Tu cuenta',
     porcentaje: 20,
-    bloqueadoPor:
-      'La cuenta de clínica_admin la crea el administrador de la plataforma por CLI, fuera de la API (RN 4.10). El contrato no tiene un flujo de "definí tu contraseña" en el primer ingreso: `PUT /usuarios/{id}/contrasena` exige estar autenticado y conocer la actual.',
+    bloqueadoPor: null,
   },
   {
     clave: 'demo',

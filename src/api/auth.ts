@@ -17,6 +17,7 @@ const RUTAS = {
   refresh: '/auth/refresh',
   logout: '/auth/logout',
   registroTutor: '/registro/tutor',
+  activacion: '/activacion',
 } as const;
 
 /** `Sesion` del contrato: par de tokens + la cuenta. */
@@ -119,4 +120,24 @@ export async function cerrarSesion(tokenRefresco: string): Promise<void> {
     body: { token_de_refresco: tokenRefresco },
     publico: true,
   });
+}
+
+export interface EntradaDeActivacion {
+  /** Token de un solo uso que el administrador de la plataforma entregó a la clínica. */
+  token: string;
+  contrasena: string;
+}
+
+/**
+ * Canje del token con el que una cuenta de clínica_admin define su primera
+ * contraseña (proceso 4.16). Es el segundo y último endpoint público del
+ * sistema, junto con el auto-registro de tutor.
+ *
+ * **No devuelve sesión**: después de activar hay que iniciar sesión, que es donde
+ * el backend aplica el bloqueo de canal. Todo rechazo —token inexistente,
+ * vencido o ya usado— responde el mismo 400 con el mismo mensaje, así que la
+ * pantalla no puede ni debe distinguirlos.
+ */
+export async function activarCuenta(entrada: EntradaDeActivacion): Promise<void> {
+  await http.post<null>(RUTAS.activacion, { body: entrada, publico: true });
 }
