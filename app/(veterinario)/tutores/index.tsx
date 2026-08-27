@@ -1,11 +1,10 @@
-import { Placeholder } from '../../../src/components/Placeholder';
+import { router } from 'expo-router';
 
-/** PLACEHOLDER — búsqueda de tutores, paginada y no acotada a la clínica. */
+import { BuscadorDeTutores } from '../../../src/features/tutor';
+
+/** Búsqueda y alta de fichas de tutor (Alcance de Plataformas, 3.3). */
 export default function ListadoTutores() {
   return (
-    <Placeholder
-      titulo="Tutores"
-      detalle="Búsqueda por documento, nombre o contacto; alta y edición de ficha."
-    />
+    <BuscadorDeTutores onElegir={(tutor) => router.push(`/(veterinario)/tutores/${tutor.id}`)} />
   );
 }

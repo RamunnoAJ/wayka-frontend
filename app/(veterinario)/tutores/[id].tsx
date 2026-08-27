@@ -1,9 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { Placeholder } from '../../../src/components/Placeholder';
+import { FichaDeTutor } from '../../../src/features/tutor';
 
-/** PLACEHOLDER — ficha de tutor. */
-export default function FichaTutor() {
+/** Ficha de tutor: lectura, edición y baja lógica (Alcance de Plataformas, 3.3). */
+export default function FichaDeTutorRuta() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <Placeholder titulo="Ficha de tutor" detalle={`id: ${id}`} />;
+  return <FichaDeTutor tutorId={id} />;
 }

@@ -2,6 +2,11 @@ import { http } from '../lib/http';
 
 import type { TipoDocumento } from './veterinario';
 
+// Reexportado: el documento de un tutor y el de un veterinario son el mismo
+// enum del contrato, y quien tipa un formulario de tutor no deberia tener que
+// importarlo del modulo de veterinarios.
+export type { TipoDocumento };
+
 /**
  * Fichas de tutor.
  *
