@@ -67,6 +67,26 @@ export interface ActualizarPacienteEntrada {
   identificador_externo?: string;
 }
 
+/**
+ * La clínica **no se envía**: es la del veterinario que da el alta, y queda fija
+ * (regla 2.2). El tutor tiene que existir y tener el consentimiento otorgado
+ * antes de este paso (proceso 4.1).
+ */
+export interface CrearPacienteEntrada {
+  nombre: string;
+  especie: string;
+  raza: string;
+  fecha_nacimiento: string;
+  sexo: string;
+  peso_actual: number;
+  tutor_id: string;
+  identificador_externo?: string;
+}
+
+export function crearPaciente(entrada: CrearPacienteEntrada): Promise<Paciente> {
+  return http.post<Paciente>(RUTA, { body: entrada });
+}
+
 export function listarPacientes(filtros: FiltrosDePacientes = {}): Promise<Paciente[]> {
   return http.get<Paciente[]>(RUTA, { params: { ...filtros } });
 }

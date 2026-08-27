@@ -29,7 +29,15 @@ import {
   type CrearMedicacionEntrada,
   type Medicacion,
 } from '../../api/medicacion';
-import { darDeBajaPaciente, obtenerPaciente, type Paciente } from '../../api/paciente';
+import {
+  crearPaciente,
+  darDeBajaPaciente,
+  listarPacientes,
+  obtenerPaciente,
+  type CrearPacienteEntrada,
+  type FiltrosDePacientes,
+  type Paciente,
+} from '../../api/paciente';
 import { obtenerTutor, type Tutor } from '../../api/tutor';
 import {
   indexarPorId,
@@ -51,6 +59,7 @@ import { aIso } from './formato';
  */
 export const CLAVES = {
   paciente: (id: string) => ['paciente', id] as const,
+  cartera: (filtros: FiltrosDePacientes) => ['pacientes', filtros] as const,
   tutor: (id: string) => ['tutor', id] as const,
   eventos: (id: string) => ['paciente', id, 'eventos-clinicos'] as const,
   medicaciones: (id: string) => ['paciente', id, 'medicaciones'] as const,
@@ -59,6 +68,28 @@ export const CLAVES = {
   plantel: () => ['veterinarios'] as const,
   veterinario: (id: string) => ['veterinario', id] as const,
 };
+
+/**
+ * Cartera de la clínica. El endpoint tiene dos alcances y lo decide el rol del
+ * token, nunca un parámetro: el veterinario ve su clínica, el tutor sus
+ * mascotas.
+ */
+export function usePacientes(filtros: FiltrosDePacientes): UseQueryResult<Paciente[]> {
+  return useQuery({
+    queryKey: CLAVES.cartera(filtros),
+    queryFn: () => listarPacientes(filtros),
+  });
+}
+
+export function useCrearPaciente() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: CrearPacienteEntrada) => crearPaciente(entrada),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: ['pacientes'] });
+    },
+  });
+}
 
 export function usePaciente(pacienteId: string): UseQueryResult<Paciente> {
   return useQuery({

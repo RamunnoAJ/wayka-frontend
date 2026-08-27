@@ -1,11 +1,12 @@
-import { Placeholder } from '../../../src/components/Placeholder';
+import { router } from 'expo-router';
 
-/** PLACEHOLDER — pacientes de la propia clínica (Alcance de Plataformas, 3.3). */
+import { ListadoDePacientes } from '../../../src/features/paciente/ListadoDePacientes';
+
+/** Cartera de la clínica y alta de paciente (Alcance de Plataformas, 3.3). */
 export default function ListadoPacientes() {
   return (
-    <Placeholder
-      titulo="Pacientes"
-      detalle="Búsqueda y listado de pacientes de la propia clínica, y alta de paciente."
+    <ListadoDePacientes
+      onAbrir={(paciente) => router.push(`/(veterinario)/pacientes/${paciente.id}`)}
     />
   );
 }
