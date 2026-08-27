@@ -1,11 +1,6 @@
-import { Placeholder } from '../../src/components/Placeholder';
+import { MisDatos } from '../../src/features/tutor-movil';
 
-/** PLACEHOLDER — ficha propia del tutor (Alcance de Plataformas, 5.8). */
-export default function MisDatos() {
-  return (
-    <Placeholder
-      titulo="Mis datos"
-      detalle="Lectura y edición de la ficha propia. El tutor no puede darse de baja."
-    />
-  );
+/** Ficha propia del tutor (Alcance de Plataformas, 5.8). */
+export default function MisDatosDelTutor() {
+  return <MisDatos />;
 }

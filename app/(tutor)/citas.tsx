@@ -1,11 +1,6 @@
-import { Placeholder } from '../../src/components/Placeholder';
+import { MisCitas } from '../../src/features/tutor-movil';
 
-/** PLACEHOLDER — citas del tutor (Alcance de Plataformas, 5.4). */
-export default function CitasTutor() {
-  return (
-    <Placeholder
-      titulo="Citas"
-      detalle="Confirmar o solicitar reagenda, sin cambiar el estado directamente."
-    />
-  );
+/** Calendario del tutor (Alcance de Plataformas, 5.4). */
+export default function CitasDelTutor() {
+  return <MisCitas />;
 }

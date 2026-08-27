@@ -1,14 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { Placeholder } from '../../../src/components/Placeholder';
+import { FichaDeMiMascota } from '../../../src/features/tutor-movil';
 
-/** PLACEHOLDER — ficha de mascota, solo lectura salvo peso (5.3 y 5.7). */
-export default function FichaMascota() {
+/** Ficha de mi mascota, solo lectura salvo el peso (Alcance de Plataformas, 5.3 y 5.7). */
+export default function FichaDeMiMascotaRuta() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return (
-    <Placeholder
-      titulo="Ficha de mascota"
-      detalle={`Solo lectura del historial clínico. id: ${id}`}
-    />
-  );
+  return <FichaDeMiMascota pacienteId={id} />;
 }

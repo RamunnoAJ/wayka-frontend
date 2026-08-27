@@ -32,6 +32,7 @@ import {
   type Medicacion,
 } from '../../api/medicacion';
 import {
+  actualizarPaciente,
   crearPaciente,
   darDeBajaPaciente,
   listarPacientes,
@@ -279,6 +280,20 @@ export function useRetirarAdjunto(pacienteId: string) {
     mutationFn: (adjuntoId: string) => retirarAdjunto(adjuntoId),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+    },
+  });
+}
+
+/**
+ * El peso es el único campo que el tutor puede editar (Reglas de Negocio, 3.2):
+ * es lo que puede medir en su casa. El veterinario usa la misma mutación.
+ */
+export function useActualizarPeso(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (pesoActual: number) => actualizarPaciente(pacienteId, { peso_actual: pesoActual }),
+    onSuccess: (paciente) => {
+      cliente.setQueryData(CLAVES.paciente(pacienteId), paciente);
     },
   });
 }

@@ -1,11 +1,6 @@
-import { Placeholder } from '../../src/components/Placeholder';
+import { MisNotificaciones } from '../../src/features/tutor-movil';
 
-/** PLACEHOLDER — notificaciones (Alcance de Plataformas, 5.5). */
-export default function Notificaciones() {
-  return (
-    <Placeholder
-      titulo="Notificaciones"
-      detalle="Recordatorios de citas. Nunca contenido clínico en el aviso."
-    />
-  );
+/** Avisos (Alcance de Plataformas, 5.5). */
+export default function NotificacionesDelTutor() {
+  return <MisNotificaciones />;
 }
