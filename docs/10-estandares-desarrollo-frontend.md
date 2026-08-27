@@ -39,7 +39,7 @@ Desde su v14, tanto `render` como `fireEvent` de `@testing-library/react-native`
 
 El frontend **no es la barrera de seguridad** y no aplica reglas de negocio: las valida el backend. Probar acá que "un tutor no puede editar el historial" sería probar el backend desde el lugar equivocado. Lo que se prueba es lo que este proyecto sí decide:
 
-1. **Lógica pura de presentación.** Formato de fechas, edad, peso, y la aritmética de la grilla de turnos. Es donde vive el grueso del riesgo real: una zona horaria mal manejada corre un turno de día, y nadie lo nota hasta que un tutor llega el día equivocado.
+1. **Lógica pura de presentación.** Formato de fechas, edad, peso, y la aritmética de la grilla de turnos. Es donde vive el grueso del riesgo real: una zona horaria mal manejada corre un turno de día, y nadie lo nota hasta que un tutor llega el día equivocado. Por eso la suite corre en otra zona (ver 4).
 2. **Reglas que la interfaz refleja para no ofrecer lo que va a fallar.** El selector de turnos no muestra horas fuera de la grilla; el alta de paciente no deja elegir un tutor sin consentimiento. El backend las rechaza igual — lo que se verifica es que el usuario no llegue a intentarlo.
 3. **Estados que no son el feliz.** Vacío, error, sin permiso, bloqueado. Son los que se rompen en silencio, porque nadie los mira al desarrollar.
 4. **Deriva entre los tipos escritos a mano y el contrato** — ver 3.2.
@@ -72,7 +72,8 @@ Lo que sí es obligatorio: **toda función de `src/features/**/formato.ts` y de 
 - **Consultas por lo que ve el usuario**: `getByText`, `getByLabelText`, `getByRole`. Si hace falta un `testID`, casi siempre es que al elemento le falta un nombre accesible, y eso es un problema del componente y no del test.
 - **Un `QueryClient` por prueba**, desde el helper `src/pruebas/render.tsx`. Uno compartido filtra la caché de una prueba a la siguiente y las vuelve dependientes del orden.
 - **Sin reintentos de TanStack Query en pruebas**: reintentar un error esperado solo hace que la aserción llegue tarde.
-- **El reloj se congela cuando el comportamiento depende de la hora.** El selector de turnos arranca en el día de hoy: sin congelarlo, la prueba pasa a la mañana y falla a la tarde, cuando ya no queda ningún turno disponible.
+- **El reloj se congela cuando el comportamiento depende de la hora.** El selector de turnos arranca en el día de hoy: sin congelarlo, la prueba pasa a la mañana y falla a la tarde, cuando ya no queda ningún turno disponible. El momento se construye con `instanteEnLaClinica`, no con `new Date(a, m, d, h)`.
+- **La suite corre en una zona horaria ajena a la de la clínica** (`jest.global-setup.js` la fija en Tokio, 12 horas adelante). No es una curiosidad de configuración: el cliente resuelve fechas y horas en la zona de la clínica, y correr los tests en esa misma zona deja pasar cualquier código que use el reloj del dispositivo. Un error de zona sale corrido de día, no de minutos.
 
 ### 4.1 Ciclo de trabajo
 
