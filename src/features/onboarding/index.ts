@@ -1,0 +1,1 @@
+export { OnboardingClinica } from './OnboardingClinica';
