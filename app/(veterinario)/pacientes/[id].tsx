@@ -1,9 +1,12 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { Placeholder } from '../../../src/components/Placeholder';
+import { FichaDePaciente } from '../../../src/features/paciente';
 
-/** PLACEHOLDER — ficha de paciente: datos, historial y medicación. */
-export default function FichaPaciente() {
+/**
+ * Ficha de paciente: datos básicos, historial clínico, medicación, calendario y
+ * adjuntos (Alcance de Plataformas, 3.3).
+ */
+export default function FichaDePacienteRuta() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <Placeholder titulo="Ficha de paciente" detalle={`id: ${id}`} />;
+  return <FichaDePaciente pacienteId={id} />;
 }

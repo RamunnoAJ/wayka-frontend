@@ -1,0 +1,314 @@
+import { useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { estaDadoDeBaja } from '../../api/paciente';
+import { Button, IconButton, InlineError, Tabs, type ItemDeTab } from '../../components';
+import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
+import { useSesion } from '../../hooks/useSesion';
+import { useTheme } from '../../theme';
+
+import { AvisoDePacienteDeBaja, AvisoSinMatricula, MotivoDeBloqueo } from './AvisosDeBloqueo';
+import { BandaDeUrgencia } from './BandaDeUrgencia';
+import { EncabezadoDePaciente } from './EncabezadoDePaciente';
+import { EsqueletoDeFicha } from './EsqueletoDeFicha';
+import { HistorialClinico } from './HistorialClinico';
+import { SeccionAdjuntos } from './SeccionAdjuntos';
+import { SeccionCalendario } from './SeccionCalendario';
+import { SeccionMedicacion } from './SeccionMedicacion';
+import {
+  derivarAdjuntos,
+  derivarDatosCriticos,
+  puedeEscribirClinico,
+  useAdjuntos,
+  useCerrarMedicacion,
+  useCitas,
+  useCrearMedicacion,
+  useEventosClinicos,
+  useMedicaciones,
+  useMiFichaDeVeterinario,
+  usePaciente,
+  usePlantel,
+  useRetirarAdjunto,
+  useTutor,
+} from './queries';
+
+/**
+ * Ficha de paciente (Alcance de Plataformas, 3.3) — rol veterinario, web y
+ * móvil con paridad total.
+ *
+ * Composición elegida: **tabs** para el cuerpo y **banda de urgencia
+ * colapsable**. Las dos alternativas del diseño (secciones apiladas en dos
+ * columnas, banda siempre expandida) quedaron descartadas: el mismo árbol
+ * compila a las dos plataformas y una sola sección por vez es lo que degrada a
+ * móvil sin perder nada.
+ *
+ * El clínica_admin no llega acá: su rol no alcanza mascotas ni historial. Lo
+ * garantiza el guard del grupo `(veterinario)` y, sobre todo, el backend.
+ */
+const ANCHO_MOVIL = 900;
+
+type Pestania = 'historial' | 'medicacion' | 'calendario' | 'adjuntos';
+
+const CTA_POR_PESTANIA: Record<Pestania, string> = {
+  historial: 'Cargar evento clínico',
+  medicacion: 'Nueva medicación',
+  calendario: 'Agendar cita',
+  adjuntos: 'Subir adjunto',
+};
+
+export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
+  const { t } = useTheme();
+  const ancho = useAnchoDeVentana();
+  const esMovil = ancho > 0 && ancho < ANCHO_MOVIL;
+  const { sesion } = useSesion();
+
+  const [pestania, setPestania] = useState<Pestania>('historial');
+
+  const paciente = usePaciente(pacienteId);
+  const tutor = useTutor(paciente.data?.tutor_id);
+  const eventos = useEventosClinicos(pacienteId);
+  const medicaciones = useMedicaciones(pacienteId);
+  const citas = useCitas(pacienteId);
+  const adjuntos = useAdjuntos(pacienteId);
+  const plantel = usePlantel();
+  const miFicha = useMiFichaDeVeterinario();
+
+  const cerrar = useCerrarMedicacion(pacienteId);
+  const crear = useCrearMedicacion(pacienteId);
+  const retirar = useRetirarAdjunto(pacienteId);
+
+  if (paciente.isPending) {
+    return (
+      <Marco esMovil={esMovil}>
+        <EsqueletoDeFicha esMovil={esMovil} />
+      </Marco>
+    );
+  }
+
+  // La identidad es lo único sin lo que la pantalla no existe: si falla,
+  // no hay ficha que mostrar. El resto de los errores viven en su bloque.
+  if (paciente.isError || !paciente.data) {
+    return (
+      <Marco esMovil={esMovil}>
+        <InlineError
+          title="No se pudo cargar la ficha"
+          description="Revisá la conexión e intentá de nuevo."
+          onRetry={() => paciente.refetch()}
+        />
+      </Marco>
+    );
+  }
+
+  const datos = paciente.data;
+  const deBaja = estaDadoDeBaja(datos);
+  // La matrícula se comprueba solo cuando la ficha propia ya llegó: mientras
+  // carga no se bloquea nada, o la pantalla parpadearía en solo lectura.
+  const sinMatricula = miFicha.isSuccess && !puedeEscribirClinico(miFicha.data);
+  const bloqueado = deBaja || sinMatricula;
+  const motivoBloqueo = deBaja
+    ? 'Paciente dado de baja: la ficha queda en solo lectura'
+    : sinMatricula
+      ? 'Necesitás la matrícula cargada para crear o editar'
+      : '';
+
+  const criticos = derivarDatosCriticos(eventos.data, medicaciones.data);
+  const { generales, porEvento } = derivarAdjuntos(adjuntos.data);
+
+  const pestanias: ItemDeTab<Pestania>[] = [
+    { value: 'historial', label: 'Historial', count: eventos.data?.length || undefined },
+    { value: 'medicacion', label: 'Medicación', count: criticos.activas.length || undefined },
+    {
+      value: 'calendario',
+      label: 'Calendario',
+      count: citas.data?.filter((c) => c.estado === 'pendiente').length || undefined,
+    },
+    { value: 'adjuntos', label: 'Adjuntos', count: generales.length || undefined },
+  ];
+
+  return (
+    <Marco esMovil={esMovil} titulo={datos.nombre}>
+      {deBaja ? <AvisoDePacienteDeBaja /> : null}
+      {sinMatricula ? <AvisoSinMatricula /> : null}
+
+      <EncabezadoDePaciente
+        paciente={datos}
+        tutor={tutor.data}
+        esMovil={esMovil}
+        bloqueado={bloqueado}
+        motivoBloqueo={motivoBloqueo}
+        deBaja={deBaja}
+      />
+
+      <BandaDeUrgencia
+        datos={criticos}
+        esMovil={esMovil}
+        onVerMedicacion={() => setPestania('medicacion')}
+      />
+
+      <View style={estilos.barraDePestanias}>
+        <View style={estilos.flexible}>
+          <Tabs items={pestanias} value={pestania} onChange={setPestania} scrollable={esMovil} />
+        </View>
+        {!esMovil ? (
+          <Button
+            iconLeft="plus"
+            disabled={bloqueado}
+            accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+          >
+            {CTA_POR_PESTANIA[pestania]}
+          </Button>
+        ) : null}
+      </View>
+      {bloqueado ? <MotivoDeBloqueo motivo={motivoBloqueo} /> : null}
+
+      {pestania === 'historial' ? (
+        <HistorialClinico
+          eventos={eventos.data}
+          adjuntosPorEvento={porEvento}
+          plantel={plantel.data}
+          cargando={eventos.isPending}
+          error={eventos.isError}
+          onReintentar={() => eventos.refetch()}
+          esMovil={esMovil}
+          bloqueado={bloqueado}
+          motivoBloqueo={motivoBloqueo}
+        />
+      ) : null}
+
+      {pestania === 'medicacion' ? (
+        <SeccionMedicacion
+          activas={criticos.activas}
+          historicas={criticos.historicas}
+          plantel={plantel.data}
+          error={medicaciones.isError}
+          onReintentar={() => medicaciones.refetch()}
+          esMovil={esMovil}
+          bloqueado={bloqueado}
+          motivoBloqueo={motivoBloqueo}
+          onCrear={(entrada) => crear.mutate(entrada)}
+          creando={crear.isPending}
+          onCerrar={(medicacion) => cerrar.mutate(medicacion.id)}
+        />
+      ) : null}
+
+      {pestania === 'calendario' ? (
+        <SeccionCalendario
+          citas={citas.data}
+          error={citas.isError}
+          onReintentar={() => citas.refetch()}
+          esMovil={esMovil}
+          bloqueado={bloqueado}
+          motivoBloqueo={motivoBloqueo}
+        />
+      ) : null}
+
+      {pestania === 'adjuntos' ? (
+        <SeccionAdjuntos
+          adjuntos={generales}
+          usuarioId={sesion?.usuario.id}
+          error={adjuntos.isError}
+          onReintentar={() => adjuntos.refetch()}
+          esMovil={esMovil}
+          bloqueado={bloqueado}
+          motivoBloqueo={motivoBloqueo}
+          onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
+        />
+      ) : null}
+
+      {esMovil ? (
+        <View style={[estilos.ctaMovil, { backgroundColor: t['--surface-page'] }]}>
+          <Button
+            size="touch"
+            iconLeft="plus"
+            block
+            disabled={bloqueado}
+            accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+          >
+            {CTA_POR_PESTANIA[pestania]}
+          </Button>
+        </View>
+      ) : null}
+    </Marco>
+  );
+}
+
+/** Ancho máximo, gutters y encabezado de navegación, según plataforma. */
+function Marco({
+  esMovil,
+  titulo,
+  children,
+}: {
+  esMovil: boolean;
+  titulo?: string;
+  children: ReactNode;
+}) {
+  const { t, px, texto } = useTheme();
+
+  return (
+    <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
+      {esMovil ? (
+        <View style={[estilos.cabeceraMovil, { backgroundColor: t['--surface-nav'] }]}>
+          <IconButton icon="arrow-left" label="Volver a pacientes" size="sm" variant="on-dark" />
+          <Text style={[texto('body-strong'), { color: t['--text-on-nav'], flex: 1 }]}>
+            {titulo ?? 'Ficha de paciente'}
+          </Text>
+        </View>
+      ) : (
+        <View
+          style={[
+            estilos.migas,
+            { backgroundColor: t['--surface-page'], borderBottomColor: t['--border-subtle'] },
+          ]}
+        >
+          <Text style={[texto('body-sm'), { fontWeight: '600', color: t['--text-link'] }]}>
+            Pacientes
+          </Text>
+          <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>/</Text>
+          <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+            {titulo ?? 'Ficha'}
+          </Text>
+        </View>
+      )}
+
+      <ScrollView>
+        <View
+          style={[
+            estilos.contenido,
+            {
+              maxWidth: px('--content-max'),
+              gap: esMovil ? 16 : 20,
+              paddingHorizontal: esMovil ? px('--gutter-mobile') : px('--gutter-page'),
+              paddingTop: esMovil ? 16 : 24,
+              paddingBottom: esMovil ? 16 : 56,
+            },
+          ]}
+        >
+          {children}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const estilos = StyleSheet.create({
+  raiz: { flex: 1 },
+  cabeceraMovil: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  migas: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    height: 52,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+  },
+  contenido: { width: '100%', alignSelf: 'center' },
+  barraDePestanias: { flexDirection: 'row', alignItems: 'flex-end', gap: 16 },
+  flexible: { flex: 1, minWidth: 0 },
+  ctaMovil: { paddingTop: 8 },
+});
