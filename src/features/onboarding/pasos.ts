@@ -9,9 +9,10 @@
  * miente sobre lo que el sistema guarda.
  *
  * El paso de la cuenta se desbloqueó al definirse el proceso 4.16: la contraseña
- * se estrena en `(auth)/activacion`, antes de llegar acá. Cuando el
- * administrador entra a este flujo su cuenta ya está activa, así que el paso
- * solo lo confirma.
+ * se estrena en `(auth)/activacion`, antes de llegar acá. El de los datos de la
+ * clínica, al exponerse `GET`/`PATCH /clinicas/{id}` con su horario de atención.
+ * El de la agenda sigue parcialmente bloqueado: la hora del turno ya existe,
+ * pero la agenda por profesional y su visibilidad no.
  */
 export const PASOS = [
   {
@@ -30,8 +31,7 @@ export const PASOS = [
     clave: 'clinica',
     etiqueta: 'Datos de la clínica',
     porcentaje: 60,
-    bloqueadoPor:
-      'No existe ni el esquema `Clinica` ni ninguna ruta `/clinicas` en `openapi.yaml`, aunque Alcance de Plataformas 3.2 pide editar nombre, dirección y contacto. Horarios de atención, duración del turno y especialidades no están en el Modelo de Datos (4.3).',
+    bloqueadoPor: null,
   },
   {
     clave: 'veterinario',
@@ -44,7 +44,7 @@ export const PASOS = [
     etiqueta: 'Activar la agenda',
     porcentaje: 100,
     bloqueadoPor:
-      'La Cita del contrato no tiene hora (`fecha_programada` es un `date`) ni agenda por veterinario, y no hay campo que active o desactive la visibilidad de una agenda para los tutores. Tampoco existen "días que atiende" en la entidad Veterinario (4.4).',
+      'Falta la parte del diseño que no se especificó: no hay "días que atiende" en la entidad Veterinario (4.4), ni agenda por profesional —la Cita no lleva veterinario asignado (4.7)—, ni un campo que haga visible o invisible la agenda para los tutores. Lo que sí quedó definido, la hora del turno y la grilla, ya está en el calendario de cada paciente.',
   },
 ] as const;
 

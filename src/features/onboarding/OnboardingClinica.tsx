@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Icon } from '../../components';
+import { FormularioDeClinica } from '../clinica';
+import { useSesion } from '../../hooks/useSesion';
 import { useTheme } from '../../theme';
 
 import { BarraDeActivacion } from './BarraDeActivacion';
@@ -23,6 +25,8 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
   const { t, px, texto } = useTheme();
   const [paso, setPaso] = useState<ClaveDePaso>('cuenta');
   const [veterinarioCreado, setVeterinarioCreado] = useState<string | null>(null);
+  const { sesion } = useSesion();
+  const clinicaId = sesion?.usuario.clinica_id ?? undefined;
 
   function avanzar(desde: ClaveDePaso) {
     const i = PASOS.findIndex((p) => p.clave === desde);
@@ -104,13 +108,24 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
           ) : null}
 
           {paso === 'clinica' ? (
-            <PasoSinContrato
-              titulo="Los datos de tu clínica"
-              descripcion="Nombre, dirección, contacto, horarios de atención y especialidades."
-              motivo={PASOS[2].bloqueadoPor ?? ''}
-              onSaltear={() => avanzar('clinica')}
-              etiquetaSaltear="Cargar el primer veterinario"
-            />
+            <View style={estilos.demo}>
+              <View style={estilos.intro}>
+                <Text style={[texto('h1'), { color: t['--text-strong'] }]}>
+                  Los datos de tu clínica
+                </Text>
+                <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
+                  Ya cargamos lo que sabíamos y dejamos el horario en valores habituales. Si te
+                  sirven así, confirmá y seguimos.
+                </Text>
+              </View>
+              {clinicaId ? (
+                <FormularioDeClinica
+                  clinicaId={clinicaId}
+                  etiquetaGuardar="Guardar y seguir"
+                  onGuardado={() => avanzar('clinica')}
+                />
+              ) : null}
+            </View>
           ) : null}
 
           {paso === 'veterinario' ? (
@@ -127,8 +142,8 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
               titulo="Activá la agenda"
               descripcion={
                 veterinarioCreado
-                  ? `${veterinarioCreado} ya tiene cuenta. Falta definir sus días y horarios y hacer visible la agenda para los tutores.`
-                  : 'Falta definir días, horarios y la visibilidad de la agenda para los tutores.'
+                  ? `${veterinarioCreado} ya tiene cuenta y tu horario de atención ya define la grilla de turnos. Falta la agenda por profesional.`
+                  : 'Tu horario de atención ya define la grilla de turnos. Falta la agenda por profesional.'
               }
               motivo={PASOS[4].bloqueadoPor ?? ''}
               onSaltear={() => onTerminar?.()}
