@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -60,13 +61,19 @@ const CTA_POR_PESTANIA: Record<Pestania, string> = {
   adjuntos: 'Subir adjunto',
 };
 
-export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
+export function FichaDePaciente({
+  pacienteId,
+  pestaniaInicial = 'historial',
+}: {
+  pacienteId: string;
+  pestaniaInicial?: Pestania;
+}) {
   const { t } = useTheme();
   const ancho = useAnchoDeVentana();
   const esMovil = ancho > 0 && ancho < ANCHO_MOVIL;
   const { sesion } = useSesion();
 
-  const [pestania, setPestania] = useState<Pestania>('historial');
+  const [pestania, setPestania] = useState<Pestania>(pestaniaInicial);
 
   const paciente = usePaciente(pacienteId);
   const tutor = useTutor(paciente.data?.tutor_id);
@@ -120,6 +127,14 @@ export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
       ? 'Necesitás la matrícula cargada para crear o editar'
       : '';
 
+  // El único CTA que sale de la ficha es el de evento clínico: su formulario es
+  // largo y tiene ruta propia. Los otros tres se resuelven en su propia sección.
+  function accionDePestania(actual: Pestania) {
+    if (actual === 'historial') {
+      router.push(`/(veterinario)/pacientes/${pacienteId}/evento-clinico/nuevo`);
+    }
+  }
+
   const criticos = derivarDatosCriticos(eventos.data, medicaciones.data);
   const { generales, porEvento } = derivarAdjuntos(adjuntos.data);
 
@@ -163,6 +178,7 @@ export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
             iconLeft="plus"
             disabled={bloqueado}
             accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+            onPress={() => accionDePestania(pestania)}
           >
             {CTA_POR_PESTANIA[pestania]}
           </Button>
@@ -181,6 +197,7 @@ export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
           esMovil={esMovil}
           bloqueado={bloqueado}
           motivoBloqueo={motivoBloqueo}
+          onCargarEvento={() => accionDePestania('historial')}
         />
       ) : null}
 
@@ -249,6 +266,7 @@ export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
             block
             disabled={bloqueado}
             accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+            onPress={() => accionDePestania(pestania)}
           >
             {CTA_POR_PESTANIA[pestania]}
           </Button>

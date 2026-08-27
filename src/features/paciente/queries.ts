@@ -17,8 +17,10 @@ import {
 import {
   camposDeAlergia,
   camposDeVacuna,
+  crearEventoClinico,
   listarEventosClinicos,
   TIPO_DE_EVENTO,
+  type CrearEventoEntrada,
   type EventoClinico,
 } from '../../api/evento-clinico';
 import {
@@ -234,6 +236,18 @@ export function useCrearMedicacion(pacienteId: string) {
     mutationFn: (entrada: CrearMedicacionEntrada) => crearMedicacion(pacienteId, entrada),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.medicaciones(pacienteId) });
+    },
+  });
+}
+
+export function useCrearEvento(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: CrearEventoEntrada) => crearEventoClinico(pacienteId, entrada),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.eventos(pacienteId) });
+      // Una alergia o una vacuna cambian la banda de datos críticos, que se
+      // deriva de los mismos eventos: no hay una segunda query que invalidar.
     },
   });
 }

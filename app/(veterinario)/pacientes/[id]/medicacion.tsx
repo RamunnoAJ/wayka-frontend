@@ -1,9 +1,15 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { Placeholder } from '../../../../src/components/Placeholder';
+import { FichaDePaciente } from '../../../../src/features/paciente';
 
-/** PLACEHOLDER — medicación del paciente (Alcance de Plataformas, 3.5). */
-export default function MedicacionPaciente() {
+/**
+ * Medicación de un paciente (Alcance de Plataformas, 3.5).
+ *
+ * Es la ficha abierta en su pestaña de medicación, no una pantalla aparte: la
+ * medicación activa se lee junto con las alergias en la banda de urgencia, y
+ * separarla dejaría media vista clínica de cada lado.
+ */
+export default function MedicacionDelPaciente() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <Placeholder titulo="Medicación" detalle={`Activa e histórica. paciente: ${id}`} />;
+  return <FichaDePaciente pacienteId={id} pestaniaInicial="medicacion" />;
 }
