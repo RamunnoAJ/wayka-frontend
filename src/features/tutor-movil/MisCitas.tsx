@@ -5,16 +5,18 @@ import { EmptyState, InlineError, SkeletonText, StatusDot } from '../../componen
 import { sombra, useTheme, type Tokens } from '../../theme';
 import { diaDeInstante, fechaCorta, horaCorta } from '../paciente/formato';
 
-import { useMisCitas, useMisMascotas } from './queries';
+import { useAgenda } from '../agenda/queries';
 
 /**
  * Mis citas (Alcance de Plataformas, 5.4).
  *
- * El tutor **no agenda**: qué control corresponde es criterio clínico. Puede
- * reagendar una pendiente y decidir si quiere que le avisen, y eso vive en la
- * ficha de cada cita, no acá — esta pantalla es la vista de conjunto.
+ * Usa el mismo endpoint que la agenda de la clínica: cuál de los dos alcances
+ * aplica lo decide el rol del token, así que al tutor le devuelve las citas de
+ * sus mascotas. Antes se pedía el calendario de cada mascota por separado, que
+ * funcionaba pero era un pedido por mascota para responder una sola pregunta.
  *
- * El estado no lo mueve nadie desde la app: lo pone el sistema (Modelo de Datos,
+ * El tutor **no agenda**: qué control corresponde es criterio clínico. El estado
+ * tampoco lo mueve nadie desde la app: lo pone el sistema (Modelo de Datos,
  * 4.7).
  */
 const ETIQUETA_DE_TIPO: Record<TipoDeCita, string> = {
@@ -40,8 +42,8 @@ function tono(t: Tokens, estado: EstadoDeCita): { fondo: string; texto: string }
 
 export function MisCitas() {
   const { t, px, texto } = useTheme();
-  const mascotas = useMisMascotas();
-  const { citas, cargando, error, reintentar } = useMisCitas(mascotas.data);
+  const agenda = useAgenda({ limite: 200 });
+  const citas = agenda.data ?? [];
 
   const pendientes = citas.filter((c) => c.cita.estado === ESTADO_DE_CITA.PENDIENTE);
   const pasadas = citas.filter((c) => c.cita.estado !== ESTADO_DE_CITA.PENDIENTE);
@@ -52,10 +54,10 @@ export function MisCitas() {
         <View style={[estilos.contenido, { paddingHorizontal: px('--gutter-mobile') }]}>
           <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Mis citas</Text>
 
-          {mascotas.isPending || cargando ? (
+          {agenda.isPending ? (
             <SkeletonText lines={4} />
-          ) : error ? (
-            <InlineError title="No se pudieron cargar tus citas" onRetry={reintentar} />
+          ) : agenda.isError ? (
+            <InlineError title="No se pudieron cargar tus citas" onRetry={() => agenda.refetch()} />
           ) : citas.length === 0 ? (
             <EmptyState
               icon="calendar-days"
@@ -71,7 +73,7 @@ export function MisCitas() {
                   >
                     PRÓXIMAS
                   </Text>
-                  {pendientes.map(({ cita, mascota }) => {
+                  {pendientes.map(({ cita, paciente_nombre }) => {
                     const colores = tono(t, cita.estado);
                     return (
                       <View
@@ -83,7 +85,7 @@ export function MisCitas() {
                         ]}
                       >
                         <Text style={[texto('h4'), { color: colores.texto }]}>
-                          {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${mascota.nombre}`}
+                          {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${paciente_nombre}`}
                         </Text>
                         <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
                           {`${fechaCorta(diaDeInstante(cita.fecha_programada))} a las ${horaCorta(cita.fecha_programada)}`}
@@ -112,7 +114,7 @@ export function MisCitas() {
                   >
                     ANTERIORES
                   </Text>
-                  {pasadas.map(({ cita, mascota }) => {
+                  {pasadas.map(({ cita, paciente_nombre }) => {
                     const colores = tono(t, cita.estado);
                     return (
                       <View
@@ -123,7 +125,7 @@ export function MisCitas() {
                         ]}
                       >
                         <Text style={[texto('body-strong'), { color: colores.texto }]}>
-                          {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${mascota.nombre}`}
+                          {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${paciente_nombre}`}
                         </Text>
                         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
                           {`${fechaCorta(diaDeInstante(cita.fecha_programada))} · ${ETIQUETA_DE_ESTADO[cita.estado]}`}

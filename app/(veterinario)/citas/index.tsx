@@ -1,11 +1,12 @@
-import { Placeholder } from '../../../src/components/Placeholder';
+import { router } from 'expo-router';
 
-/** PLACEHOLDER — calendario y citas (Alcance de Plataformas, 3.6). */
-export default function ListadoCitas() {
+import { AgendaDeLaClinica } from '../../../src/features/agenda';
+
+/** Agenda de la clínica: citas pendientes y vencidas (Alcance de Plataformas, 3.6). */
+export default function Citas() {
   return (
-    <Placeholder
-      titulo="Citas"
-      detalle="Citas pendientes y vencidas de la clínica, y creación de citas."
+    <AgendaDeLaClinica
+      onAbrirPaciente={(pacienteId) => router.push(`/(veterinario)/pacientes/${pacienteId}`)}
     />
   );
 }

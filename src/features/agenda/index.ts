@@ -1,0 +1,1 @@
+export { AgendaDeLaClinica } from './AgendaDeLaClinica';

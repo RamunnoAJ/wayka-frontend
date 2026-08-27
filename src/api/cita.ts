@@ -46,6 +46,23 @@ export interface FiltrosDeCitas {
   desplazamiento?: number;
 }
 
+export interface FiltrosDeAgenda extends FiltrosDeCitas {
+  /** ISO 8601. Acota a las citas cuyo momento es igual o posterior. */
+  desde?: string;
+  /** ISO 8601. Acota a las citas cuyo momento es anterior. */
+  hasta?: string;
+}
+
+/**
+ * Una cita del listado de alcance, con lo mínimo de la mascota para mostrarla.
+ * No trae la ficha entera: una agenda necesita el nombre, no el historial.
+ */
+export interface CitaConPaciente {
+  cita: Cita;
+  paciente_nombre: string;
+  paciente_especie?: string;
+}
+
 export interface CrearCitaEntrada {
   tipo: TipoDeCita;
   /**
@@ -64,6 +81,18 @@ function rutaDePaciente(pacienteId: string): string {
 
 export function listarCitas(pacienteId: string, filtros: FiltrosDeCitas = {}): Promise<Cita[]> {
   return http.get<Cita[]>(rutaDePaciente(pacienteId), { params: { ...filtros } });
+}
+
+/**
+ * Las citas que alcanza el usuario autenticado: el veterinario, las de toda su
+ * clínica; el tutor, las de sus mascotas. Cuál de los dos aplica lo decide el rol
+ * del token, nunca un parámetro (Reglas de Negocio, 3.2).
+ *
+ * Existe además del calendario de una mascota porque responde otra pregunta: qué
+ * tiene la clínica esta semana no cuelga de ninguna mascota en particular.
+ */
+export function listarCitasDelAlcance(filtros: FiltrosDeAgenda = {}): Promise<CitaConPaciente[]> {
+  return http.get<CitaConPaciente[]>('/citas', { params: { ...filtros } });
 }
 
 export function crearCita(pacienteId: string, entrada: CrearCitaEntrada): Promise<Cita> {
