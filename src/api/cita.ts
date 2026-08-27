@@ -29,7 +29,10 @@ export interface Cita {
   id: string;
   paciente_id: string;
   tipo: TipoDeCita;
-  /** ISO `YYYY-MM-DD`. El contrato no lleva hora (ver nota del módulo). */
+  /**
+   * Momento de la cita, ISO 8601 con hora y zona. Cae dentro del horario de
+   * atención de la clínica del paciente y sobre su grilla de turnos (regla 2.2).
+   */
   fecha_programada: string;
   estado: EstadoDeCita;
   notificar_tutor: boolean;
@@ -45,7 +48,10 @@ export interface FiltrosDeCitas {
 
 export interface CrearCitaEntrada {
   tipo: TipoDeCita;
-  /** No puede ser pasada: una cita creada en el pasado nacería vencida. */
+  /**
+   * ISO 8601 con hora. No puede ser pasado: la comparación es contra el instante
+   * y no contra el día, así que hoy a las 09:00 a las 15:00 de hoy se rechaza.
+   */
   fecha_programada: string;
   notificar_tutor?: boolean;
 }

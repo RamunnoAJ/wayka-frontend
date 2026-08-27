@@ -68,6 +68,27 @@ export function microchip(valor: string | null | undefined): string | null {
   return valor.replace(/\s+/g, '').replace(/(.{3})(?=.)/g, '$1 ');
 }
 
+/**
+ * `2026-09-05T09:30:00-03:00` → `2026-09-05`. La Cita viaja como instante ISO
+ * con zona; para agrupar por día del calendario hay que mirarlo en la zona local
+ * del dispositivo, no cortarle los primeros diez caracteres — en UTC el mismo
+ * turno puede caer al día siguiente.
+ */
+export function diaDeInstante(iso: string): string {
+  return aIso(new Date(iso));
+}
+
+/** `2026-09-05T09:30:00-03:00` → `09:30`. */
+export function horaCorta(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+/** `5 sep 2026 · 09:30`, que es como se lee un turno. */
+export function momentoCorto(iso: string): string {
+  return `${fechaCorta(diaDeInstante(iso))} · ${horaCorta(iso)}`;
+}
+
 export function tamanoDeArchivo(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;

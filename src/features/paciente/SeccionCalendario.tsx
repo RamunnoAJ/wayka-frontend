@@ -5,7 +5,7 @@ import { esReagendable, type Cita, type EstadoDeCita, type TipoDeCita } from '..
 import { Button, EmptyState, Icon, IconButton, InlineError } from '../../components';
 import { useTheme, type Tokens } from '../../theme';
 
-import { aIso, desdeIso, fechaCorta } from './formato';
+import { aIso, desdeIso, diaDeInstante, horaCorta, momentoCorto } from './formato';
 import { Seccion } from './Seccion';
 
 /**
@@ -15,8 +15,10 @@ import { Seccion } from './Seccion';
  * Evento clínico que referencia la cita, y a vencido un job del backend (Modelo
  * de Datos, 4.7). Por eso no hay control que lo cambie — solo se muestra.
  *
- * La grilla es mensual y sin horario: `fecha_programada` es un `date` en el
- * contrato, sin hora. Mostrar un rango horario sería inventar un dato.
+ * La grilla es mensual y cada celda lista los turnos del día con su hora.
+ * `fecha_programada` es un instante ISO con zona, así que agrupar por día pasa
+ * por `diaDeInstante`: cortar el string por los primeros diez caracteres correría
+ * un turno de la mañana al día anterior según la zona.
  */
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const MESES = [
@@ -83,9 +85,10 @@ export function SeccionCalendario({
   const porDia = useMemo(() => {
     const mapa = new Map<string, Cita[]>();
     for (const cita of lista) {
-      const dia = mapa.get(cita.fecha_programada);
+      const clave = diaDeInstante(cita.fecha_programada);
+      const dia = mapa.get(clave);
       if (dia) dia.push(cita);
-      else mapa.set(cita.fecha_programada, [cita]);
+      else mapa.set(clave, [cita]);
     }
     return mapa;
   }, [lista]);
@@ -236,6 +239,9 @@ export function SeccionCalendario({
                           >
                             {ETIQUETA_DE_TIPO[cita.tipo]}
                           </Text>
+                          <Text style={[texto('caption'), { color: colores.texto, opacity: 0.8 }]}>
+                            {horaCorta(cita.fecha_programada)}
+                          </Text>
                         </View>
                       );
                     })}
@@ -265,7 +271,7 @@ export function SeccionCalendario({
                   <Text
                     style={[texto('body-sm'), { fontWeight: '700', color: t['--text-strong'] }]}
                   >
-                    {fechaCorta(cita.fecha_programada)}
+                    {momentoCorto(cita.fecha_programada)}
                   </Text>
                   <View style={estilos.estado}>
                     <View style={[estilos.punto, { backgroundColor: colores.texto }]} />
