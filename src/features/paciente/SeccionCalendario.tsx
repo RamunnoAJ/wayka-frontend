@@ -1,11 +1,19 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { esReagendable, type Cita, type EstadoDeCita, type TipoDeCita } from '../../api/cita';
+import {
+  esReagendable,
+  type Cita,
+  type CrearCitaEntrada,
+  type EstadoDeCita,
+  type TipoDeCita,
+} from '../../api/cita';
+import type { Clinica } from '../../api/clinica';
 import { Button, EmptyState, Icon, IconButton, InlineError } from '../../components';
 import { useTheme, type Tokens } from '../../theme';
 
 import { aIso, desdeIso, diaDeInstante, horaCorta, momentoCorto } from './formato';
+import { FormularioDeCita } from './FormularioDeCita';
 import { Seccion } from './Seccion';
 
 /**
@@ -59,17 +67,22 @@ function tono(t: Tokens, estado: EstadoDeCita): { fondo: string; texto: string }
 
 interface CalendarioProps {
   citas: Cita[] | undefined;
+  /** Define la grilla de horas ofrecidas. Es la clínica que atiende a la mascota. */
+  clinica: Clinica | undefined;
   error: boolean;
   onReintentar: () => void;
   esMovil: boolean;
   bloqueado: boolean;
   motivoBloqueo: string;
-  onAgendar?: () => void;
-  onReagendar?: (cita: Cita) => void;
+  onAgendar: (entrada: CrearCitaEntrada) => void;
+  onReagendar: (cita: Cita, entrada: CrearCitaEntrada) => void;
+  guardando: boolean;
+  errorAlGuardar?: string;
 }
 
 export function SeccionCalendario({
   citas,
+  clinica,
   error,
   onReintentar,
   esMovil,
@@ -77,9 +90,13 @@ export function SeccionCalendario({
   motivoBloqueo,
   onAgendar,
   onReagendar,
+  guardando,
+  errorAlGuardar,
 }: CalendarioProps) {
   const { t, px, texto } = useTheme();
   const [foco, setFoco] = useState(() => new Date());
+  // null = cerrado; "nueva" = alta; un id = reagenda de esa cita.
+  const [formulario, setFormulario] = useState<string | null>(null);
 
   const lista = useMemo(() => citas ?? [], [citas]);
   const porDia = useMemo(() => {
@@ -102,11 +119,26 @@ export function SeccionCalendario({
       iconLeft="calendar-plus"
       disabled={bloqueado}
       accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-      onPress={onAgendar}
+      onPress={() => setFormulario((abierto) => (abierto === 'nueva' ? null : 'nueva'))}
     >
       Agendar cita
     </Button>
   );
+
+  const formularioDeAlta =
+    formulario === 'nueva' && !bloqueado ? (
+      <FormularioDeCita
+        clinica={clinica}
+        enviando={guardando}
+        error={errorAlGuardar}
+        etiquetaGuardar="Agendar"
+        onGuardar={(entrada) => {
+          onAgendar(entrada);
+          setFormulario(null);
+        }}
+        onCancelar={() => setFormulario(null)}
+      />
+    ) : null;
 
   if (error) {
     return (
@@ -121,6 +153,7 @@ export function SeccionCalendario({
   if (lista.length === 0) {
     return (
       <Seccion titulo="Calendario del paciente" accion={accion}>
+        {formularioDeAlta}
         <View style={{ padding: px('--gutter-card') }}>
           <EmptyState
             icon="calendar-days"
@@ -131,7 +164,7 @@ export function SeccionCalendario({
                 iconLeft="calendar-plus"
                 disabled={bloqueado}
                 accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                onPress={onAgendar}
+                onPress={() => setFormulario('nueva')}
               >
                 Agendar cita
               </Button>
@@ -144,6 +177,7 @@ export function SeccionCalendario({
 
   return (
     <Seccion titulo="Calendario del paciente" nota="El estado lo mueve el sistema" accion={accion}>
+      {formularioDeAlta}
       <View style={[estilos.navegacion, { borderBottomColor: t['--border-subtle'] }]}>
         <Text style={[texto('h3'), { color: t['--text-strong'] }]}>
           {`${MESES[foco.getMonth()]} ${foco.getFullYear()}`}
@@ -297,7 +331,7 @@ export function SeccionCalendario({
                   iconLeft="calendar-clock"
                   disabled={bloqueado}
                   accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                  onPress={() => onReagendar?.(cita)}
+                  onPress={() => setFormulario((abierto) => (abierto === cita.id ? null : cita.id))}
                 >
                   Reagendar
                 </Button>
@@ -311,6 +345,30 @@ export function SeccionCalendario({
                   </Text>
                 </View>
               )}
+
+              {formulario === cita.id && !bloqueado ? (
+                <View style={estilos.reagenda}>
+                  {/* La reagenda no cambia el tipo: qué control corresponde es
+                      criterio clínico, no del calendario (Reglas de Negocio, 3.2). */}
+                  <FormularioDeCita
+                    clinica={clinica}
+                    soloFechaYAviso
+                    valorInicial={{
+                      tipo: cita.tipo,
+                      fecha_programada: cita.fecha_programada,
+                      notificar_tutor: cita.notificar_tutor,
+                    }}
+                    enviando={guardando}
+                    error={errorAlGuardar}
+                    etiquetaGuardar="Reagendar"
+                    onGuardar={(entrada) => {
+                      onReagendar(cita, entrada);
+                      setFormulario(null);
+                    }}
+                    onCancelar={() => setFormulario(null)}
+                  />
+                </View>
+              ) : null}
             </View>
           );
         })}
@@ -367,4 +425,5 @@ const estilos = StyleSheet.create({
   estado: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   punto: { width: 6, height: 6, borderRadius: 3 },
   fija: { flexDirection: 'row', alignItems: 'center', gap: 6, minWidth: 150 },
+  reagenda: { width: '100%' },
 });

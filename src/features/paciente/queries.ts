@@ -6,7 +6,14 @@ import {
   retirarAdjunto,
   type Adjunto,
 } from '../../api/adjunto';
-import { listarCitas, type Cita } from '../../api/cita';
+import {
+  actualizarCita,
+  crearCita,
+  listarCitas,
+  type ActualizarCitaEntrada,
+  type Cita,
+  type CrearCitaEntrada,
+} from '../../api/cita';
 import {
   camposDeAlergia,
   camposDeVacuna,
@@ -196,6 +203,27 @@ export function useCrearMedicacion(pacienteId: string) {
     mutationFn: (entrada: CrearMedicacionEntrada) => crearMedicacion(pacienteId, entrada),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.medicaciones(pacienteId) });
+    },
+  });
+}
+
+export function useCrearCita(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: CrearCitaEntrada) => crearCita(pacienteId, entrada),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
+    },
+  });
+}
+
+export function useReagendarCita(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: ({ citaId, cambios }: { citaId: string; cambios: ActualizarCitaEntrada }) =>
+      actualizarCita(citaId, cambios),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
     },
   });
 }

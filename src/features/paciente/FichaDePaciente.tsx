@@ -2,9 +2,11 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { estaDadoDeBaja } from '../../api/paciente';
+import { useClinica } from '../clinica/queries';
 import { Button, IconButton, InlineError, Tabs, type ItemDeTab } from '../../components';
 import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { useSesion } from '../../hooks/useSesion';
+import { mensajeDeError } from '../../lib/errores';
 import { useTheme } from '../../theme';
 
 import { AvisoDePacienteDeBaja, AvisoSinMatricula, MotivoDeBloqueo } from './AvisosDeBloqueo';
@@ -22,12 +24,14 @@ import {
   useAdjuntos,
   useCerrarMedicacion,
   useCitas,
+  useCrearCita,
   useCrearMedicacion,
   useEventosClinicos,
   useMedicaciones,
   useMiFichaDeVeterinario,
   usePaciente,
   usePlantel,
+  useReagendarCita,
   useRetirarAdjunto,
   useTutor,
 } from './queries';
@@ -72,10 +76,15 @@ export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
   const adjuntos = useAdjuntos(pacienteId);
   const plantel = usePlantel();
   const miFicha = useMiFichaDeVeterinario();
+  // La grilla la manda la clínica que atiende a la mascota, no la del actor
+  // (Reglas de Negocio, 2.2). El alcance ya garantiza que sean la misma.
+  const clinica = useClinica(paciente.data?.clinica_id);
 
   const cerrar = useCerrarMedicacion(pacienteId);
   const crear = useCrearMedicacion(pacienteId);
   const retirar = useRetirarAdjunto(pacienteId);
+  const agendar = useCrearCita(pacienteId);
+  const reagendar = useReagendarCita(pacienteId);
 
   if (paciente.isPending) {
     return (
@@ -194,11 +203,28 @@ export function FichaDePaciente({ pacienteId }: { pacienteId: string }) {
       {pestania === 'calendario' ? (
         <SeccionCalendario
           citas={citas.data}
+          clinica={clinica.data}
           error={citas.isError}
           onReintentar={() => citas.refetch()}
           esMovil={esMovil}
           bloqueado={bloqueado}
           motivoBloqueo={motivoBloqueo}
+          onAgendar={(entrada) => agendar.mutate(entrada)}
+          onReagendar={(cita, entrada) =>
+            reagendar.mutate({
+              citaId: cita.id,
+              cambios: {
+                fecha_programada: entrada.fecha_programada,
+                notificar_tutor: entrada.notificar_tutor,
+              },
+            })
+          }
+          guardando={agendar.isPending || reagendar.isPending}
+          errorAlGuardar={
+            agendar.error || reagendar.error
+              ? mensajeDeError(agendar.error ?? reagendar.error)
+              : undefined
+          }
         />
       ) : null}
 
