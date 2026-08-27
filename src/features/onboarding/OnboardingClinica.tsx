@@ -131,7 +131,7 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
           {paso === 'veterinario' ? (
             <PasoPrimerVeterinario
               onListo={(nombre) => {
-                setVeterinarioCreado(nombre);
+                setVeterinarioCreado(nombre || null);
                 avanzar('veterinario');
               }}
             />

@@ -1,9 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { Placeholder } from '../../../src/components/Placeholder';
+import { FichaDeVeterinario } from '../../../src/features/veterinario';
 
-/** PLACEHOLDER — ficha de un veterinario del plantel. */
-export default function FichaVeterinario() {
+/** Edición de una ficha del plantel (Alcance de Plataformas, 3.2). */
+export default function FichaDeVeterinarioRuta() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <Placeholder titulo="Ficha de veterinario" detalle={`id: ${id}`} />;
+  return <FichaDeVeterinario veterinarioId={id} />;
 }

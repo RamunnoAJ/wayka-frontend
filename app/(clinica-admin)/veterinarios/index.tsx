@@ -1,11 +1,6 @@
-import { Placeholder } from '../../../src/components/Placeholder';
+import { Plantel } from '../../../src/features/veterinario';
 
-/** PLACEHOLDER — plantel de veterinarios de la propia clínica. */
+/** Plantel de la clínica: listado, alta y baja lógica (procesos 4.12 y 4.13). */
 export default function ListadoVeterinarios() {
-  return (
-    <Placeholder
-      titulo="Veterinarios"
-      detalle="Listado, alta y baja lógica del plantel (Reglas de Negocio, 4.12 y 4.13)."
-    />
-  );
+  return <Plantel />;
 }
