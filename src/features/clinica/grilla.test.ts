@@ -1,4 +1,5 @@
 import type { Clinica } from '../../api/clinica';
+import { instanteEnLaClinica } from '../../lib/zona';
 
 import { horaDeMinutos, minutosDeHora, turnosDelDia } from './grilla';
 
@@ -19,9 +20,9 @@ const CLINICA: Clinica = {
   updated_at: '',
 };
 
-// Medianoche del día que se pide: así ningún turno quedó atrás y `disponible`
-// no depende de cuándo corra la suite.
-const MEDIANOCHE = new Date(2027, 0, 1, 0, 0, 0);
+// Medianoche **en la clínica** del día que se pide: así ningún turno quedó atrás
+// y `disponible` no depende ni de cuándo corra la suite ni de en qué zona.
+const MEDIANOCHE = instanteEnLaClinica('2027-01-01', 0);
 
 describe('turnosDelDia', () => {
   it('cubre el horario de atención de punta a punta', () => {
@@ -50,7 +51,7 @@ describe('turnosDelDia', () => {
   });
 
   it('marca los turnos que ya pasaron en vez de esconderlos', () => {
-    const aLasTres = new Date(2027, 0, 1, 15, 0, 0);
+    const aLasTres = instanteEnLaClinica('2027-01-01', 15 * 60);
 
     const turnos = turnosDelDia(CLINICA, '2027-01-01', aLasTres);
 

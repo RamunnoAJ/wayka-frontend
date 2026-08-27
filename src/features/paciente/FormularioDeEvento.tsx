@@ -11,7 +11,7 @@ import {
 import { Button, InlineError, Input, Select, type OpcionDeSelect } from '../../components';
 import { useTheme } from '../../theme';
 
-import { aIso } from './formato';
+import { hoyEnLaClinica } from './formato';
 
 /**
  * Carga de un evento clínico (Alcance de Plataformas, 3.4).
@@ -56,7 +56,7 @@ export function FormularioDeEvento({
   const { t, texto } = useTheme();
 
   const [tipo, setTipo] = useState<TipoDeEvento>(TIPO_DE_EVENTO.CONSULTA);
-  const [fecha, setFecha] = useState(aIso(new Date()));
+  const [fecha, setFecha] = useState(hoyEnLaClinica());
   const [descripcion, setDescripcion] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
 
@@ -70,7 +70,7 @@ export function FormularioDeEvento({
     reaccion: string;
   }>({ alergeno: '', severidad: 'moderada', reaccion: '' });
 
-  const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha) && fecha <= aIso(new Date());
+  const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha) && fecha <= hoyEnLaClinica();
 
   const estructuradoCompleto = (() => {
     if (tipo === TIPO_DE_EVENTO.VACUNA) return vacuna.nombre_vacuna.trim() && vacuna.lote.trim();

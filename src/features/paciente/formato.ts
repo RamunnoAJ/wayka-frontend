@@ -8,6 +8,8 @@
  * (UTC-3) devuelve el día anterior. Se parte a mano.
  */
 
+import { diaEnLaClinica, horaEnLaClinica, hoyEnLaClinica } from '../../lib/zona';
+
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 const DIAS_DE_SEMANA = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
@@ -45,8 +47,13 @@ export function fechaConDiaDeSemana(iso: string): string {
   return `${diaDeSemanaCorto(iso)} ${fechaCorta(iso)}`;
 }
 
-/** Edad en años y meses cumplidos. Debajo del año, solo meses. */
-export function edad(fechaNacimientoIso: string, hoy = new Date()): string {
+/**
+ * Edad en años y meses cumplidos. Debajo del año, solo meses.
+ *
+ * El "hoy" por defecto es el de la clínica: cerca de la medianoche, el del
+ * dispositivo puede ser otro día y la mascota cumpliría años antes o después.
+ */
+export function edad(fechaNacimientoIso: string, hoy = desdeIso(hoyEnLaClinica())): string {
   const nacimiento = desdeIso(fechaNacimientoIso);
   let meses =
     (hoy.getFullYear() - nacimiento.getFullYear()) * 12 + (hoy.getMonth() - nacimiento.getMonth());
@@ -61,7 +68,7 @@ export function edad(fechaNacimientoIso: string, hoy = new Date()): string {
 }
 
 /** Versión compacta para la tarjeta de datos: `4 a 3 m`. */
-export function edadCompacta(fechaNacimientoIso: string, hoy = new Date()): string {
+export function edadCompacta(fechaNacimientoIso: string, hoy = desdeIso(hoyEnLaClinica())): string {
   const nacimiento = desdeIso(fechaNacimientoIso);
   let meses =
     (hoy.getFullYear() - nacimiento.getFullYear()) * 12 + (hoy.getMonth() - nacimiento.getMonth());
@@ -87,18 +94,17 @@ export function microchip(valor: string | null | undefined): string | null {
 
 /**
  * `2026-09-05T09:30:00-03:00` → `2026-09-05`. La Cita viaja como instante ISO
- * con zona; para agrupar por día del calendario hay que mirarlo en la zona local
- * del dispositivo, no cortarle los primeros diez caracteres — en UTC el mismo
- * turno puede caer al día siguiente.
+ * con zona; para agrupar por día del calendario hay que mirarlo **en la zona de
+ * la clínica**, no cortarle los primeros diez caracteres ni leerlo con el reloj
+ * del dispositivo — en UTC el mismo turno puede caer al día siguiente.
  */
 export function diaDeInstante(iso: string): string {
-  return aIso(new Date(iso));
+  return diaEnLaClinica(new Date(iso));
 }
 
-/** `2026-09-05T09:30:00-03:00` → `09:30`. */
+/** `2026-09-05T09:30:00-03:00` → `09:30`, la hora que marca el reloj de la clínica. */
 export function horaCorta(iso: string): string {
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  return horaEnLaClinica(new Date(iso));
 }
 
 /**
@@ -111,6 +117,9 @@ export function horaCorta(iso: string): string {
 export function momentoCorto(iso: string): string {
   return `${fechaConDiaDeSemana(diaDeInstante(iso))} · ${horaCorta(iso)}`;
 }
+
+/** Hoy en la clínica, en `YYYY-MM-DD`. Reexportado para no importar dos módulos. */
+export { hoyEnLaClinica };
 
 export function tamanoDeArchivo(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

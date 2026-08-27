@@ -1,4 +1,5 @@
 import type { Clinica, HoraDelDia } from '../../api/clinica';
+import { instanteEnLaClinica } from '../../lib/zona';
 
 /**
  * Aritmética de la grilla de turnos. Vive en `features` y no en `api` porque no
@@ -31,13 +32,12 @@ export interface Turno {
  * Genera la grilla de un día: los turnos que entran enteros en el horario de
  * atención, empezando en la apertura y avanzando de a `duracion_turno_minutos`.
  *
- * **Se construye en la zona del dispositivo.** El backend interpreta el horario
- * de la clínica en `America/Argentina/Buenos_Aires`; mientras el veterinario
- * esté en esa zona coinciden, y desde otra zona la grilla saldría corrida. Es
- * una limitación conocida del MVP, que atiende una sola clínica argentina.
+ * Los momentos se construyen **en la zona de la clínica**, no en la del
+ * dispositivo: el backend interpreta el horario de atención en esa zona, y una
+ * grilla armada con el reloj del veterinario saldría corrida desde cualquier
+ * otro lado.
  */
 export function turnosDelDia(clinica: Clinica, diaIso: string, ahora = new Date()): Turno[] {
-  const [anio, mes, dia] = diaIso.split('-').map(Number);
   const apertura = minutosDeHora(clinica.hora_apertura);
   const cierre = minutosDeHora(clinica.hora_cierre);
   const duracion = clinica.duracion_turno_minutos;
@@ -46,13 +46,7 @@ export function turnosDelDia(clinica: Clinica, diaIso: string, ahora = new Date(
 
   const turnos: Turno[] = [];
   for (let minutos = apertura; minutos + duracion <= cierre; minutos += duracion) {
-    const momento = new Date(
-      anio ?? 0,
-      (mes ?? 1) - 1,
-      dia ?? 1,
-      Math.floor(minutos / 60),
-      minutos % 60,
-    );
+    const momento = instanteEnLaClinica(diaIso, minutos);
     turnos.push({
       valor: momento.toISOString(),
       etiqueta: horaDeMinutos(minutos),

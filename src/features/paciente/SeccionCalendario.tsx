@@ -13,7 +13,7 @@ import type { Veterinario } from '../../api/veterinario';
 import { Button, EmptyState, Icon, IconButton, InlineError } from '../../components';
 import { useTheme, type Tokens } from '../../theme';
 
-import { aIso, desdeIso, diaDeInstante, horaCorta, momentoCorto } from './formato';
+import { aIso, desdeIso, diaDeInstante, horaCorta, hoyEnLaClinica, momentoCorto } from './formato';
 import { FormularioDeCita } from './FormularioDeCita';
 import { Seccion } from './Seccion';
 
@@ -115,7 +115,7 @@ export function SeccionCalendario({
   }, [lista]);
 
   const celdas = useMemo(() => construirMes(foco), [foco]);
-  const hoy = aIso(new Date());
+  const hoy = hoyEnLaClinica();
 
   const accion = (
     <Button

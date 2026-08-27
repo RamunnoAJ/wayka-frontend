@@ -3,6 +3,7 @@
 import { fireEvent } from '@testing-library/react-native';
 
 import type { Clinica } from '../../api/clinica';
+import { horaEnLaClinica, instanteEnLaClinica } from '../../lib/zona';
 import { render } from '../../pruebas/render';
 
 import { FormularioDeCita } from './FormularioDeCita';
@@ -38,8 +39,11 @@ describe('FormularioDeCita', () => {
   // El formulario arranca en el día de hoy, así que sin congelar el reloj la
   // prueba pasa a la mañana y falla a la tarde: después de las 17:30 no queda
   // ningún turno disponible y la grilla se reemplaza por un aviso.
+  // Las 08:00 **en la clínica**: antes de que abra, así están los 18 turnos del
+  // día disponibles. Con la hora del dispositivo, que corre en otra zona, el día
+  // por defecto del formulario sería otro.
   beforeEach(() => {
-    jest.useFakeTimers({ now: new Date(2027, 0, 4, 8, 0, 0) });
+    jest.useFakeTimers({ now: instanteEnLaClinica('2027-01-04', 8 * 60) });
   });
 
   afterEach(() => {
@@ -75,9 +79,9 @@ describe('FormularioDeCita', () => {
 
     expect(props.onGuardar).toHaveBeenCalledTimes(1);
     const entrada = props.onGuardar.mock.calls[0][0];
-    const elegido = new Date(entrada.fecha_programada);
-    expect(elegido.getHours()).toBe(10);
-    expect(elegido.getMinutes()).toBe(30);
+    // La hora se comprueba en la zona de la clínica, no con getHours(): el
+    // dispositivo está en otra y leerlo local daría las 22:30.
+    expect(horaEnLaClinica(new Date(entrada.fecha_programada))).toBe('10:30');
     expect(entrada.notificar_tutor).toBe(true);
   });
 

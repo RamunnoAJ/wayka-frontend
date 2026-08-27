@@ -1,3 +1,5 @@
+import { instanteEnLaClinica } from '../../lib/zona';
+
 import {
   aIso,
   capitalizar,
@@ -52,16 +54,24 @@ describe('fechas de calendario', () => {
 });
 
 describe('instantes con zona', () => {
-  it('agrupa por el día local y no por el de UTC', () => {
+  it('agrupa por el día de la clínica y no por el de UTC', () => {
     // 21:00 en Buenos Aires ya es el día siguiente en UTC: cortar el ISO por los
     // primeros diez caracteres movería el turno de día.
-    const turnoDeNoche = new Date(2026, 7, 27, 21, 0, 0).toISOString();
+    const turnoDeNoche = instanteEnLaClinica('2026-08-27', 21 * 60).toISOString();
 
     expect(diaDeInstante(turnoDeNoche)).toBe('2026-08-27');
   });
 
-  it('muestra la hora del turno con dos dígitos', () => {
-    expect(horaCorta(new Date(2026, 7, 27, 9, 5, 0).toISOString())).toBe('09:05');
+  it('agrupa por el día de la clínica y no por el del dispositivo', () => {
+    // La suite corre en Tokio, 12 horas adelante: un turno de la mañana en la
+    // clínica cae al día siguiente si se lo lee con el reloj local.
+    const turnoTemprano = instanteEnLaClinica('2026-08-27', 9 * 60).toISOString();
+
+    expect(diaDeInstante(turnoTemprano)).toBe('2026-08-27');
+  });
+
+  it('muestra la hora que marca el reloj de la clínica', () => {
+    expect(horaCorta(instanteEnLaClinica('2026-08-27', 9 * 60 + 5).toISOString())).toBe('09:05');
   });
 });
 

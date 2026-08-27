@@ -50,7 +50,7 @@ import {
   type Veterinario,
 } from '../../api/veterinario';
 import { useSesion } from '../../hooks/useSesion';
-import { aIso } from './formato';
+import { hoyEnLaClinica } from './formato';
 
 /**
  * Datos de la ficha de paciente.
@@ -203,7 +203,7 @@ export function derivarDatosCriticos(
     .map((v) => camposDeVacuna(v)?.fecha_proxima_dosis)
     .filter((f): f is string => Boolean(f))
     .sort();
-  const hoy = aIso(new Date());
+  const hoy = hoyEnLaClinica();
   const proximaDosis = proximas.find((f) => f >= hoy) ?? null;
 
   return {
@@ -224,7 +224,7 @@ export function derivarAdjuntos(adjuntos: Adjunto[] | undefined) {
 export function useCerrarMedicacion(pacienteId: string) {
   const cliente = useQueryClient();
   return useMutation({
-    mutationFn: (medicacionId: string) => cerrarMedicacion(medicacionId, aIso(new Date())),
+    mutationFn: (medicacionId: string) => cerrarMedicacion(medicacionId, hoyEnLaClinica()),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.medicaciones(pacienteId) });
     },

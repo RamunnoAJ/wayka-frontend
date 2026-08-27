@@ -6,7 +6,7 @@ import type { Veterinario } from '../../api/veterinario';
 import { Button, InlineError, Input, MedicationItem } from '../../components';
 import { useTheme } from '../../theme';
 
-import { aIso, fechaCorta } from './formato';
+import { fechaCorta, hoyEnLaClinica } from './formato';
 import { Seccion } from './Seccion';
 
 /**
@@ -60,7 +60,7 @@ export function SeccionMedicacion({
       nombre_droga: droga.trim(),
       dosis: dosis.trim(),
       frecuencia: frecuencia.trim(),
-      fecha_inicio: aIso(new Date()),
+      fecha_inicio: hoyEnLaClinica(),
     });
     setDroga('');
     setDosis('');

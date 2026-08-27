@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   ESTADO_DE_CITA,
+  SIN_ASIGNAR,
   type CitaConPaciente,
   type EstadoDeCita,
   type TipoDeCita,
@@ -16,7 +17,8 @@ import {
   type OpcionDeSelect,
 } from '../../components';
 import { sombra, useTheme, type Tokens } from '../../theme';
-import { aIso, diaDeInstante, fechaConDiaDeSemana, horaCorta } from '../paciente/formato';
+import { usePlantel } from '../veterinario/queries';
+import { diaDeInstante, fechaConDiaDeSemana, horaCorta, hoyEnLaClinica } from '../paciente/formato';
 
 import { useAgenda } from './queries';
 
@@ -98,7 +100,7 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
     return [...mapa.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [agenda.data]);
 
-  const hoy = aIso(new Date());
+  const hoy = hoyEnLaClinica();
 
   return (
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
