@@ -15,6 +15,7 @@ Se escribió recién ahora, con las pantallas del alcance ya construidas. El doc
 |---|---|---|
 | Corredor | `jest` con el preset `jest-expo` | Es el que mantiene Expo con cada SDK: trae el mapeo de módulos nativos y la lista de paquetes a transpilar, que cambian con cada versión. |
 | Aserciones sobre componentes | `@testing-library/react-native` | Consulta el árbol por lo que ve el usuario (texto, rol, estado accesible), no por estructura interna. Un test que busca por `testID` de un `View` se rompe con cualquier refactor de layout. |
+| Lectura del contrato | `js-yaml` + el compilador de `typescript` | Para el chequeo de deriva (3.2). Ambos ya estaban en el árbol; `js-yaml` se declara explícito para que no desaparezca en un bump de dependencias. |
 
 Se descarta **Vitest**: es más rápido, pero el preset de React Native es de Jest y replicarlo a mano deja al proyecto manteniendo infraestructura que Expo ya mantiene.
 
@@ -41,10 +42,25 @@ El frontend **no es la barrera de seguridad** y no aplica reglas de negocio: las
 1. **Lógica pura de presentación.** Formato de fechas, edad, peso, y la aritmética de la grilla de turnos. Es donde vive el grueso del riesgo real: una zona horaria mal manejada corre un turno de día, y nadie lo nota hasta que un tutor llega el día equivocado.
 2. **Reglas que la interfaz refleja para no ofrecer lo que va a fallar.** El selector de turnos no muestra horas fuera de la grilla; el alta de paciente no deja elegir un tutor sin consentimiento. El backend las rechaza igual — lo que se verifica es que el usuario no llegue a intentarlo.
 3. **Estados que no son el feliz.** Vacío, error, sin permiso, bloqueado. Son los que se rompen en silencio, porque nadie los mira al desarrollar.
+4. **Deriva entre los tipos escritos a mano y el contrato** — ver 3.2.
 
 Lo que **no** se prueba: que un componente se vea de determinada manera, que un token de color sea el correcto, ni que una pantalla llame a tal endpoint. Lo primero es del design system, lo último es implementación.
 
-### 3.1 Cobertura
+Tampoco se prueba **que la API se comporte bien**. Eso ya lo cubren los tests de integración del backend, que atraviesan el router real contra un Postgres real y verifican códigos de estado, alcances por rol y validaciones. Reescribir eso desde el frontend sería duplicarlo desde el lugar equivocado, y más lento.
+
+### 3.2 Deriva de contrato
+
+El cliente de la API se tipa a mano, sin generación desde el YAML (doc 08, sección 7). El trade-off aceptado ahí es que nada detecta automáticamente si un tipo se desalinea del contrato — y ese hueco no lo ve **ninguna** de las dos suites: el backend se prueba contra sí mismo y el frontend contra sus propios tipos, así que un tipo equivocado deja las dos en verde y rompe la app igual.
+
+`src/api/contrato.test.ts` cubre exactamente eso: lee `backend/openapi/openapi.yaml` y compara, para cada entidad, los campos de la interfaz del cliente contra las propiedades de su esquema. En los dos sentidos — un campo que el contrato agregó y el cliente no lee es una funcionalidad perdida en silencio, y uno que el cliente manda y el contrato no tiene es un request que el backend va a rechazar. Los enums se comparan igual.
+
+Los tipos se leen con el compilador de TypeScript y no con expresiones regulares: un comentario con llaves o un tipo anidado rompen el regex, y un chequeo de contrato que falla por su propio parser no sirve para nada.
+
+> **Se saltea si el repo del backend no está al lado.** El contrato no se duplica en este repo a propósito: ya estuvo duplicado en los dos y divergieron (CLAUDE.md de la raíz). La contrapartida es que en un CI que solo clona el frontend este chequeo no protege nada — ahí hay que clonar los dos repos, o es decorativo.
+>
+> Es la alternativa barata a montar pruebas de integración propias contra un backend levantado: corre en menos de un segundo, sin base ni servidor, y cubre el único hueco que las suites existentes dejan.
+
+### 3.3 Cobertura
 
 No hay porcentaje mínimo, a diferencia del backend. La cobertura obligatoria del backend cubre su capa de negocio, que es donde vive la única aplicación real de las reglas; acá el equivalente sería una métrica que se cumple renderizando pantallas sin afirmar nada sobre ellas.
 
@@ -70,6 +86,6 @@ En este proyecto hay un tipo de comentario que sí vale siempre: **el que ata un
 
 ## 6. Fuera de alcance de este documento
 
-- **Pruebas de integración contra el backend real.** Hoy la única defensa contra un contrato que cambia es la disciplina de mantener los tipos a mano (doc 08, sección 7). Un juego de pruebas que levante el backend y ejercite los flujos completos es el paso que cierra ese hueco, y no está definido.
+- **Pruebas de punta a punta con el backend levantado** (navegador contra API real). El chequeo de deriva de contrato (3.2) cubre lo que se rompía en silencio; lo que quedaría afuera es que un flujo completo falle por cómo se encadenan varias pantallas. Con 83 tests de integración del lado del backend y el chequeo de contrato de este lado, el costo de montar y mantener un entorno completo no se justifica hoy. Si aparece un bug que ninguna de las dos suites hubiera podido atrapar, ese es el momento de reevaluarlo.
 - **Pruebas de accesibilidad automatizadas.**
 - **Pruebas visuales o de regresión de imagen.**
