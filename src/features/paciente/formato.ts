@@ -98,13 +98,13 @@ export function microchip(valor: string | null | undefined): string | null {
  * la clínica**, no cortarle los primeros diez caracteres ni leerlo con el reloj
  * del dispositivo — en UTC el mismo turno puede caer al día siguiente.
  */
-export function diaDeInstante(iso: string): string {
-  return diaEnLaClinica(new Date(iso));
+export function diaDeInstante(iso: string, zona?: string): string {
+  return diaEnLaClinica(new Date(iso), zona);
 }
 
 /** `2026-09-05T09:30:00-03:00` → `09:30`, la hora que marca el reloj de la clínica. */
-export function horaCorta(iso: string): string {
-  return horaEnLaClinica(new Date(iso));
+export function horaCorta(iso: string, zona?: string): string {
+  return horaEnLaClinica(new Date(iso), zona);
 }
 
 /**
@@ -114,8 +114,8 @@ export function horaCorta(iso: string): string {
  * si reagendar hace falta saber qué día cae la cita que se está moviendo, y el
  * número del día solo no lo dice.
  */
-export function momentoCorto(iso: string): string {
-  return `${fechaConDiaDeSemana(diaDeInstante(iso))} · ${horaCorta(iso)}`;
+export function momentoCorto(iso: string, zona?: string): string {
+  return `${fechaConDiaDeSemana(diaDeInstante(iso, zona))} · ${horaCorta(iso, zona)}`;
 }
 
 /** Hoy en la clínica, en `YYYY-MM-DD`. Reexportado para no importar dos módulos. */

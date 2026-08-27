@@ -62,7 +62,7 @@ export function FormularioDeCita({
   const [dia, setDia] = useState(() =>
     valorInicial?.fecha_programada
       ? aIso(new Date(valorInicial.fecha_programada))
-      : hoyEnLaClinica(),
+      : hoyEnLaClinica(clinica?.zona_horaria),
   );
   const [turno, setTurno] = useState<string | null>(valorInicial?.fecha_programada ?? null);
   const [notificar, setNotificar] = useState(valorInicial?.notificar_tutor ?? true);

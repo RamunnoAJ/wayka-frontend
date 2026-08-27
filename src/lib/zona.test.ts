@@ -10,14 +10,14 @@ import {
   hoyEnLaClinica,
   instanteEnLaClinica,
   partesEnLaClinica,
-  ZONA_DE_LA_CLINICA,
+  ZONA_POR_DEFECTO,
 } from './zona';
 
 describe('la zona del dispositivo no es la de la clínica', () => {
   it('el entorno de la prueba está efectivamente en otra zona', () => {
     // Si esto falla, el resto de la suite no prueba lo que dice probar.
     expect(new Date().getTimezoneOffset()).not.toBe(180);
-    expect(ZONA_DE_LA_CLINICA).toBe('America/Argentina/Buenos_Aires');
+    expect(ZONA_POR_DEFECTO).toBe('America/Argentina/Buenos_Aires');
   });
 });
 
@@ -89,7 +89,31 @@ describe('hoyEnLaClinica', () => {
     // en Tokio ya son las 08:00 del 5.
     const ahora = new Date('2027-01-04T23:00:00.000Z');
 
-    expect(hoyEnLaClinica(ahora)).toBe('2027-01-04');
+    expect(hoyEnLaClinica(ZONA_POR_DEFECTO, ahora)).toBe('2027-01-04');
     expect(new Date(ahora).getDate()).toBe(5);
+  });
+});
+
+describe('la zona es un dato de la clínica', () => {
+  it('el mismo instante se lee distinto según la zona que se pida', () => {
+    const instante = new Date('2027-01-04T12:00:00.000Z');
+
+    expect(horaEnLaClinica(instante, 'America/Argentina/Buenos_Aires')).toBe('09:00');
+    expect(horaEnLaClinica(instante, 'Europe/Madrid')).toBe('13:00');
+    expect(horaEnLaClinica(instante, 'Asia/Tokyo')).toBe('21:00');
+  });
+
+  it('arma el momento en la zona que se le pide', () => {
+    // Las 09:30 en Madrid son las 08:30 UTC en enero.
+    expect(instanteEnLaClinica('2027-01-04', 9 * 60 + 30, 'Europe/Madrid').toISOString()).toBe(
+      '2027-01-04T08:30:00.000Z',
+    );
+  });
+
+  it('una zona desconocida cae en la del piloto en vez de romperse', () => {
+    const instante = new Date('2027-01-04T12:00:00.000Z');
+
+    expect(horaEnLaClinica(instante, 'Marte/Olympus')).toBe('09:00');
+    expect(horaEnLaClinica(instante, '')).toBe('09:00');
   });
 });

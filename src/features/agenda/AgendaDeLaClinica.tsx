@@ -92,7 +92,9 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
   const porDia = useMemo(() => {
     const mapa = new Map<string, CitaConPaciente[]>();
     for (const fila of agenda.data ?? []) {
-      const clave = diaDeInstante(fila.cita.fecha_programada);
+      // Cada cita se agrupa por el día de **su** clínica: con mascotas en husos
+      // distintos, un solo criterio movería turnos de día.
+      const clave = diaDeInstante(fila.cita.fecha_programada, fila.zona_horaria);
       const dia = mapa.get(clave);
       if (dia) dia.push(fila);
       else mapa.set(clave, [fila]);
@@ -179,57 +181,65 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                   </Text>
                 </View>
 
-                {filas.map(({ cita, paciente_nombre, paciente_especie, veterinario_nombre }) => {
-                  const colores = tono(t, cita.estado);
-                  return (
-                    <Pressable
-                      key={cita.id}
-                      accessibilityRole="button"
-                      onPress={() => onAbrirPaciente(cita.paciente_id)}
-                      style={({ hovered, pressed }) => [
-                        estilos.fila,
-                        sombra('--shadow-sm'),
-                        {
-                          borderRadius: px('--radius-card'),
-                          borderColor: t['--border-default'],
-                          backgroundColor:
-                            hovered || pressed ? t['--surface-hover'] : t['--surface-card'],
-                        },
-                      ]}
-                    >
-                      <View
-                        style={[
-                          estilos.hora,
-                          { backgroundColor: colores.fondo, borderRadius: px('--radius-md') },
+                {filas.map(
+                  ({
+                    cita,
+                    paciente_nombre,
+                    paciente_especie,
+                    veterinario_nombre,
+                    zona_horaria,
+                  }) => {
+                    const colores = tono(t, cita.estado);
+                    return (
+                      <Pressable
+                        key={cita.id}
+                        accessibilityRole="button"
+                        onPress={() => onAbrirPaciente(cita.paciente_id)}
+                        style={({ hovered, pressed }) => [
+                          estilos.fila,
+                          sombra('--shadow-sm'),
+                          {
+                            borderRadius: px('--radius-card'),
+                            borderColor: t['--border-default'],
+                            backgroundColor:
+                              hovered || pressed ? t['--surface-hover'] : t['--surface-card'],
+                          },
                         ]}
                       >
-                        <Text style={[texto('body-strong'), { color: colores.texto }]}>
-                          {horaCorta(cita.fecha_programada)}
-                        </Text>
-                      </View>
-                      <Avatar name={paciente_nombre} species={paciente_especie} size="sm" />
-                      <View style={estilos.flexible}>
-                        <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                          {paciente_nombre}
-                        </Text>
-                        <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
-                          {/* Sin profesional no es un dato faltante: es una cita
-                              de la clínica que todavía no se repartió. */}
-                          {veterinario_nombre
-                            ? `${ETIQUETA_DE_TIPO[cita.tipo]} · ${veterinario_nombre}`
-                            : `${ETIQUETA_DE_TIPO[cita.tipo]} · sin asignar`}
-                        </Text>
-                      </View>
-                      {cita.estado !== ESTADO_DE_CITA.PENDIENTE ? (
-                        <Text
-                          style={[texto('caption'), { fontWeight: '600', color: colores.texto }]}
+                        <View
+                          style={[
+                            estilos.hora,
+                            { backgroundColor: colores.fondo, borderRadius: px('--radius-md') },
+                          ]}
                         >
-                          {cita.estado.toUpperCase()}
-                        </Text>
-                      ) : null}
-                    </Pressable>
-                  );
-                })}
+                          <Text style={[texto('body-strong'), { color: colores.texto }]}>
+                            {horaCorta(cita.fecha_programada, zona_horaria)}
+                          </Text>
+                        </View>
+                        <Avatar name={paciente_nombre} species={paciente_especie} size="sm" />
+                        <View style={estilos.flexible}>
+                          <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+                            {paciente_nombre}
+                          </Text>
+                          <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
+                            {/* Sin profesional no es un dato faltante: es una cita
+                              de la clínica que todavía no se repartió. */}
+                            {veterinario_nombre
+                              ? `${ETIQUETA_DE_TIPO[cita.tipo]} · ${veterinario_nombre}`
+                              : `${ETIQUETA_DE_TIPO[cita.tipo]} · sin asignar`}
+                          </Text>
+                        </View>
+                        {cita.estado !== ESTADO_DE_CITA.PENDIENTE ? (
+                          <Text
+                            style={[texto('caption'), { fontWeight: '600', color: colores.texto }]}
+                          >
+                            {cita.estado.toUpperCase()}
+                          </Text>
+                        ) : null}
+                      </Pressable>
+                    );
+                  },
+                )}
               </View>
             ))
           )}

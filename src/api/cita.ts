@@ -78,6 +78,12 @@ export interface CitaConPaciente {
   paciente_especie?: string;
   /** Viene en la misma consulta para que la agenda no pida uno por fila. */
   veterinario_nombre?: string | null;
+  /**
+   * Zona de la clínica que atiende a esa mascota. Viaja por fila y no una vez
+   * por respuesta porque el tutor puede tener mascotas en clínicas de husos
+   * distintos, y cada turno se lee en el reloj de la suya.
+   */
+  zona_horaria: string;
 }
 
 export interface CrearCitaEntrada {

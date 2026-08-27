@@ -73,7 +73,7 @@ export function MisCitas() {
                   >
                     PRÓXIMAS
                   </Text>
-                  {pendientes.map(({ cita, paciente_nombre }) => {
+                  {pendientes.map(({ cita, paciente_nombre, zona_horaria }) => {
                     const colores = tono(t, cita.estado);
                     return (
                       <View
@@ -88,7 +88,7 @@ export function MisCitas() {
                           {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${paciente_nombre}`}
                         </Text>
                         <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                          {`${fechaConDiaDeSemana(diaDeInstante(cita.fecha_programada))} a las ${horaCorta(cita.fecha_programada)}`}
+                          {`${fechaConDiaDeSemana(diaDeInstante(cita.fecha_programada, zona_horaria))} a las ${horaCorta(cita.fecha_programada, zona_horaria)}`}
                         </Text>
                         <StatusDot status={cita.estado} label={ETIQUETA_DE_ESTADO[cita.estado]} />
                         <Text style={[texto('caption'), { color: t['--text-muted'] }]}>
@@ -114,7 +114,7 @@ export function MisCitas() {
                   >
                     ANTERIORES
                   </Text>
-                  {pasadas.map(({ cita, paciente_nombre }) => {
+                  {pasadas.map(({ cita, paciente_nombre, zona_horaria }) => {
                     const colores = tono(t, cita.estado);
                     return (
                       <View
@@ -128,7 +128,7 @@ export function MisCitas() {
                           {`${ETIQUETA_DE_TIPO[cita.tipo]} · ${paciente_nombre}`}
                         </Text>
                         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                          {`${fechaConDiaDeSemana(diaDeInstante(cita.fecha_programada))} · ${ETIQUETA_DE_ESTADO[cita.estado]}`}
+                          {`${fechaConDiaDeSemana(diaDeInstante(cita.fecha_programada, zona_horaria))} · ${ETIQUETA_DE_ESTADO[cita.estado]}`}
                         </Text>
                       </View>
                     );

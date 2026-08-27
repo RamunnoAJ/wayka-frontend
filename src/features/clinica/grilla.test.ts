@@ -16,6 +16,7 @@ const CLINICA: Clinica = {
   hora_apertura: '09:00',
   hora_cierre: '18:00',
   duracion_turno_minutos: 30,
+  zona_horaria: 'America/Argentina/Buenos_Aires',
   created_at: '',
   updated_at: '',
 };

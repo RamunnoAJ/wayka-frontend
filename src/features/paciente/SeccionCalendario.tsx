@@ -106,16 +106,16 @@ export function SeccionCalendario({
   const porDia = useMemo(() => {
     const mapa = new Map<string, Cita[]>();
     for (const cita of lista) {
-      const clave = diaDeInstante(cita.fecha_programada);
+      const clave = diaDeInstante(cita.fecha_programada, clinica?.zona_horaria);
       const dia = mapa.get(clave);
       if (dia) dia.push(cita);
       else mapa.set(clave, [cita]);
     }
     return mapa;
-  }, [lista]);
+  }, [lista, clinica?.zona_horaria]);
 
   const celdas = useMemo(() => construirMes(foco), [foco]);
-  const hoy = hoyEnLaClinica();
+  const hoy = hoyEnLaClinica(clinica?.zona_horaria);
 
   const accion = (
     <Button
@@ -310,7 +310,7 @@ export function SeccionCalendario({
                   <Text
                     style={[texto('body-sm'), { fontWeight: '700', color: t['--text-strong'] }]}
                   >
-                    {momentoCorto(cita.fecha_programada)}
+                    {momentoCorto(cita.fecha_programada, clinica?.zona_horaria)}
                   </Text>
                   <View style={estilos.estado}>
                     <View style={[estilos.punto, { backgroundColor: colores.texto }]} />

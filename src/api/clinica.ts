@@ -22,6 +22,12 @@ export interface Clinica {
    * de este valor contado desde `hora_apertura` (regla 2.2).
    */
   duracion_turno_minutos: number;
+  /**
+   * Nombre IANA de la zona en la que se interpretan el horario de atención y la
+   * hora de las Citas. `hora_apertura` dice "09:00" sin decir 09:00 de dónde, y
+   * esa pregunta la contesta la clínica.
+   */
+  zona_horaria: string;
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +44,7 @@ export interface ActualizarClinicaEntrada {
   hora_apertura?: HoraDelDia;
   hora_cierre?: HoraDelDia;
   duracion_turno_minutos?: number;
+  zona_horaria?: string;
 }
 
 export function obtenerClinica(clinicaId: string): Promise<Clinica> {
