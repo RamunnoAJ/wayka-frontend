@@ -1,7 +1,17 @@
+export { AllergyChip } from './AllergyChip';
+export { Avatar } from './Avatar';
+export { Badge } from './Badge';
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
+export { EmptyState } from './EmptyState';
 export { GuardDeRol } from './GuardDeRol';
 export { Icon, type NombreDeIcono } from './Icon';
+export { IconButton } from './IconButton';
 export { InlineError } from './InlineError';
 export { Input } from './Input';
+export { MedicationItem } from './MedicationItem';
 export { Placeholder } from './Placeholder';
+export { Select, type OpcionDeSelect } from './Select';
+export { Skeleton, SkeletonText } from './Skeleton';
+export { StatusDot } from './StatusDot';
+export { Tabs, type ItemDeTab } from './Tabs';
