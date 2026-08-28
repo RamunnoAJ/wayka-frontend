@@ -1,5 +1,5 @@
 const { Button, Input, Card, Icon, Badge, CriticalPanel, AllergyChip, MedicationItem, TimelineEvent,
-  DataField, AppointmentCard, EmptyState, Avatar, Tabs, PetHeader, StatusDot } = window.WaykaDesignSystem_51ee47;
+  DataField, AppointmentCard, EmptyState, Avatar, Tabs, PetHeader, StatusDot, SocialButton } = window.WaykaDesignSystem_51ee47;
 
 const TUTOR_TABS=[{value:'mascotas',label:'Mis mascotas',icon:'paw-print'},{value:'agenda',label:'Citas',icon:'calendar-days'},{value:'perfil',label:'Perfil',icon:'user'}];
 
@@ -17,6 +17,13 @@ function TutorLogin({ onLogin }) {
       </div>
       <div style={{ background:'var(--surface-card)', borderRadius:'26px 26px 0 0', padding:'26px var(--gutter-mobile) 30px', display:'grid', gap:'var(--space-5)' }}>
         <h1 style={{ font:'var(--text-h3)', color:'var(--text-strong)' }}>Ingresá a tu cuenta</h1>
+        {/* Google arriba: camino mas corto primero, y deja "Entrar" como unico boton de relleno primario. */}
+        <SocialButton onClick={onLogin} />
+        <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+          <span style={{ flex:1, height:1, background:'var(--border-default)' }} />
+          <span style={{ font:'var(--fs-caption) var(--font-sans)', color:'var(--text-subtle)' }}>o con tu correo</span>
+          <span style={{ flex:1, height:1, background:'var(--border-default)' }} />
+        </div>
         <Input label="Correo" defaultValue="julia.fernandez@mail.com" icon="mail" />
         <Input label="Contraseña" type="password" defaultValue="········" icon="lock" />
         <Button block size="touch" onClick={onLogin}>Entrar</Button>

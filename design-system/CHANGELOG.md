@@ -10,6 +10,48 @@ Regla para el pipeline: **regenerar el espejo de tokens cuando cambie `version` 
 
 ---
 
+## 1.3.0 — 2026-08-27
+
+### Agregado
+
+**Adjuntos** (`components/core/`)
+- **`FileDropzone`** — punto de entrada del adjunto. Reposo / arrastre encima / rechazado, y `dragDrop={false}` lo degrada a un boton `size="touch"` para nativo, donde no hay drag & drop. El tipo se **declara** (`type="foto|pdf|estudio"`), no se infiere: el backend valida el MIME real contra lo declarado, asi que hay una zona por tipo y ninguna zona generica. El limite (`maxSizeMB`) se muestra **en reposo, antes de elegir el archivo** — el 413 no puede ser el primer aviso.
+- **`UploadItem`** — un archivo en curso o terminado: icono por tipo con el criterio del catalogo clinico (foto `image`, pdf `file-text`, estudio `microscope`), nombre, peso y estado subiendo / listo / fallo-reintentar. **La barra de progreso va adentro del item**, nunca suelta. No existe "reemplazar": `onRemove` es la unica mutacion y, mientras sube, cancela. `owner="other"` es el adjunto del otro rol: mismo fondo y mismo contraste, sin accion de retirar y con la autoria a la vista — no se atenua, porque atenuarlo lo haria leer como deshabilitado por error.
+- **`ProgressBar`** — determinada e indeterminada, `sm`/`md`, tonos primary/success/danger.
+- Token de animacion: `@keyframes wayka-indeterminate` en `tokens/base.css` (junto a `wayka-spin`).
+
+**Cuenta y permisos** (`components/core/`)
+- **`PermissionCard`** — permiso de push con tres estados de peso visual deliberadamente distinto: sin preguntar (tarjeta completa, unica accion principal de la pantalla), concedido (una linea, sin accion), denegado (bloque discreto y **neutro, no rojo**, que nombra la consecuencia concreta — "no vas a recibir el recordatorio del dia anterior a cada turno" — y lleva a los ajustes del telefono con un boton `ghost`). En denegado el componente no insiste ni vuelve a ofrecer el prompt: el SO no vuelve a preguntar.
+- **`SocialButton`** — variante Google para login y registro del tutor. Logo en sus cuatro colores, sin tenir; cromia de la guia de Google, fija en los dos temas.
+
+**Cards nuevas:** "Core · Adjuntos", "Core · Cuenta y permisos", "Móvil tutor · Adjuntos y avisos".
+
+### Cambiado
+- **`Toast` rediseñado** — deja de ser una tarjeta blanca con ícono y borde de acento a la izquierda (patrón gastado, y además se confundía con las cards de contenido) y pasa a ser una **barra oscura** sobre `--surface-inverse` con `data-surface="dark"`, la misma superficie que la navegación. Sin ícono y sin franja de color: el tono es un punto de 7 px, coherente con la regla "punto + tipografía". Sin sombra, porque el fondo oscuro ya lo separa. Prop nueva `action` ({ label, onClick }) para una única acción en texto subrayado. La API anterior sigue valiendo (`tone`, `title`, `description`, `onClose`).
+- **`AppointmentCard`**: se fue el `border-left` de 3 px de estado. El estado ya lo decían el punto y la etiqueta en overline — el borde era redundante y arrastraba el mismo patrón. Hairline uniforme en los cuatro lados. Sin cambio de API.
+- **Login del tutor** (`ui_kits/tutor-movil`): `SocialButton` **arriba** del formulario de email, separado por "o con tu correo". Decidido asi porque es el camino mas corto y ponerlo abajo obliga a leer el formulario antes de descubrirlo; ademas el boton de Google es neutro, con lo que el unico boton de relleno primario de la pantalla sigue siendo "Entrar".
+- **Formulario de evento clinico** (`ui_kits/clinica-web`): bloque de adjuntos al final del formulario, con selector de tipo declarado arriba de la zona de arrastre y la lista de items debajo, incluido un adjunto de la tutora que la vet ve pero no puede retirar.
+
+### Excepcion de tokens declarada
+`components/core/SocialButton.jsx` escribe hexadecimales literales (`#FFFFFF`, `#DADCE0`, `#3C4043` y los cuatro del logo). Son de **Google**, no de Wayka: no son tokens, no son themeables y **no deben mapearse al espejo de tokens**. Anotado en `version.json` como `tokenExceptions`.
+
+### Sin diseñar, a proposito
+Cambio de contraseña: recomendacion de ubicacion en **`RECOMENDACION-CONTRASENA.md`** (seccion dentro de la pantalla de cuenta, no pantalla propia; el rol vet necesita decision de alcance). Sin componentes hasta que el alcance lo ubique.
+
+---
+
+## 1.2.0 — 2026-08-27
+
+### Agregado
+- **`CalendarWeek` y `CalendarEvent`** (clinical): vista de semana en columnas por dia, sin franjas horarias. El tinte del bloque ES el estado — pendiente en lila, cumplido en neutro, vencido en rojo — con el rango horario adentro en tabular-nums; hoy se marca solo en el numero del dia (pastilla llena). Es la excepcion declarada a la regla "punto + tipografia": en el calendario el bloque entero es el marcador.
+- **`Tabs variant="segmented"`**: mismo pill, pero el activo se rellena con `--color-primary-fill` y texto blanco. Es el conmutador Dia / Semana / Mes de la agenda.
+- Card nueva: "Clínica · Calendario".
+
+### Cambiado
+- La agenda semanal del kit clinica-web dejo la grilla por franjas horarias y usa `CalendarWeek`, con el rango de fechas como titulo, chevrons al lado y el conmutador segmentado a la derecha. La leyenda de puntos se fue: el estado se lee en los propios bloques.
+
+---
+
 ## 1.1.1 — 2026-08-25
 
 Entrega de formato: mismos nombres y mismos valores resueltos, cero cambios visuales.

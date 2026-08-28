@@ -1,6 +1,6 @@
 # Wayka — Design System
 
-**Version 1.1.1** (2026-08-25). Contrato, criterio de versionado e historial en `CHANGELOG.md`; version legible por maquina en `version.json` y en el token `--ds-version`.
+**Version 1.2.0** (2026-08-27). Contrato, criterio de versionado e historial en `CHANGELOG.md`; version legible por maquina en `version.json` y en el token `--ds-version`.
 
 Wayka es un **historial de salud colaborativo y calendario interactivo para veterinarias**. Facilita el día a día de la clínica y mejora la comunicación con los tutores de mascotas. MVP con una clínica piloto; modelo B2B (la clínica es quien paga).
 
@@ -81,11 +81,21 @@ Los hexadecimales de marca son **derivados de los nombres de archivo de los logo
 
 **Bordes y esquinas.** Todo lleva borde de 1px en `--border-default`; las cards nunca flotan solo con sombra. Radios: 4 (checkbox), 8 (chips, celdas), 10 (controles), 12, 16 (cards), 22 (avatares grandes), 999 (pills, buscador). Nunca esquina viva.
 
-**Sombras.** Bajas y frías, con base en rgba(30,20,40,·). `--shadow-sm` en cards, `--shadow-md` en tooltip, `--shadow-lg` en toast y teléfono, `--shadow-overlay` solo en modal. Nada de sombras interiores.
+**Sombras.** Bajas y frías, con base en rgba(30,20,40,·). `--shadow-sm` en cards, `--shadow-md` en tooltip, `--shadow-lg` en el teléfono de los kits, `--shadow-overlay` solo en modal. El `Toast` no lleva sombra: se separa del fondo porque es oscuro. Nada de sombras interiores.
 
 **Carga, error y vacío.** Los tres estados tienen componente y son obligatorios en cualquier bloque que dependa de datos. Carga: **Skeleton** / **SkeletonText** con las medidas del contenido real, nunca un spinner centrado. Error: **InlineError** dentro del bloque que falló, con reintento si la acción se puede repetir — el resto de la pantalla sigue usable; **Toast** queda solo para avisos efímeros. Vacío: **EmptyState** con una acción que resuelva el vacío.
 
 **Capas.** `Dialog` para confirmar o editar algo puntual, centrado y con foco atrapado. `Sheet` para lo demas: desde abajo en movil (barra de arrastre, boton principal a ancho completo), `side="right"` en web para detalle y filtros. `Tooltip` solo para etiquetas cortas, nunca para contenido que haga falta leer. Nada de capas anidadas.
+
+**Nada de tarjeta con ícono y borde de acento a la izquierda.** Es el patrón más gastado del rubro y ningún componente de Wayka lo usa. El estado se dice con **punto + tipografía** (`StatusDot`, `AppointmentCard`) y los avisos del sistema con una superficie distinta (`Toast` sobre `--surface-inverse`), no con una franja de color pegada al borde. La única excepción sigue siendo `CalendarWeek`, donde el bloque entero es el marcador.
+
+**Adjuntos.** Una sola familia para las dos superficies: `FileDropzone` es el punto de entrada — zona de arrastre en web, `dragDrop={false}` la degrada al botón táctil del tutor —, `UploadItem` es cada archivo y `ProgressBar` vive **adentro** del ítem, nunca suelta. El tipo (foto / pdf / estudio) lo **declara** la UI porque el backend valida el MIME real contra lo declarado: una zona por tipo, sin inferencia por extensión. El límite de tamaño se lee en reposo, antes de elegir el archivo — el 413 no puede ser el primer aviso. Un adjunto no se edita: se retira y se sube otro. Cada rol retira solo lo suyo; el adjunto ajeno se ve completo, sin acción y con la autoría a la vista, nunca atenuado.
+
+**Permisos.** `PermissionCard` pide el push y muestra el estado ya resuelto, con tres pesos visuales distintos: tarjeta completa sin preguntar, una línea si está concedido, y en denegado un bloque discreto y neutro que nombra la consecuencia concreta y lleva a los ajustes del teléfono. Denegado no se insiste ni se convierte en banner permanente: el SO no vuelve a preguntar.
+
+**Marca ajena.** `SocialButton` (Google) es la única excepción a los tokens: logo sin teñir y cromía de la guía del proveedor, fija en los dos temas. Va **arriba** del formulario de email, separado con "o con tu correo", para que el único botón de relleno primario siga siendo "Entrar".
+
+**Calendario.** La agenda semanal es `CalendarWeek`: columnas por día sin franjas horarias, citas apiladas con el horario adentro. Ahí el tinte del bloque ES el estado (pendiente lila, cumplido neutro, vencido rojo) — excepción declarada a la regla del punto, porque el bloque entero es el marcador. Hoy se marca solo en el número del día. El conmutador Día/Semana/Mes es `Tabs variant="segmented"`.
 
 **Tablas.** `DataTable` aporta la cabecera y el contenedor; las filas son componentes del dominio (`PatientRow`) para que cada contexto muestre lo suyo. Los anchos declarados en `columns` tienen que coincidir con los de la fila. Sin franjas alternas ni bordes verticales: la hairline entre filas alcanza.
 
@@ -135,9 +145,9 @@ Los hexadecimales de marca son **derivados de los nombres de archivo de los logo
 
 ### Components
 
-`components/core/` — **Icon**, **Button**, **IconButton**, **Input**, **Textarea**, **Select**, **Checkbox**, **Radio**, **Switch**, **Card**, **Badge**, **Tag**, **Avatar**, **Tabs**, **Dialog**, **Toast**, **Tooltip**, **SearchField**, **Sheet**, **DatePicker**, **Calendar**, **DataTable**, **EmptyState**, **Skeleton**, **SkeletonText**, **InlineError**
+`components/core/` — **Icon**, **Button**, **IconButton**, **Input**, **Textarea**, **Select**, **Checkbox**, **Radio**, **Switch**, **Card**, **Badge**, **Tag**, **Avatar**, **Tabs**, **Dialog**, **Toast**, **Tooltip**, **SearchField**, **Sheet**, **DatePicker**, **Calendar**, **DataTable**, **EmptyState**, **Skeleton**, **SkeletonText**, **InlineError**, **FileDropzone**, **UploadItem**, **ProgressBar**, **PermissionCard**, **SocialButton**
 
-`components/clinical/` — **CriticalPanel**, **AllergyChip**, **MedicationItem**, **TimelineEvent**, **AppointmentCard**, **PatientRow**, **DataField**, **PetHeader**, **StatusDot**
+`components/clinical/` — **CalendarWeek**, **CalendarEvent**, **CriticalPanel**, **AllergyChip**, **MedicationItem**, **TimelineEvent**, **AppointmentCard**, **PatientRow**, **DataField**, **PetHeader**, **StatusDot**
 
 `components/navigation/` — **SidebarNav**, **PageHeader**, **MobileTabBar**, **MobileHeader**
 

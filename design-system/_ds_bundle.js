@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"WaykaDesignSystem_51ee47","components":[{"name":"AllergyChip","sourcePath":"components/clinical/AllergyChip.jsx"},{"name":"AppointmentCard","sourcePath":"components/clinical/AppointmentCard.jsx"},{"name":"CriticalPanel","sourcePath":"components/clinical/CriticalPanel.jsx"},{"name":"DataField","sourcePath":"components/clinical/DataField.jsx"},{"name":"MedicationItem","sourcePath":"components/clinical/MedicationItem.jsx"},{"name":"PatientRow","sourcePath":"components/clinical/PatientRow.jsx"},{"name":"PetHeader","sourcePath":"components/clinical/PetHeader.jsx"},{"name":"StatusDot","sourcePath":"components/clinical/StatusDot.jsx"},{"name":"TimelineEvent","sourcePath":"components/clinical/TimelineEvent.jsx"},{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Checkbox","sourcePath":"components/core/Checkbox.jsx"},{"name":"DataTable","sourcePath":"components/core/DataTable.jsx"},{"name":"Calendar","sourcePath":"components/core/DatePicker.jsx"},{"name":"DatePicker","sourcePath":"components/core/DatePicker.jsx"},{"name":"Dialog","sourcePath":"components/core/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/core/EmptyState.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"InlineError","sourcePath":"components/core/InlineError.jsx"},{"name":"Input","sourcePath":"components/core/Input.jsx"},{"name":"Radio","sourcePath":"components/core/Radio.jsx"},{"name":"SearchField","sourcePath":"components/core/SearchField.jsx"},{"name":"Select","sourcePath":"components/core/Select.jsx"},{"name":"Sheet","sourcePath":"components/core/Sheet.jsx"},{"name":"Skeleton","sourcePath":"components/core/Skeleton.jsx"},{"name":"SkeletonText","sourcePath":"components/core/Skeleton.jsx"},{"name":"Switch","sourcePath":"components/core/Switch.jsx"},{"name":"Tabs","sourcePath":"components/core/Tabs.jsx"},{"name":"Tag","sourcePath":"components/core/Tag.jsx"},{"name":"Textarea","sourcePath":"components/core/Textarea.jsx"},{"name":"Toast","sourcePath":"components/core/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/core/Tooltip.jsx"},{"name":"MobileHeader","sourcePath":"components/navigation/MobileHeader.jsx"},{"name":"MobileTabBar","sourcePath":"components/navigation/MobileTabBar.jsx"},{"name":"PageHeader","sourcePath":"components/navigation/PageHeader.jsx"},{"name":"SidebarNav","sourcePath":"components/navigation/SidebarNav.jsx"}],"sourceHashes":{"components/clinical/AllergyChip.jsx":"5a4b0de2185c","components/clinical/AppointmentCard.jsx":"37ec7c5865f1","components/clinical/CriticalPanel.jsx":"c16950d8dc0f","components/clinical/DataField.jsx":"f709562cb2ae","components/clinical/MedicationItem.jsx":"3fb539f86308","components/clinical/PatientRow.jsx":"6d7f10c272d3","components/clinical/PetHeader.jsx":"c88383b35cef","components/clinical/StatusDot.jsx":"7e0d716dc835","components/clinical/TimelineEvent.jsx":"434832d60a76","components/core/Avatar.jsx":"4e8103cb8973","components/core/Badge.jsx":"1611bd6a6615","components/core/Button.jsx":"abb046f5f8a5","components/core/Card.jsx":"2e18d1688e38","components/core/Checkbox.jsx":"36211f2e87cc","components/core/DataTable.jsx":"a6a31f760a98","components/core/DatePicker.jsx":"0deaf8679b54","components/core/Dialog.jsx":"61778ebb7492","components/core/EmptyState.jsx":"fd49ef7229b5","components/core/Icon.jsx":"cbf04e8d5b80","components/core/IconButton.jsx":"bf84841dbe9c","components/core/InlineError.jsx":"1d167ba4a293","components/core/Input.jsx":"20c12d1dcbb0","components/core/Radio.jsx":"d1376b04822c","components/core/SearchField.jsx":"17722c1fed02","components/core/Select.jsx":"ba94fa3daeb4","components/core/Sheet.jsx":"47b9a7d8803c","components/core/Skeleton.jsx":"90a9bbd00dde","components/core/Switch.jsx":"175c6ecc9811","components/core/Tabs.jsx":"587fcce38f06","components/core/Tag.jsx":"00ff5c526570","components/core/Textarea.jsx":"121325142f93","components/core/Toast.jsx":"14b7af6a0626","components/core/Tooltip.jsx":"be67584253c3","components/navigation/MobileHeader.jsx":"06cf54ef9a3e","components/navigation/MobileTabBar.jsx":"053bb63c6685","components/navigation/PageHeader.jsx":"df7c57134cb5","components/navigation/SidebarNav.jsx":"cb438219082f","ui_kits/clinica-web/Agenda.jsx":"6abbda33db80","ui_kits/clinica-web/ClinicPanel.jsx":"615f515b2055","ui_kits/clinica-web/EventForm.jsx":"6726f2d1be10","ui_kits/clinica-web/Login.jsx":"eddb34f90253","ui_kits/clinica-web/PatientDetail.jsx":"fc5f58ab7c91","ui_kits/clinica-web/Patients.jsx":"144d146f100d","ui_kits/clinica-web/data.js":"430377ccfb73","ui_kits/tutor-movil/TutorScreens.jsx":"0b0df5088abd","ui_kits/vet-movil/VetScreens.jsx":"84dfddc0224d"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"WaykaDesignSystem_51ee47","components":[{"name":"AllergyChip","sourcePath":"components/clinical/AllergyChip.jsx"},{"name":"AppointmentCard","sourcePath":"components/clinical/AppointmentCard.jsx"},{"name":"CalendarEvent","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CalendarWeek","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CriticalPanel","sourcePath":"components/clinical/CriticalPanel.jsx"},{"name":"DataField","sourcePath":"components/clinical/DataField.jsx"},{"name":"MedicationItem","sourcePath":"components/clinical/MedicationItem.jsx"},{"name":"PatientRow","sourcePath":"components/clinical/PatientRow.jsx"},{"name":"PetHeader","sourcePath":"components/clinical/PetHeader.jsx"},{"name":"StatusDot","sourcePath":"components/clinical/StatusDot.jsx"},{"name":"TimelineEvent","sourcePath":"components/clinical/TimelineEvent.jsx"},{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Checkbox","sourcePath":"components/core/Checkbox.jsx"},{"name":"DataTable","sourcePath":"components/core/DataTable.jsx"},{"name":"Calendar","sourcePath":"components/core/DatePicker.jsx"},{"name":"DatePicker","sourcePath":"components/core/DatePicker.jsx"},{"name":"Dialog","sourcePath":"components/core/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/core/EmptyState.jsx"},{"name":"FileDropzone","sourcePath":"components/core/FileDropzone.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"InlineError","sourcePath":"components/core/InlineError.jsx"},{"name":"Input","sourcePath":"components/core/Input.jsx"},{"name":"PermissionCard","sourcePath":"components/core/PermissionCard.jsx"},{"name":"ProgressBar","sourcePath":"components/core/ProgressBar.jsx"},{"name":"Radio","sourcePath":"components/core/Radio.jsx"},{"name":"SearchField","sourcePath":"components/core/SearchField.jsx"},{"name":"Select","sourcePath":"components/core/Select.jsx"},{"name":"Sheet","sourcePath":"components/core/Sheet.jsx"},{"name":"Skeleton","sourcePath":"components/core/Skeleton.jsx"},{"name":"SkeletonText","sourcePath":"components/core/Skeleton.jsx"},{"name":"SocialButton","sourcePath":"components/core/SocialButton.jsx"},{"name":"Switch","sourcePath":"components/core/Switch.jsx"},{"name":"Tabs","sourcePath":"components/core/Tabs.jsx"},{"name":"Tag","sourcePath":"components/core/Tag.jsx"},{"name":"Textarea","sourcePath":"components/core/Textarea.jsx"},{"name":"Toast","sourcePath":"components/core/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/core/Tooltip.jsx"},{"name":"FILE_TYPES","sourcePath":"components/core/UploadItem.jsx"},{"name":"UploadItem","sourcePath":"components/core/UploadItem.jsx"},{"name":"MobileHeader","sourcePath":"components/navigation/MobileHeader.jsx"},{"name":"MobileTabBar","sourcePath":"components/navigation/MobileTabBar.jsx"},{"name":"PageHeader","sourcePath":"components/navigation/PageHeader.jsx"},{"name":"SidebarNav","sourcePath":"components/navigation/SidebarNav.jsx"}],"sourceHashes":{"components/clinical/AllergyChip.jsx":"5a4b0de2185c","components/clinical/AppointmentCard.jsx":"b2c180f21e06","components/clinical/CalendarWeek.jsx":"a76ef3341b50","components/clinical/CriticalPanel.jsx":"c16950d8dc0f","components/clinical/DataField.jsx":"f709562cb2ae","components/clinical/MedicationItem.jsx":"3fb539f86308","components/clinical/PatientRow.jsx":"6d7f10c272d3","components/clinical/PetHeader.jsx":"c88383b35cef","components/clinical/StatusDot.jsx":"7e0d716dc835","components/clinical/TimelineEvent.jsx":"434832d60a76","components/core/Avatar.jsx":"4e8103cb8973","components/core/Badge.jsx":"1611bd6a6615","components/core/Button.jsx":"abb046f5f8a5","components/core/Card.jsx":"2e18d1688e38","components/core/Checkbox.jsx":"36211f2e87cc","components/core/DataTable.jsx":"a6a31f760a98","components/core/DatePicker.jsx":"0deaf8679b54","components/core/Dialog.jsx":"61778ebb7492","components/core/EmptyState.jsx":"fd49ef7229b5","components/core/FileDropzone.jsx":"454e96ca3c61","components/core/Icon.jsx":"cbf04e8d5b80","components/core/IconButton.jsx":"bf84841dbe9c","components/core/InlineError.jsx":"1d167ba4a293","components/core/Input.jsx":"20c12d1dcbb0","components/core/PermissionCard.jsx":"0861c7e402d0","components/core/ProgressBar.jsx":"17d3c8b3c5cd","components/core/Radio.jsx":"d1376b04822c","components/core/SearchField.jsx":"17722c1fed02","components/core/Select.jsx":"ba94fa3daeb4","components/core/Sheet.jsx":"47b9a7d8803c","components/core/Skeleton.jsx":"90a9bbd00dde","components/core/SocialButton.jsx":"ecee3bcff8e3","components/core/Switch.jsx":"175c6ecc9811","components/core/Tabs.jsx":"f28482b5e63f","components/core/Tag.jsx":"00ff5c526570","components/core/Textarea.jsx":"121325142f93","components/core/Toast.jsx":"d6ac24de2050","components/core/Tooltip.jsx":"be67584253c3","components/core/UploadItem.jsx":"542ce0e947e4","components/navigation/MobileHeader.jsx":"06cf54ef9a3e","components/navigation/MobileTabBar.jsx":"053bb63c6685","components/navigation/PageHeader.jsx":"df7c57134cb5","components/navigation/SidebarNav.jsx":"cb438219082f","ui_kits/clinica-web/Agenda.jsx":"eac4f9e2c7d8","ui_kits/clinica-web/ClinicPanel.jsx":"615f515b2055","ui_kits/clinica-web/EventForm.jsx":"5f44feb811bd","ui_kits/clinica-web/Login.jsx":"eddb34f90253","ui_kits/clinica-web/PatientDetail.jsx":"fc5f58ab7c91","ui_kits/clinica-web/Patients.jsx":"144d146f100d","ui_kits/clinica-web/data.js":"430377ccfb73","ui_kits/tutor-movil/TutorScreens.jsx":"07c6face22a9","ui_kits/tutor-movil/TutorUploadScreens.jsx":"0354cc2f1df8","ui_kits/vet-movil/VetScreens.jsx":"84dfddc0224d"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -64,7 +64,6 @@ function AppointmentCard({
       alignItems: 'flex-start',
       background: 'var(--surface-card)',
       border: '1px solid var(--border-subtle)',
-      borderLeft: `3px solid ${c}`,
       borderRadius: 'var(--radius-md)',
       padding: compact ? '10px 12px' : '14px 16px'
     }
@@ -119,6 +118,126 @@ function AppointmentCard({
 }
 Object.assign(__ds_scope, { AppointmentCard });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/clinical/AppointmentCard.jsx", error: String((e && e.message) || e) }); }
+
+// components/clinical/CalendarWeek.jsx
+try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+/* Estilos por estado: pendiente en tinte lila, cumplido en neutro, vencido en tinte rojo.
+   El tinte ES el estado — sin barras laterales ni iconos. */
+const EV = {
+  pendiente: {
+    bg: 'var(--appt-pending-surface)',
+    fg: 'var(--color-primary-strong)',
+    time: 'var(--color-primary-strong)',
+    timeOp: .72
+  },
+  cumplido: {
+    bg: 'var(--surface-sunken)',
+    fg: 'var(--text-strong)',
+    time: 'var(--text-muted)',
+    timeOp: 1
+  },
+  vencido: {
+    bg: 'var(--appt-overdue-surface)',
+    fg: 'var(--appt-overdue)',
+    time: 'var(--appt-overdue)',
+    timeOp: .78
+  }
+};
+/** Bloque de cita dentro de una celda de calendario. */
+function CalendarEvent({
+  title,
+  time,
+  status = 'pendiente',
+  onClick
+}) {
+  const s = EV[status] || EV.pendiente;
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClick,
+    style: {
+      display: 'block',
+      width: '100%',
+      textAlign: 'left',
+      border: 0,
+      cursor: onClick ? 'pointer' : 'default',
+      borderRadius: 'var(--radius-sm)',
+      padding: '8px 10px',
+      background: s.bg,
+      font: 'var(--fw-semibold) var(--fs-body-sm)/1.35 var(--font-sans)',
+      color: s.fg,
+      transition: 'var(--transition-control)'
+    }
+  }, title, time && /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'block',
+      marginTop: 2,
+      opacity: s.timeOp,
+      font: 'var(--fw-medium) var(--fs-caption)/1.3 var(--font-sans)',
+      fontVariantNumeric: 'tabular-nums'
+    }
+  }, time));
+}
+const DOW = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+/** Semana en columnas por dia, sin franjas horarias: las citas se apilan en orden.
+ *  days: [{ date, dow?, today?, events:[{ title, time, status }] }] — 7 entradas. */
+function CalendarWeek({
+  days = [],
+  onEventClick,
+  minHeight = 260
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(7,1fr)',
+      background: 'var(--surface-sunken)'
+    }
+  }, days.map((d, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      padding: '11px 10px',
+      textAlign: 'center',
+      font: 'var(--fw-semibold) var(--fs-body-sm) var(--font-sans)',
+      color: 'var(--text-muted)'
+    }
+  }, d.dow || DOW[i % 7]))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(7,1fr)'
+    }
+  }, days.map((d, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      minHeight,
+      padding: '10px 8px',
+      borderTop: '1px solid var(--border-subtle)',
+      borderLeft: i ? '1px solid var(--border-subtle)' : 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      alignSelf: 'flex-start',
+      minWidth: 26,
+      height: 26,
+      display: 'inline-grid',
+      placeItems: 'center',
+      padding: '0 6px',
+      borderRadius: 'var(--radius-pill)',
+      background: d.today ? 'var(--color-primary-fill)' : 'transparent',
+      font: 'var(--fw-semibold) var(--fs-body) var(--font-sans)',
+      fontVariantNumeric: 'tabular-nums',
+      color: d.today ? '#fff' : 'var(--text-strong)'
+    }
+  }, d.date), (d.events || []).map((e, j) => /*#__PURE__*/React.createElement(CalendarEvent, _extends({
+    key: j
+  }, e, {
+    onClick: onEventClick ? () => onEventClick(e, d) : undefined
+  })))))));
+}
+Object.assign(__ds_scope, { CalendarEvent, CalendarWeek });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/clinical/CalendarWeek.jsx", error: String((e && e.message) || e) }); }
 
 // components/clinical/StatusDot.jsx
 try { (() => {
@@ -1575,6 +1694,258 @@ function Input({
 Object.assign(__ds_scope, { Input });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/Input.jsx", error: String((e && e.message) || e) }); }
 
+// components/core/PermissionCard.jsx
+try { (() => {
+const DEFAULTS = {
+  'sin-preguntar': {
+    title: 'Activá los avisos',
+    body: 'Te avisamos el día anterior a cada turno y cuando tu veterinaria carga algo nuevo en la ficha.'
+  },
+  concedido: {
+    title: 'Avisos activados',
+    body: 'Recibís el recordatorio del día anterior a cada turno.'
+  },
+  denegado: {
+    title: 'Los avisos están desactivados',
+    // La consecuencia concreta, sin alarmismo: el SO no vuelve a preguntar, la app no puede insistir.
+    body: 'Mientras estén desactivados en tu teléfono no vas a recibir el recordatorio del día anterior a cada turno.'
+  }
+};
+
+/** Pide el permiso de push y muestra el estado ya resuelto. */
+function PermissionCard({
+  status = 'sin-preguntar',
+  title,
+  body,
+  onAsk,
+  onOpenSettings,
+  onDismiss,
+  askLabel = 'Permitir avisos',
+  dismissLabel = 'Más tarde',
+  settingsLabel = 'Abrir ajustes del teléfono'
+}) {
+  const d = DEFAULTS[status] || DEFAULTS['sin-preguntar'];
+  const t = title || d.title;
+  const b = body || d.body;
+
+  // Concedido: una línea, sin acción. Nada que decidir, nada que ocupar.
+  if (status === 'concedido') {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 9,
+        alignItems: 'center',
+        padding: '10px 12px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--success-50)',
+        border: '1px solid var(--success-100)'
+      }
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: "bell",
+      size: 15,
+      style: {
+        color: 'var(--text-success)'
+      }
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        font: 'var(--text-body-strong)',
+        color: 'var(--text-success)'
+      }
+    }, t));
+  }
+
+  // Denegado: discreto y a la altura de un dato, no un banner. Neutro, no rojo: el usuario no cometió un error.
+  if (status === 'denegado') {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'grid',
+        gap: 8,
+        padding: '12px 14px',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--surface-sunken)',
+        border: '1px solid var(--border-subtle)'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 9,
+        alignItems: 'flex-start'
+      }
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: "bell-off",
+      size: 15,
+      style: {
+        color: 'var(--text-subtle)',
+        marginTop: 2
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'grid',
+        gap: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        font: 'var(--text-body-strong)',
+        color: 'var(--text-body)'
+      }
+    }, t), /*#__PURE__*/React.createElement("span", {
+      style: {
+        font: 'var(--fs-body-sm)/1.5 var(--font-sans)',
+        color: 'var(--text-muted)'
+      }
+    }, b))), onOpenSettings && /*#__PURE__*/React.createElement("div", {
+      style: {
+        paddingLeft: 24
+      }
+    }, /*#__PURE__*/React.createElement(__ds_scope.Button, {
+      size: "sm",
+      variant: "ghost",
+      iconRight: "external-link",
+      onClick: onOpenSettings
+    }, settingsLabel)));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 14,
+      padding: '16px',
+      borderRadius: 'var(--radius-card)',
+      background: 'var(--surface-card)',
+      border: '1px solid var(--border-default)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 12,
+      alignItems: 'flex-start'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 36,
+      height: 36,
+      flex: '0 0 auto',
+      display: 'grid',
+      placeItems: 'center',
+      borderRadius: 'var(--radius-md)',
+      background: 'var(--color-primary-soft)',
+      color: 'var(--color-primary-strong)'
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "bell",
+    size: 18
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--text-h4)',
+      color: 'var(--text-strong)'
+    }
+  }, t), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--text-body)',
+      color: 'var(--text-muted)'
+    }
+  }, b))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 8
+    }
+  }, onAsk && /*#__PURE__*/React.createElement(__ds_scope.Button, {
+    block: true,
+    size: "touch",
+    onClick: onAsk
+  }, askLabel), onDismiss && /*#__PURE__*/React.createElement(__ds_scope.Button, {
+    block: true,
+    size: "sm",
+    variant: "ghost",
+    onClick: onDismiss
+  }, dismissLabel)));
+}
+Object.assign(__ds_scope, { PermissionCard });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/PermissionCard.jsx", error: String((e && e.message) || e) }); }
+
+// components/core/ProgressBar.jsx
+try { (() => {
+const H = {
+  sm: 4,
+  md: 6
+};
+const TONE = {
+  primary: 'var(--color-primary-fill)',
+  success: 'var(--success-500)',
+  danger: 'var(--danger-500)'
+};
+/** Determinada (value 0-100) o indeterminada, cuando la subida es tan corta que el porcentaje miente. */
+function ProgressBar({
+  value = 0,
+  indeterminate = false,
+  size = 'md',
+  tone = 'primary',
+  label,
+  showValue = false
+}) {
+  const h = H[size] || H.md;
+  const fill = TONE[tone] || TONE.primary;
+  const pct = Math.max(0, Math.min(100, value));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 6,
+      width: '100%'
+    }
+  }, (label || showValue) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      gap: 8,
+      font: 'var(--fs-caption) var(--font-sans)',
+      color: 'var(--text-muted)'
+    }
+  }, label && /*#__PURE__*/React.createElement("span", null, label), showValue && !indeterminate && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontVariantNumeric: 'tabular-nums'
+    }
+  }, Math.round(pct), "%")), /*#__PURE__*/React.createElement("div", {
+    role: "progressbar",
+    "aria-valuemin": 0,
+    "aria-valuemax": 100,
+    "aria-valuenow": indeterminate ? undefined : Math.round(pct),
+    "aria-valuetext": indeterminate ? 'En curso' : undefined,
+    style: {
+      height: h,
+      borderRadius: 'var(--radius-pill)',
+      background: 'var(--neutral-100)',
+      overflow: 'hidden',
+      position: 'relative'
+    }
+  }, indeterminate ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      width: '40%',
+      borderRadius: 'var(--radius-pill)',
+      background: fill,
+      animation: 'wayka-indeterminate 1.2s var(--ease-standard) infinite'
+    }
+  }) : /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'block',
+      height: '100%',
+      width: pct + '%',
+      borderRadius: 'var(--radius-pill)',
+      background: fill,
+      transition: 'width var(--dur-normal) var(--ease-standard)'
+    }
+  })));
+}
+Object.assign(__ds_scope, { ProgressBar });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/ProgressBar.jsx", error: String((e && e.message) || e) }); }
+
 // components/core/Radio.jsx
 try { (() => {
 function Radio({
@@ -1928,6 +2299,88 @@ function SkeletonText({
 Object.assign(__ds_scope, { Skeleton, SkeletonText });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/Skeleton.jsx", error: String((e && e.message) || e) }); }
 
+// components/core/SocialButton.jsx
+try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+/** Logo de Google. Marca ajena: se usa tal cual, sin teñir con tokens de Wayka. */
+function GoogleG({
+  size = 18
+}) {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 48 48",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      flex: '0 0 auto'
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    fill: "#4285F4",
+    d: "M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.09c4.15-3.82 6.58-9.45 6.58-16.17z"
+  }), /*#__PURE__*/React.createElement("path", {
+    fill: "#34A853",
+    d: "M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.09-5.52c-1.97 1.32-4.49 2.1-7.47 2.1-5.74 0-10.6-3.88-12.34-9.09H4.34v5.71C7.96 41.07 15.4 46 24 46z"
+  }), /*#__PURE__*/React.createElement("path", {
+    fill: "#FBBC05",
+    d: "M11.66 28.16c-.44-1.32-.69-2.73-.69-4.16s.25-2.84.69-4.16v-5.71H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.87l7.32-5.71z"
+  }), /*#__PURE__*/React.createElement("path", {
+    fill: "#EA4335",
+    d: "M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.29-6.29C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.13l7.32 5.71z"
+  }));
+}
+const H = {
+  md: 44,
+  touch: 52
+};
+/**
+ * Autenticación con un proveedor externo. La cromía la dicta la guía del proveedor,
+ * no los tokens de Wayka: los hex de acá abajo son de Google (superficie neutra
+ * #FFFFFF / borde #DADCE0 / texto #3C4043) y son la excepción declarada a la regla
+ * de "sin hexadecimales" — no son colores de marca de Wayka ni themeables.
+ */
+function SocialButton({
+  provider = 'google',
+  mode = 'login',
+  size = 'touch',
+  block = true,
+  label,
+  disabled = false,
+  onClick,
+  ...rest
+}) {
+  const h = H[size] || H.touch;
+  const text = label || (mode === 'signup' ? 'Registrarme con Google' : 'Continuar con Google');
+  return /*#__PURE__*/React.createElement("button", _extends({
+    type: "button",
+    onClick: onClick,
+    disabled: disabled
+  }, rest, {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+      width: block ? '100%' : 'auto',
+      height: h,
+      padding: '0 16px',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      background: '#FFFFFF',
+      border: '1px solid #DADCE0',
+      borderRadius: 'var(--radius-md)',
+      color: '#3C4043',
+      font: 'var(--fw-medium) var(--fs-body) var(--font-sans)',
+      opacity: disabled ? .5 : 1,
+      transition: 'var(--transition-control)',
+      ...rest.style
+    }
+  }), /*#__PURE__*/React.createElement(GoogleG, {
+    size: 18
+  }), text);
+}
+Object.assign(__ds_scope, { SocialButton });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/SocialButton.jsx", error: String((e && e.message) || e) }); }
+
 // components/core/Switch.jsx
 try { (() => {
 function Switch({
@@ -1988,7 +2441,8 @@ function Tabs({
   onChange,
   variant = 'underline'
 }) {
-  const pill = variant === 'pill';
+  const pill = variant === 'pill' || variant === 'segmented';
+  const seg = variant === 'segmented';
   return /*#__PURE__*/React.createElement("div", {
     role: "tablist",
     style: {
@@ -2009,14 +2463,14 @@ function Tabs({
       style: {
         border: 0,
         cursor: 'pointer',
-        background: pill && on ? 'var(--surface-card)' : 'transparent',
+        background: seg && on ? 'var(--color-primary-fill)' : pill && on ? 'var(--surface-card)' : 'transparent',
         borderRadius: pill ? 'var(--radius-pill)' : 0,
         padding: pill ? '7px 16px' : '0 0 12px',
-        boxShadow: pill && on ? 'var(--shadow-xs)' : 'none',
+        boxShadow: pill && on && !seg ? 'var(--shadow-xs)' : 'none',
         borderBottom: pill ? 'none' : `2px solid ${on ? 'var(--color-primary-strong)' : 'transparent'}`,
         marginBottom: pill ? 0 : -1,
         font: `var(--fw-semibold) var(--fs-body)/1.4 var(--font-sans)`,
-        color: on ? 'var(--text-strong)' : 'var(--text-muted)',
+        color: seg && on ? '#fff' : on ? 'var(--text-strong)' : 'var(--text-muted)',
         transition: 'var(--transition-control)',
         display: 'flex',
         gap: 8,
@@ -2133,66 +2587,83 @@ Object.assign(__ds_scope, { Textarea });
 
 // components/core/Toast.jsx
 try { (() => {
+/** Tono = un punto, nunca un icono ni un borde de acento a la izquierda. */
 const T = {
-  success: ['var(--success-500)', 'check-circle'],
-  danger: ['var(--danger-500)', 'alert-circle'],
-  info: ['var(--color-primary-strong)', 'info'],
-  warning: ['var(--warning-500)', 'alert-triangle']
+  success: 'var(--success-100)',
+  danger: '#E8A79E',
+  info: 'var(--nav-accent)',
+  warning: 'var(--warning-100)'
 };
 function Toast({
   tone = 'success',
   title,
   description,
+  action,
   onClose
 }) {
-  const [c, icon] = T[tone] || T.info;
+  const dot = T[tone] || T.info;
   return /*#__PURE__*/React.createElement("div", {
     role: "status",
+    "data-surface": "dark",
     style: {
       display: 'flex',
-      gap: 12,
+      gap: 14,
       alignItems: 'flex-start',
       width: '100%',
-      maxWidth: 400,
-      background: 'var(--surface-card)',
-      border: '1px solid var(--border-default)',
-      borderLeft: `3px solid ${c}`,
+      maxWidth: 420,
+      background: 'var(--surface-inverse)',
       borderRadius: 'var(--radius-md)',
-      boxShadow: 'var(--shadow-lg)',
-      padding: '14px 16px'
+      padding: '13px 14px 13px 16px'
     }
-  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-    name: icon,
-    size: 18,
+  }, /*#__PURE__*/React.createElement("span", {
     style: {
-      color: c,
-      marginTop: 1
+      width: 7,
+      height: 7,
+      borderRadius: '50%',
+      background: dot,
+      flex: '0 0 auto',
+      marginTop: 7
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gap: 2,
-      flex: 1
+      gap: 3,
+      flex: 1,
+      minWidth: 0
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--text-body-strong)',
-      color: 'var(--text-strong)'
+      color: 'var(--text-on-nav)'
     }
   }, title), description && /*#__PURE__*/React.createElement("div", {
     style: {
-      font: 'var(--fs-body-sm) var(--font-sans)',
-      color: 'var(--text-muted)'
+      font: 'var(--fs-body-sm)/1.5 var(--font-sans)',
+      color: 'var(--text-on-nav-muted)'
     }
-  }, description)), onClose && /*#__PURE__*/React.createElement("button", {
+  }, description)), action && /*#__PURE__*/React.createElement("button", {
+    onClick: action.onClick,
+    style: {
+      border: 0,
+      background: 'transparent',
+      cursor: 'pointer',
+      padding: '2px 4px',
+      color: 'var(--text-on-nav)',
+      font: 'var(--fw-semibold) var(--fs-body-sm) var(--font-sans)',
+      textDecoration: 'underline',
+      textUnderlineOffset: 3,
+      whiteSpace: 'nowrap'
+    }
+  }, action.label), onClose && /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     "aria-label": "Cerrar",
     style: {
       border: 0,
       background: 'transparent',
       cursor: 'pointer',
-      color: 'var(--text-subtle)',
-      display: 'grid'
+      color: 'var(--text-on-nav-muted)',
+      display: 'grid',
+      marginTop: 1
     }
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: "x",
@@ -2246,6 +2717,252 @@ function Tooltip({
 }
 Object.assign(__ds_scope, { Tooltip });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/Tooltip.jsx", error: String((e && e.message) || e) }); }
+
+// components/core/UploadItem.jsx
+try { (() => {
+/** Tipos que declara la UI al backend. El backend valida el MIME real contra este valor:
+ *  el tipo se declara, no se adivina a partir de la extension. */
+const FILE_TYPES = {
+  foto: {
+    icon: 'image',
+    label: 'Foto',
+    accept: 'image/jpeg,image/png,image/heic',
+    human: 'JPG, PNG o HEIC'
+  },
+  pdf: {
+    icon: 'file-text',
+    label: 'PDF',
+    accept: 'application/pdf',
+    human: 'PDF'
+  },
+  estudio: {
+    icon: 'microscope',
+    label: 'Estudio',
+    accept: 'application/pdf,image/jpeg,image/png',
+    human: 'PDF o imagen'
+  }
+};
+
+/** Un adjunto en curso o terminado. La barra de progreso vive acá adentro. */
+function UploadItem({
+  name,
+  size,
+  type = 'foto',
+  status = 'listo',
+  progress = 0,
+  indeterminate = false,
+  errorMessage,
+  owner = 'mine',
+  ownerName,
+  onRemove,
+  onRetry,
+  removeLabel
+}) {
+  const t = FILE_TYPES[type] || FILE_TYPES.foto;
+  const failed = status === 'fallo';
+  const uploading = status === 'subiendo';
+  const mine = owner === 'mine';
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 10,
+      padding: '12px 14px',
+      background: 'var(--surface-card)',
+      border: '1px solid ' + (failed ? 'var(--border-danger)' : 'var(--border-default)'),
+      borderRadius: 'var(--radius-md)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 12,
+      alignItems: 'flex-start'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 36,
+      height: 36,
+      flex: '0 0 auto',
+      display: 'grid',
+      placeItems: 'center',
+      borderRadius: 'var(--radius-sm)',
+      background: failed ? 'var(--danger-50)' : 'var(--neutral-50)',
+      color: failed ? 'var(--danger-500)' : 'var(--text-muted)'
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: failed ? 'alert-circle' : t.icon,
+    size: 18
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      display: 'grid',
+      gap: 2
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--text-body-strong)',
+      color: 'var(--text-strong)',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 7,
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      font: 'var(--fs-caption) var(--font-sans)',
+      color: failed ? 'var(--text-danger)' : 'var(--text-muted)'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, t.label), size && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\xB7"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontVariantNumeric: 'tabular-nums'
+    }
+  }, size)), status === 'listo' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\xB7"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      color: 'var(--text-success)'
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "check",
+    size: 12
+  }), "Listo")), uploading && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\xB7"), /*#__PURE__*/React.createElement("span", null, "Subiendo")), failed && errorMessage && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\xB7"), /*#__PURE__*/React.createElement("span", null, errorMessage))), !mine && ownerName && /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--fs-caption) var(--font-sans)',
+      color: 'var(--text-subtle)',
+      marginTop: 1
+    }
+  }, "Subido por ", ownerName)), mine && onRemove && !failed && /*#__PURE__*/React.createElement(__ds_scope.IconButton, {
+    icon: uploading ? 'x' : 'trash-2',
+    size: "sm",
+    variant: "ghost",
+    onClick: onRemove,
+    label: removeLabel || (uploading ? 'Cancelar la subida' : 'Retirar el adjunto')
+  })), uploading && /*#__PURE__*/React.createElement(__ds_scope.ProgressBar, {
+    value: progress,
+    indeterminate: indeterminate,
+    size: "sm"
+  }), failed && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8
+    }
+  }, onRetry && /*#__PURE__*/React.createElement(__ds_scope.Button, {
+    size: "sm",
+    variant: "secondary",
+    iconLeft: "rotate-ccw",
+    onClick: onRetry
+  }, "Reintentar"), mine && onRemove && /*#__PURE__*/React.createElement(__ds_scope.Button, {
+    size: "sm",
+    variant: "ghost",
+    onClick: onRemove
+  }, "Descartar")));
+}
+Object.assign(__ds_scope, { FILE_TYPES, UploadItem });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/UploadItem.jsx", error: String((e && e.message) || e) }); }
+
+// components/core/FileDropzone.jsx
+try { (() => {
+/**
+ * Zona de arrastre para web. Degrada a un botón simple donde no hay drag & drop (nativo).
+ * @startingPoint section="Core" subtitle="Adjuntos: arrastre, progreso y estados" viewport="760x420"
+ */
+function FileDropzone({
+  type = 'foto',
+  maxSizeMB = 10,
+  state = 'idle',
+  rejectedReason,
+  onPick,
+  dragDrop = true,
+  title,
+  disabled = false
+}) {
+  const t = __ds_scope.FILE_TYPES[type] || __ds_scope.FILE_TYPES.foto;
+  // El límite se lee ANTES de elegir el archivo: el 413 del backend no debe ser una sorpresa.
+  const hint = `${t.human} · hasta ${maxSizeMB} MB`;
+  const over = state === 'over';
+  const rejected = state === 'rejected';
+  if (!dragDrop) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'grid',
+        gap: 8,
+        justifyItems: 'stretch'
+      }
+    }, /*#__PURE__*/React.createElement(__ds_scope.Button, {
+      block: true,
+      size: "touch",
+      variant: "secondary",
+      iconLeft: t.icon,
+      onClick: onPick,
+      disabled: disabled
+    }, title || `Elegir ${t.label.toLowerCase()}`), /*#__PURE__*/React.createElement("div", {
+      style: {
+        font: 'var(--fs-caption) var(--font-sans)',
+        textAlign: 'center',
+        color: rejected ? 'var(--text-danger)' : 'var(--text-subtle)'
+      }
+    }, rejected ? rejectedReason || 'Ese archivo no se puede adjuntar.' : hint));
+  }
+  const border = over ? 'var(--color-primary-fill)' : rejected ? 'var(--danger-500)' : 'var(--border-strong)';
+  const bg = over ? 'var(--color-primary-soft)' : rejected ? 'var(--danger-50)' : 'var(--surface-card)';
+  return /*#__PURE__*/React.createElement("div", {
+    "aria-disabled": disabled || undefined,
+    style: {
+      display: 'grid',
+      gap: 10,
+      justifyItems: 'center',
+      textAlign: 'center',
+      padding: 'var(--space-7)',
+      border: `1px dashed ${border}`,
+      borderRadius: 'var(--radius-card)',
+      background: bg,
+      opacity: disabled ? .55 : 1,
+      transition: 'var(--transition-control)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 40,
+      height: 40,
+      display: 'grid',
+      placeItems: 'center',
+      borderRadius: 'var(--radius-md)',
+      background: rejected ? 'var(--danger-100)' : over ? 'var(--surface-card)' : 'var(--neutral-50)',
+      color: rejected ? 'var(--danger-500)' : over ? 'var(--color-primary-fill)' : 'var(--text-muted)'
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: rejected ? 'file-x' : over ? 'download' : t.icon,
+    size: 20
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--text-body-strong)',
+      color: rejected ? 'var(--text-danger)' : 'var(--text-strong)'
+    }
+  }, rejected ? rejectedReason || 'Ese archivo no se puede adjuntar.' : over ? 'Soltá para adjuntar' : title || `Arrastrá ${t.label === 'Foto' ? 'la foto' : 'el archivo'} acá`), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--fs-caption) var(--font-sans)',
+      color: 'var(--text-subtle)'
+    }
+  }, hint), !over && /*#__PURE__*/React.createElement(__ds_scope.Button, {
+    size: "sm",
+    variant: "secondary",
+    onClick: onPick,
+    disabled: disabled
+  }, rejected ? 'Elegir otro archivo' : 'Elegir del disco'));
+}
+Object.assign(__ds_scope, { FileDropzone });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/FileDropzone.jsx", error: String((e && e.message) || e) }); }
 
 // components/navigation/MobileHeader.jsx
 try { (() => {
@@ -2511,59 +3228,100 @@ const {
   Tabs,
   Card,
   AppointmentCard,
-  StatusDot,
+  CalendarWeek,
   IconButton
 } = window.WaykaDesignSystem_51ee47;
-const DIAS = ['Lun 13', 'Mar 14', 'Mié 15', 'Jue 16', 'Vie 17', 'Sáb 18'];
-const SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00'];
-const GRID = {
-  'Lun 13': {
-    '09:00': ['cumplido', 'Vacunación · Rocco']
-  },
-  'Mar 14': {
-    '10:00': ['pendiente', 'Dermatología · Tobi'],
-    '12:00': ['pendiente', 'Peso · Kira']
-  },
-  'Mié 15': {
-    '08:00': ['vencido', 'Control · Mora'],
-    '11:00': ['pendiente', 'Extracción · Nube']
-  },
-  'Jue 16': {
-    '09:00': ['pendiente', 'Consulta · Rocco']
-  },
-  'Vie 17': {
-    '10:00': ['pendiente', 'Retiro de puntos · Mora'],
-    '13:00': ['cumplido', 'Control · Tobi']
-  },
-  'Sáb 18': {}
-};
-// Celda sobria: fondo neutro y barra de color; solo lo vencido conserva tinte.
-const C = {
-  pendiente: ['var(--surface-sunken)', 'var(--appt-pending)'],
-  cumplido: ['var(--surface-sunken)', 'var(--appt-done)'],
-  vencido: ['var(--appt-overdue-surface)', 'var(--appt-overdue)']
-};
+const SEMANA = [{
+  date: 12,
+  events: []
+}, {
+  date: 13,
+  events: [{
+    title: 'Vacunación · Rocco',
+    time: '10:00 — 10:30',
+    status: 'cumplido'
+  }]
+}, {
+  date: 14,
+  today: true,
+  events: [{
+    title: 'Dermatología · Tobi',
+    time: '11:00 — 11:30'
+  }, {
+    title: 'Peso · Kira',
+    time: '13:00 — 13:30',
+    status: 'cumplido'
+  }]
+}, {
+  date: 15,
+  events: [{
+    title: 'Control · Mora',
+    time: '09:00 — 09:30',
+    status: 'vencido'
+  }, {
+    title: 'Extracción · Nube',
+    time: '12:00 — 12:45'
+  }]
+}, {
+  date: 16,
+  events: [{
+    title: 'Consulta · Rocco',
+    time: '10:00 — 10:30'
+  }]
+}, {
+  date: 17,
+  events: [{
+    title: 'Retiro de puntos · Mora',
+    time: '11:00 — 11:30'
+  }, {
+    title: 'Control · Tobi',
+    time: '14:00 — 14:30',
+    status: 'cumplido'
+  }]
+}, {
+  date: 18,
+  events: []
+}];
 function AgendaScreen() {
   const [view, setView] = React.useState('semana');
   const agenda = window.WaykaData.agenda;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
     title: "Agenda",
-    subtitle: "Semana del 13 al 18 de abril",
-    actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
-      variant: "secondary",
-      iconLeft: "calendar"
-    }, "Hoy"), /*#__PURE__*/React.createElement(Button, {
+    actions: /*#__PURE__*/React.createElement(Button, {
       iconLeft: "plus"
-    }, "Nueva cita"))
+    }, "Nueva cita")
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
-      gap: 20,
+      gap: 16,
       alignItems: 'center',
       flexWrap: 'wrap'
     }
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      font: 'var(--text-h2)',
+      color: 'var(--text-strong)',
+      letterSpacing: 'var(--ls-heading)'
+    }
+  }, "12 \u2014 18 abr 2026"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 2
+    }
+  }, /*#__PURE__*/React.createElement(IconButton, {
+    icon: "chevron-left",
+    label: "Semana anterior",
+    size: "sm"
+  }), /*#__PURE__*/React.createElement(IconButton, {
+    icon: "chevron-right",
+    label: "Semana siguiente",
+    size: "sm"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginLeft: 'auto'
+    }
   }, /*#__PURE__*/React.createElement(Tabs, {
-    variant: "pill",
+    variant: "segmented",
     value: view,
     onChange: setView,
     items: [{
@@ -2572,90 +3330,16 @@ function AgendaScreen() {
     }, {
       value: 'semana',
       label: 'Semana'
+    }, {
+      value: 'mes',
+      label: 'Mes'
     }]
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 14
-    }
-  }, /*#__PURE__*/React.createElement(StatusDot, {
-    status: "pendiente",
-    label: "Pendiente"
-  }), /*#__PURE__*/React.createElement(StatusDot, {
-    status: "cumplido",
-    label: "Cumplido"
-  }), /*#__PURE__*/React.createElement(StatusDot, {
-    status: "vencido",
-    label: "Vencido"
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginLeft: 'auto',
-      display: 'flex',
-      gap: 4
-    }
-  }, /*#__PURE__*/React.createElement(IconButton, {
-    icon: "chevron-left",
-    label: "Semana anterior",
-    variant: "outline",
-    size: "sm"
-  }), /*#__PURE__*/React.createElement(IconButton, {
-    icon: "chevron-right",
-    label: "Semana siguiente",
-    variant: "outline",
-    size: "sm"
-  })))), view === 'semana' ? /*#__PURE__*/React.createElement(Card, {
+  })))), view !== 'dia' ? /*#__PURE__*/React.createElement(Card, {
     padded: false
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '64px repeat(6,1fr)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderBottom: '1px solid var(--border-subtle)'
-    }
-  }), DIAS.map(d => /*#__PURE__*/React.createElement("div", {
-    key: d,
-    style: {
-      padding: '12px 10px',
-      textAlign: 'center',
-      borderBottom: '1px solid var(--border-subtle)',
-      font: 'var(--fw-semibold) var(--fs-body-sm) var(--font-sans)',
-      color: 'var(--text-muted)'
-    }
-  }, d)), SLOTS.map(s => /*#__PURE__*/React.createElement(React.Fragment, {
-    key: s
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px 8px',
-      textAlign: 'right',
-      borderBottom: '1px solid var(--border-subtle)',
-      font: 'var(--fs-caption) var(--font-sans)',
-      color: 'var(--text-subtle)',
-      fontVariantNumeric: 'tabular-nums'
-    }
-  }, s), DIAS.map(d => {
-    const cell = GRID[d][s];
-    return /*#__PURE__*/React.createElement("div", {
-      key: d + s,
-      style: {
-        minHeight: 62,
-        padding: 6,
-        borderBottom: '1px solid var(--border-subtle)',
-        borderLeft: '1px solid var(--border-subtle)'
-      }
-    }, cell && /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: '100%',
-        borderRadius: 'var(--radius-sm)',
-        padding: '7px 9px',
-        background: C[cell[0]][0],
-        borderLeft: `3px solid ${C[cell[0]][1]}`,
-        font: 'var(--fw-semibold) var(--fs-caption)/1.35 var(--font-sans)',
-        color: 'var(--text-strong)'
-      }
-    }, cell[1]));
-  }))))) : /*#__PURE__*/React.createElement(Card, {
+  }, /*#__PURE__*/React.createElement(CalendarWeek, {
+    days: SEMANA,
+    minHeight: 260
+  })) : /*#__PURE__*/React.createElement(Card, {
     title: "Mi\xE9rcoles 15 de abril",
     action: /*#__PURE__*/React.createElement(Button, {
       variant: "ghost",
@@ -2832,8 +3516,109 @@ const {
   Textarea,
   Checkbox,
   Badge,
-  Icon
+  Icon,
+  FileDropzone,
+  UploadItem
 } = window.WaykaDesignSystem_51ee47;
+const TIPOS_ADJUNTO = [['estudio', 'microscope', 'Estudio'], ['foto', 'image', 'Foto'], ['pdf', 'file-text', 'PDF']];
+
+/** Bloque de adjuntos del evento clinico. El tipo se DECLARA arriba: una zona por tipo. */
+function AttachmentBlock() {
+  const [tipo, setTipo] = React.useState('estudio');
+  const [drag, setDrag] = React.useState('idle');
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--fw-semibold) var(--fs-body-sm) var(--font-sans)',
+      color: 'var(--text-muted)'
+    }
+  }, "Adjuntos"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6
+    }
+  }, TIPOS_ADJUNTO.map(([v, ic, l]) => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    onClick: () => {
+      setTipo(v);
+      setDrag('idle');
+    },
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '5px 11px',
+      borderRadius: 'var(--radius-pill)',
+      cursor: 'pointer',
+      border: '1px solid ' + (tipo === v ? 'var(--border-brand)' : 'var(--border-default)'),
+      background: tipo === v ? 'var(--color-primary-soft)' : 'var(--surface-card)',
+      color: tipo === v ? 'var(--color-primary-strong)' : 'var(--text-muted)',
+      font: 'var(--fw-semibold) var(--fs-caption) var(--font-sans)',
+      transition: 'var(--transition-control)'
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ic,
+    size: 13
+  }), l)))), /*#__PURE__*/React.createElement("div", {
+    onDragOver: e => {
+      e.preventDefault();
+      setDrag('over');
+    },
+    onDragLeave: () => setDrag('idle'),
+    onDrop: e => {
+      e.preventDefault();
+      setDrag('idle');
+    }
+  }, /*#__PURE__*/React.createElement(FileDropzone, {
+    type: tipo,
+    maxSizeMB: 10,
+    state: drag,
+    onPick: () => {}
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement(UploadItem, {
+    name: "ecografia-abdominal.pdf",
+    size: "2,4 MB",
+    type: "estudio",
+    status: "subiendo",
+    progress: 62,
+    onRemove: () => {}
+  }), /*#__PURE__*/React.createElement(UploadItem, {
+    name: "cicatriz-control.jpg",
+    size: "1,1 MB",
+    type: "foto",
+    status: "listo",
+    onRemove: () => {}
+  }), /*#__PURE__*/React.createElement(UploadItem, {
+    name: "laboratorio-abril.pdf",
+    size: "14 MB",
+    type: "pdf",
+    status: "fallo",
+    errorMessage: "Supera el l\xEDmite de 10 MB",
+    onRetry: () => {},
+    onRemove: () => {}
+  }), /*#__PURE__*/React.createElement(UploadItem, {
+    name: "ficha-vacunacion.jpg",
+    size: "1,8 MB",
+    type: "foto",
+    owner: "other",
+    ownerName: "Julia Fern\xE1ndez (tutora)"
+  })));
+}
 function EventFormDialog({
   open,
   onClose,
@@ -2918,6 +3703,11 @@ function EventFormDialog({
     options: ['—', 'Meloxicam 0,1 mg/kg', 'Amoxicilina 15 mg/kg']
   }), /*#__PURE__*/React.createElement("div", {
     style: {
+      height: 1,
+      background: 'var(--border-subtle)'
+    }
+  }), /*#__PURE__*/React.createElement(AttachmentBlock, null), /*#__PURE__*/React.createElement("div", {
+    style: {
       display: 'flex',
       gap: 10,
       alignItems: 'center',
@@ -2942,7 +3732,8 @@ function EventFormDialog({
   })));
 }
 Object.assign(window, {
-  EventFormDialog
+  EventFormDialog,
+  AttachmentBlock
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/clinica-web/EventForm.jsx", error: String((e && e.message) || e) }); }
 
@@ -3749,7 +4540,8 @@ const {
   Avatar,
   Tabs,
   PetHeader,
-  StatusDot
+  StatusDot,
+  SocialButton
 } = window.WaykaDesignSystem_51ee47;
 const TUTOR_TABS = [{
   value: 'mascotas',
@@ -3828,7 +4620,32 @@ function TutorLogin({
       font: 'var(--text-h3)',
       color: 'var(--text-strong)'
     }
-  }, "Ingres\xE1 a tu cuenta"), /*#__PURE__*/React.createElement(Input, {
+  }, "Ingres\xE1 a tu cuenta"), /*#__PURE__*/React.createElement(SocialButton, {
+    onClick: onLogin
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 12,
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      height: 1,
+      background: 'var(--border-default)'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--fs-caption) var(--font-sans)',
+      color: 'var(--text-subtle)'
+    }
+  }, "o con tu correo"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      height: 1,
+      background: 'var(--border-default)'
+    }
+  })), /*#__PURE__*/React.createElement(Input, {
     label: "Correo",
     defaultValue: "julia.fernandez@mail.com",
     icon: "mail"
@@ -4236,6 +5053,225 @@ Object.assign(window, {
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/tutor-movil/TutorScreens.jsx", error: String((e && e.message) || e) }); }
 
+// ui_kits/tutor-movil/TutorUploadScreens.jsx
+try { (() => {
+const {
+  Button,
+  Card,
+  Icon,
+  FileDropzone,
+  UploadItem,
+  PermissionCard,
+  Badge
+} = window.WaykaDesignSystem_51ee47;
+const PASOS = ['elegir', 'subiendo', 'listo', 'fallo'];
+const PASO_CAP = {
+  elegir: '1 · Elegir',
+  subiendo: '2 · Subiendo',
+  listo: '3 · Listo',
+  fallo: '4 · Falló (413)'
+};
+
+/** Subida de un adjunto de punta a punta. Un archivo por vez, tipo declarado, límite a la vista. */
+function TutorUpload({
+  paso = 'elegir'
+}) {
+  const subiendo = paso === 'subiendo';
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 'var(--gutter-mobile)',
+      display: 'grid',
+      gap: 'var(--space-5)',
+      alignContent: 'start'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 10,
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 38,
+      height: 38,
+      borderRadius: 'var(--radius-md)',
+      display: 'grid',
+      placeItems: 'center',
+      background: 'var(--color-primary-soft)',
+      color: 'var(--color-primary-strong)'
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "dog",
+    size: 19
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--text-body-strong)',
+      color: 'var(--text-strong)'
+    }
+  }, "Subir a la ficha de Mora"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--fs-caption) var(--font-sans)',
+      color: 'var(--text-muted)'
+    }
+  }, "Un archivo por vez"))), paso === 'elegir' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(FileDropzone, {
+    type: "foto",
+    dragDrop: false,
+    maxSizeMB: 10,
+    title: "Tomar o elegir una foto",
+    onPick: () => {}
+  }), /*#__PURE__*/React.createElement(FileDropzone, {
+    type: "pdf",
+    dragDrop: false,
+    maxSizeMB: 10,
+    title: "Adjuntar un PDF",
+    onPick: () => {}
+  })), subiendo && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(UploadItem, {
+    name: "ficha-vacunacion.jpg",
+    size: "1,8 MB",
+    type: "foto",
+    status: "subiendo",
+    progress: 45,
+    onRemove: () => {}
+  }), /*#__PURE__*/React.createElement(FileDropzone, {
+    type: "foto",
+    dragDrop: false,
+    title: "Tomar o elegir una foto",
+    disabled: true
+  })), paso === 'listo' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(UploadItem, {
+    name: "ficha-vacunacion.jpg",
+    size: "1,8 MB",
+    type: "foto",
+    status: "listo",
+    onRemove: () => {}
+  }), /*#__PURE__*/React.createElement(UploadItem, {
+    name: "radiografia-torax.jpg",
+    size: "3,0 MB",
+    type: "foto",
+    owner: "other",
+    ownerName: "Dra. A. Rossi"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 9,
+      alignItems: 'flex-start',
+      padding: '10px 12px',
+      borderRadius: 'var(--radius-md)',
+      background: 'var(--clinical-surface)',
+      border: '1px solid var(--clinical-border)'
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "info",
+    size: 14,
+    style: {
+      color: 'var(--clinical-accent)',
+      marginTop: 2
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--fs-caption)/1.5 var(--font-sans)',
+      color: 'var(--text-muted)'
+    }
+  }, "Tu veterinaria lo ve en la ficha. Un adjunto no se edita: si te equivocaste, retiralo y sub\xED otro.")), /*#__PURE__*/React.createElement(Button, {
+    block: true,
+    size: "touch"
+  }, "Volver a la ficha")), paso === 'fallo' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(UploadItem, {
+    name: "estudio-completo.pdf",
+    size: "14 MB",
+    type: "pdf",
+    status: "fallo",
+    errorMessage: "Supera el l\xEDmite de 10 MB",
+    onRetry: () => {},
+    onRemove: () => {}
+  }), /*#__PURE__*/React.createElement(FileDropzone, {
+    type: "pdf",
+    dragDrop: false,
+    maxSizeMB: 10,
+    title: "Adjuntar otro PDF",
+    onPick: () => {}
+  })));
+}
+
+/** Pantalla Avisos: informativa, con la PermissionCard como única acción. */
+function TutorAvisos({
+  permiso = 'sin-preguntar'
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 'var(--gutter-mobile)',
+      display: 'grid',
+      gap: 'var(--space-5)',
+      alignContent: 'start'
+    }
+  }, /*#__PURE__*/React.createElement(PermissionCard, {
+    status: permiso,
+    onAsk: () => {},
+    onDismiss: () => {},
+    onOpenSettings: () => {}
+  }), /*#__PURE__*/React.createElement(Card, {
+    title: "Recordatorio de turno"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--text-body)',
+      color: 'var(--text-body)'
+    }
+  }, "El d\xEDa anterior a cada turno, a las 18 h. Si la cl\xEDnica reprograma, te llega el aviso del cambio."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Badge, {
+    tone: "neutral",
+    icon: "clock"
+  }, "1 d\xEDa antes")))), /*#__PURE__*/React.createElement(Card, {
+    title: "Novedades en la ficha"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      font: 'var(--text-body)',
+      color: 'var(--text-body)'
+    }
+  }, "Cuando tu veterinaria carga una consulta, una vacuna o un estudio en la ficha de tu mascota."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Badge, {
+    tone: "neutral",
+    icon: "stethoscope"
+  }, "Al cargarse")))), /*#__PURE__*/React.createElement("p", {
+    style: {
+      font: 'var(--fs-caption)/1.5 var(--font-sans)',
+      color: 'var(--text-subtle)'
+    }
+  }, "Los avisos los manda el sistema. No hay lista de avisos enviados."));
+}
+Object.assign(window, {
+  TutorUpload,
+  TutorAvisos,
+  PASOS,
+  PASO_CAP
+});
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/tutor-movil/TutorUploadScreens.jsx", error: String((e && e.message) || e) }); }
+
 // ui_kits/vet-movil/VetScreens.jsx
 try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
@@ -4637,6 +5673,10 @@ __ds_ns.AllergyChip = __ds_scope.AllergyChip;
 
 __ds_ns.AppointmentCard = __ds_scope.AppointmentCard;
 
+__ds_ns.CalendarEvent = __ds_scope.CalendarEvent;
+
+__ds_ns.CalendarWeek = __ds_scope.CalendarWeek;
+
 __ds_ns.CriticalPanel = __ds_scope.CriticalPanel;
 
 __ds_ns.DataField = __ds_scope.DataField;
@@ -4671,6 +5711,8 @@ __ds_ns.Dialog = __ds_scope.Dialog;
 
 __ds_ns.EmptyState = __ds_scope.EmptyState;
 
+__ds_ns.FileDropzone = __ds_scope.FileDropzone;
+
 __ds_ns.Icon = __ds_scope.Icon;
 
 __ds_ns.IconButton = __ds_scope.IconButton;
@@ -4678,6 +5720,10 @@ __ds_ns.IconButton = __ds_scope.IconButton;
 __ds_ns.InlineError = __ds_scope.InlineError;
 
 __ds_ns.Input = __ds_scope.Input;
+
+__ds_ns.PermissionCard = __ds_scope.PermissionCard;
+
+__ds_ns.ProgressBar = __ds_scope.ProgressBar;
 
 __ds_ns.Radio = __ds_scope.Radio;
 
@@ -4691,6 +5737,8 @@ __ds_ns.Skeleton = __ds_scope.Skeleton;
 
 __ds_ns.SkeletonText = __ds_scope.SkeletonText;
 
+__ds_ns.SocialButton = __ds_scope.SocialButton;
+
 __ds_ns.Switch = __ds_scope.Switch;
 
 __ds_ns.Tabs = __ds_scope.Tabs;
@@ -4702,6 +5750,10 @@ __ds_ns.Textarea = __ds_scope.Textarea;
 __ds_ns.Toast = __ds_scope.Toast;
 
 __ds_ns.Tooltip = __ds_scope.Tooltip;
+
+__ds_ns.FILE_TYPES = __ds_scope.FILE_TYPES;
+
+__ds_ns.UploadItem = __ds_scope.UploadItem;
 
 __ds_ns.MobileHeader = __ds_scope.MobileHeader;
 

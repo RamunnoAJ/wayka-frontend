@@ -6,3 +6,4 @@ a:hover{color:var(--text-link-hover);text-decoration:underline}
 ::selection{background:var(--wayka-lila-claro);color:var(--wayka-violeta-oscuro)}
 :focus-visible{outline:2px solid var(--border-focus);outline-offset:2px}
 @keyframes wayka-spin{to{transform:rotate(360deg)}}
+@keyframes wayka-indeterminate{from{transform:translateX(-100%)}to{transform:translateX(250%)}}

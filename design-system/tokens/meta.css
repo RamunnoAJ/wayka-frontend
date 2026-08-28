@@ -1,6 +1,6 @@
 :root{
 /* Version del design system. Fuente de verdad: version.json + CHANGELOG.md.
    Se declara tambien como token para que un consumidor solo-CSS pueda leerla. */
---ds-version:"1.1.1"; /* @kind other */
---ds-released:"2026-08-25"; /* @kind other */
+--ds-version:"1.2.0"; /* @kind other */
+--ds-released:"2026-08-27"; /* @kind other */
 }

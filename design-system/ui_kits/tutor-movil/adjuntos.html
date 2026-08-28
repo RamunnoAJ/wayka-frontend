@@ -1,0 +1,99 @@
+<!-- @dsCard group="Móvil tutor" viewport="1660x1620" name="Adjuntos y avisos" subtitle="Subida de punta a punta, permiso de push y acceso con Google" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Wayka · Tutor: adjuntos y avisos</title><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="../clinica-web/data.js"></script>
+<style>body{background:var(--neutral-100);padding:28px;display:grid;justify-items:center}
+.stack{display:grid;gap:34px;justify-items:start}
+.sec{font:var(--fw-bold) var(--fs-overline) var(--font-sans);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-subtle);margin-bottom:12px}
+.phones{display:flex;gap:26px;align-items:flex-start}
+.phone{width:372px;height:660px;background:var(--surface-page);border:10px solid var(--wayka-oscuro);border-radius:38px;overflow:hidden;display:flex;flex-direction:column}
+.phone .scroll{flex:1;overflow:auto}
+.cap{font:var(--fw-semibold) var(--fs-caption) var(--font-sans);color:var(--text-subtle);text-align:center;margin-top:9px}</style>
+</head><body data-theme="tutor"><div id="root"></div>
+<script type="text/babel" src="TutorUploadScreens.jsx"></script>
+<script type="text/babel">
+const { MobileHeader, MobileTabBar, IconButton, SocialButton, Input, Button, Toast } = window.WaykaDesignSystem_51ee47;
+
+const TABS=[{value:'mascotas',label:'Mis mascotas',icon:'paw-print'},{value:'agenda',label:'Citas',icon:'calendar-days'},{value:'perfil',label:'Perfil',icon:'user'}];
+function Phone({ title, onBack, children, cap, tabs }) {
+  return (<div><div className="phone">
+    <MobileHeader title={title} tone="dark" onBack={onBack} />
+    <div className="scroll">{children}</div>
+    {tabs && <MobileTabBar items={TABS} value="perfil" onChange={()=>{}} />}
+  </div><div className="cap">{cap}</div></div>);
+}
+
+function LoginConGoogle() {
+  return (
+    <div style={{ height:'100%', display:'grid', gridTemplateRows:'1fr auto', background:'var(--surface-nav)' }} data-surface="dark">
+      <div style={{ display:'grid', placeItems:'center', padding:24 }}>
+        <img src="../../assets/wayka-logo.svg" alt="Wayka" style={{ width:132, filter:'brightness(0) invert(1)' }} />
+      </div>
+      <div style={{ background:'var(--surface-card)', borderRadius:'26px 26px 0 0', padding:'24px var(--gutter-mobile) 28px', display:'grid', gap:'var(--space-5)' }}>
+        <h1 style={{ font:'var(--text-h3)', color:'var(--text-strong)' }}>Ingresá a tu cuenta</h1>
+        <SocialButton onClick={()=>{}} />
+        <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+          <span style={{ flex:1, height:1, background:'var(--border-default)' }} />
+          <span style={{ font:'var(--fs-caption) var(--font-sans)', color:'var(--text-subtle)' }}>o con tu correo</span>
+          <span style={{ flex:1, height:1, background:'var(--border-default)' }} />
+        </div>
+        <Input label="Correo" defaultValue="julia.fernandez@mail.com" icon="mail" />
+        <Input label="Contraseña" type="password" defaultValue="········" icon="lock" />
+        <Button block size="touch">Entrar</Button>
+      </div>
+    </div>
+  );
+}
+
+function VinculacionAvisada() {
+  return (
+    <div style={{ height:'100%', display:'grid', gridTemplateRows:'auto 1fr', background:'var(--surface-page)' }}>
+      <div style={{ padding:'var(--gutter-mobile)' }}>
+        <Toast tone="info" title="Vinculamos tu cuenta de Google"
+          description="Ya podés entrar con Google o con tu contraseña: las dos siguen funcionando." onClose={()=>{}} />
+      </div>
+      <div style={{ padding:'0 var(--gutter-mobile)', opacity:.5 }}>
+        <p style={{ font:'var(--text-body)', color:'var(--text-muted)' }}>Hola Julia 👋 acá está el resumen de tus mascotas.</p>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  return (<div className="stack">
+    <div>
+      <div className="sec">Subir un adjunto · de punta a punta</div>
+      <div className="phones">
+        {window.PASOS.map(p => (
+          <Phone key={p} title="Adjuntar" onBack={()=>{}} cap={window.PASO_CAP[p]}>
+            <TutorUpload paso={p} />
+          </Phone>
+        ))}
+      </div>
+    </div>
+    <div>
+      <div className="sec">Avisos · la PermissionCard en sus tres estados</div>
+      <div className="phones">
+        <Phone title="Avisos" onBack={()=>{}} cap="Sin preguntar" tabs><TutorAvisos permiso="sin-preguntar" /></Phone>
+        <Phone title="Avisos" onBack={()=>{}} cap="Concedido" tabs><TutorAvisos permiso="concedido" /></Phone>
+        <Phone title="Avisos" onBack={()=>{}} cap="Denegado · discreto, sin insistir" tabs><TutorAvisos permiso="denegado" /></Phone>
+        <div>
+          <div className="phone"><LoginConGoogle /></div>
+          <div className="cap">Google arriba del formulario</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div className="sec">Email existente que se vincula en el mismo paso</div>
+      <div className="phones">
+        <div><div className="phone"><VinculacionAvisada /></div>
+          <div className="cap">Entró igual · se le avisa, no se le pide confirmar</div></div>
+      </div>
+    </div>
+  </div>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script></body></html>

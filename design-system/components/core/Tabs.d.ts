@@ -4,6 +4,6 @@ export interface TabsProps {
   value?: string;
   onChange?: (value: string) => void;
   /** underline para navegacion de seccion; pill para filtros. */
-  variant?: 'underline' | 'pill';
+  variant?: 'underline' | 'pill' | 'segmented';
 }
 export declare function Tabs(props: TabsProps): JSX.Element;

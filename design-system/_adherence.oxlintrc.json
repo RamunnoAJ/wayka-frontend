@@ -99,6 +99,14 @@
         "message": "<Button> size must be one of 'sm' | 'md' | 'lg' | 'touch'."
       },
       {
+        "selector": "JSXOpeningElement[name.name='CalendarEvent'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|time|status|onClick|key|ref|className|style|children)$/]",
+        "message": "<CalendarEvent> doesn't accept that prop. Declared props: title, time, status, onClick."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CalendarEvent'] > JSXAttribute[name.name='status'] > Literal[value!=/^(?:pendiente|cumplido|vencido)$/]",
+        "message": "<CalendarEvent> status must be one of 'pendiente' | 'cumplido' | 'vencido'."
+      },
+      {
         "selector": "JSXOpeningElement[name.name='Card'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|action|tone|padded|children|style|key|ref|className|style|children)$/]",
         "message": "<Card> doesn't accept that prop. Declared props: title, action, tone, padded, children, style."
       },
@@ -145,6 +153,14 @@
       {
         "selector": "JSXOpeningElement[name.name='EmptyState'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|title|description|action|key|ref|className|style|children)$/]",
         "message": "<EmptyState> doesn't accept that prop. Declared props: icon, title, description, action."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='FileDropzone'] > JSXAttribute > JSXIdentifier[name!=/^(?:type|maxSizeMB|state|rejectedReason|onPick|dragDrop|title|disabled|key|ref|className|style|children)$/]",
+        "message": "<FileDropzone> doesn't accept that prop. Declared props: type, maxSizeMB, state, rejectedReason, onPick, dragDrop, title, disabled."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='FileDropzone'] > JSXAttribute[name.name='state'] > Literal[value!=/^(?:idle|over|rejected)$/]",
+        "message": "<FileDropzone> state must be one of 'idle' | 'over' | 'rejected'."
       },
       {
         "selector": "JSXOpeningElement[name.name='Icon'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|size|style|key|ref|className|style|children)$/]",
@@ -203,6 +219,14 @@
         "message": "<PatientRow> species must be one of 'canino' | 'felino' | 'otro'."
       },
       {
+        "selector": "JSXOpeningElement[name.name='PermissionCard'] > JSXAttribute > JSXIdentifier[name!=/^(?:status|title|body|onAsk|onOpenSettings|onDismiss|askLabel|dismissLabel|settingsLabel|key|ref|className|style|children)$/]",
+        "message": "<PermissionCard> doesn't accept that prop. Declared props: status, title, body, onAsk, onOpenSettings, onDismiss, askLabel, dismissLabel, settingsLabel."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='PermissionCard'] > JSXAttribute[name.name='status'] > Literal[value!=/^(?:sin-preguntar|concedido|denegado)$/]",
+        "message": "<PermissionCard> status must be one of 'sin-preguntar' | 'concedido' | 'denegado'."
+      },
+      {
         "selector": "JSXOpeningElement[name.name='PetHeader'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|species|breed|sex|age|weight|chip|owner|actions|size|key|ref|className|style|children)$/]",
         "message": "<PetHeader> doesn't accept that prop. Declared props: name, species, breed, sex, age, weight, chip, owner, actions, size."
       },
@@ -213,6 +237,18 @@
       {
         "selector": "JSXOpeningElement[name.name='PetHeader'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:lg|md)$/]",
         "message": "<PetHeader> size must be one of 'lg' | 'md'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ProgressBar'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|indeterminate|size|tone|label|showValue|key|ref|className|style|children)$/]",
+        "message": "<ProgressBar> doesn't accept that prop. Declared props: value, indeterminate, size, tone, label, showValue."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ProgressBar'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md)$/]",
+        "message": "<ProgressBar> size must be one of 'sm' | 'md'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ProgressBar'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:primary|success|danger)$/]",
+        "message": "<ProgressBar> tone must be one of 'primary' | 'success' | 'danger'."
       },
       {
         "selector": "JSXOpeningElement[name.name='Radio'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|description|checked|onChange|name|value|disabled|key|ref|className|style|children)$/]",
@@ -245,6 +281,22 @@
       {
         "selector": "JSXOpeningElement[name.name='Skeleton'] > JSXAttribute > JSXIdentifier[name!=/^(?:width|height|radius|circle|style|key|ref|className|style|children)$/]",
         "message": "<Skeleton> doesn't accept that prop. Declared props: width, height, radius, circle, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SocialButton'] > JSXAttribute > JSXIdentifier[name!=/^(?:provider|mode|size|block|label|key|ref|className|style|children)$/]",
+        "message": "<SocialButton> doesn't accept that prop. Declared props: provider, mode, size, block, label."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SocialButton'] > JSXAttribute[name.name='provider'] > Literal[value!=/^(?:google)$/]",
+        "message": "<SocialButton> provider must be one of 'google'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SocialButton'] > JSXAttribute[name.name='mode'] > Literal[value!=/^(?:login|signup)$/]",
+        "message": "<SocialButton> mode must be one of 'login' | 'signup'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='SocialButton'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:md|touch)$/]",
+        "message": "<SocialButton> size must be one of 'md' | 'touch'."
       },
       {
         "selector": "JSXOpeningElement[name.name='StatusDot'] > JSXAttribute > JSXIdentifier[name!=/^(?:status|label|size|key|ref|className|style|children)$/]",
@@ -283,8 +335,8 @@
         "message": "<TimelineEvent> kind must be one of 'consulta' | 'vacuna' | 'cirugia' | 'estudio' | 'peso' | 'nota'."
       },
       {
-        "selector": "JSXOpeningElement[name.name='Toast'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|title|description|onClose|key|ref|className|style|children)$/]",
-        "message": "<Toast> doesn't accept that prop. Declared props: tone, title, description, onClose."
+        "selector": "JSXOpeningElement[name.name='Toast'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|title|description|action|onClose|key|ref|className|style|children)$/]",
+        "message": "<Toast> doesn't accept that prop. Declared props: tone, title, description, action, onClose."
       },
       {
         "selector": "JSXOpeningElement[name.name='Toast'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:success|danger|info|warning)$/]",
@@ -297,6 +349,18 @@
       {
         "selector": "JSXOpeningElement[name.name='Tooltip'] > JSXAttribute[name.name='side'] > Literal[value!=/^(?:top|bottom)$/]",
         "message": "<Tooltip> side must be one of 'top' | 'bottom'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='UploadItem'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|size|type|status|progress|indeterminate|errorMessage|owner|ownerName|onRemove|onRetry|removeLabel|key|ref|className|style|children)$/]",
+        "message": "<UploadItem> doesn't accept that prop. Declared props: name, size, type, status, progress, indeterminate, errorMessage, owner, ownerName, onRemove, onRetry, removeLabel."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='UploadItem'] > JSXAttribute[name.name='status'] > Literal[value!=/^(?:subiendo|listo|fallo)$/]",
+        "message": "<UploadItem> status must be one of 'subiendo' | 'listo' | 'fallo'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='UploadItem'] > JSXAttribute[name.name='owner'] > Literal[value!=/^(?:mine|other)$/]",
+        "message": "<UploadItem> owner must be one of 'mine' | 'other'."
       }
     ]
   },
@@ -327,6 +391,9 @@
       "Button": {
         "replaces": []
       },
+      "CalendarEvent": {
+        "replaces": []
+      },
       "Card": {
         "replaces": []
       },
@@ -349,6 +416,9 @@
         "replaces": []
       },
       "EmptyState": {
+        "replaces": []
+      },
+      "FileDropzone": {
         "replaces": []
       },
       "Icon": {
@@ -378,7 +448,13 @@
       "PatientRow": {
         "replaces": []
       },
+      "PermissionCard": {
+        "replaces": []
+      },
       "PetHeader": {
+        "replaces": []
+      },
+      "ProgressBar": {
         "replaces": []
       },
       "Radio": {
@@ -397,6 +473,9 @@
         "replaces": []
       },
       "Skeleton": {
+        "replaces": []
+      },
+      "SocialButton": {
         "replaces": []
       },
       "StatusDot": {
@@ -421,6 +500,9 @@
         "replaces": []
       },
       "Tooltip": {
+        "replaces": []
+      },
+      "UploadItem": {
         "replaces": []
       }
     },

@@ -8,7 +8,7 @@ export function AppointmentCard({ status='pendiente', time, title, patient, vet,
   const [c,,label] = ST[status] || ST.pendiente;
   return (
     <div style={{ display:'flex', gap:12, alignItems:'flex-start', background:'var(--surface-card)',
-      border:'1px solid var(--border-subtle)', borderLeft:`3px solid ${c}`,
+      border:'1px solid var(--border-subtle)',
       borderRadius:'var(--radius-md)', padding: compact ? '10px 12px' : '14px 16px' }}>
       <div style={{ flex:1, minWidth:0 }}>
         <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
