@@ -5,9 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Isotipo from '../../design-system/assets/wayka-isotipo.svg';
 import Logo from '../../design-system/assets/wayka-logo.svg';
-import { Button, Checkbox, Input, InlineError } from '../../src/components';
+import { Button, Input, InlineError } from '../../src/components';
 import { useLogin, validarContrasenaDeIngreso, validarEmail } from '../../src/features/auth';
-import { persisteEntreSesiones } from '../../src/lib/almacenamiento-refresh';
 import { CODIGO_ERROR, ErrorApi, mensajeDeError } from '../../src/lib/errores';
 import { esWeb } from '../../src/lib/plataforma';
 import { useAnchoDeVentana } from '../../src/hooks';
@@ -107,7 +106,6 @@ interface CamposProps {
 
 function CamposDeLogin({ formulario, etiquetaEmail, tamanoBoton, textoBoton }: CamposProps) {
   const { px } = useTheme();
-  const [mantenerSesion, setMantenerSesion] = useState(true);
 
   const falla = formulario.error ? mensajeDeFalla(formulario.error) : null;
 
@@ -140,13 +138,6 @@ function CamposDeLogin({ formulario, etiquetaEmail, tamanoBoton, textoBoton }: C
         returnKeyType="go"
         onSubmitEditing={formulario.enviar}
       />
-
-      {/* Solo donde la sesión efectivamente sobrevive al cierre: en web el token
-          de refresco vive en memoria mientras siga abierta esa decisión, y
-          ofrecer "mantener sesión" ahí sería prometer algo que no pasa. */}
-      {persisteEntreSesiones ? (
-        <Checkbox label="Mantener sesión" checked={mantenerSesion} onChange={setMantenerSesion} />
-      ) : null}
 
       <Button block size={tamanoBoton} loading={formulario.isPending} onPress={formulario.enviar}>
         {textoBoton}

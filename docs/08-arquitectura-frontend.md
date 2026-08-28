@@ -94,11 +94,16 @@ El design system entregado por Claude Design (CSS, componentes, kits de pantalla
 ## 6. Autenticación y sesión
 
 - **Token de acceso**: vive en memoria (store de sesión, no persistido). Se pierde al recargar la pestaña web o al cerrar la app — se recupera pidiendo uno nuevo con el token de refresco al arrancar.
-- **Token de refresco**: su almacenamiento difiere por plataforma y es una decisión abierta:
-  - **Nativo**: `expo-secure-store` (Keychain en iOS, Keystore en Android) — resuelto, es el estándar para este caso en Expo.
-  - **Web**: sin resolver. `localStorage` es simple pero legible por cualquier script (riesgo XSS); una cookie `httpOnly` es más segura pero requiere que el backend la setee así en vez de devolver el token en el body de la respuesta, lo cual no está contemplado en Arquitectura del Sistema (sección 4.2) tal como está escrita hoy. **Esto queda señalado como ambigüedad a resolver con el backend antes de implementar login web**, no asumido.
+- **Token de refresco**: su almacenamiento difiere por plataforma. Lo decide un solo módulo, `src/lib/almacenamiento-refresh.ts`.
+  - **Nativo**: `expo-secure-store` (Keychain en iOS, Keystore en Android) — es el estándar para este caso en Expo.
+  - **Web**: `localStorage`. La alternativa era una cookie `httpOnly`, más segura, pero exige que el backend la setee en vez de devolver el token en el body, y eso no es lo que describe Arquitectura 4.2: cambiarlo movía el contrato de autenticación entero para el MVP. **El riesgo aceptado es XSS** — cualquier script que corra en la página puede leer `localStorage`—, y lo que lo acota no es el almacenamiento sino el esquema del backend: el token de refresco es de un solo uso, rota en cada canje, y presentar uno ya usado se lee como reuso y revoca la cadena entera (Arquitectura, 4.2.1). Un token robado sirve hasta que el dueño refresque, y ahí caen las dos sesiones.
+
+    Hay dos casos donde `localStorage` no está y la sesión no puede romperse por eso: la **exportación estática**, que hace el prerender en Node sin `window`, y **Safari en navegación privada**, donde `setItem` lanza por cuota. En los dos se cae a memoria y la sesión funciona dentro de la misma carga de página.
 - **Canal (`canal: web | movil`)**: fijo por plataforma en el código del cliente (no es una opción que elige el usuario), coherente con que es una regla de producto y no una barrera de seguridad (Arquitectura, sección 4.4).
 - **Interceptor de red**: un 401 por token de acceso vencido dispara un único intento de refresh; si el refresh falla (token inválido, reuso detectado, `Usuario.activo = false`), se limpia la sesión y se redirige a `/(auth)/login` — nunca un reintento en loop.
+- **Canje serializado entre pestañas.** Con el token en `localStorage`, todas las pestañas del navegador comparten el mismo: dos que reciben 401 a la vez presentarían el mismo token, y la segunda dispararía la detección de reuso tirando abajo la sesión de las dos. El canje se toma un candado de `navigator.locks` y **lee el token adentro**, así la segunda encuentra el ya rotado. Donde `navigator.locks` no existe se corre sin candado, que es el comportamiento de antes.
+
+> **Cerrar sesión en una pestaña no cierra las otras al instante.** La que quedó abierta sigue con su token de acceso en memoria hasta que expire —minutos—, y recién ahí su refresh falla y la manda a login. Es la misma ventana de revocación que el esquema ya asume para el token de acceso (Arquitectura, 4.2), no una fuga nueva. Cerrarla de inmediato pide escuchar el evento `storage`, y no está hecho.
 
 ## 7. Cliente de API
 

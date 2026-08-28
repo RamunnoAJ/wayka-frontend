@@ -66,10 +66,11 @@ Este frontend no los implementa, pero toda pantalla se diseña sabiendo que est�
 
 ## Autenticación y sesión
 
-- **Token de acceso**: en memoria, no persistido. Se pierde al recargar la pestaña web o cerrar la app nativa; se recupera con el token de refresco al arrancar.
+- **Token de acceso**: en memoria, no persistido. Se pierde al recargar la pestaña web o cerrar la app nativa; se recupera con el token de refresco al arrancar — y desde que el refresco persiste en web, recargar ya no saca al usuario de la sesión.
 - **Token de refresco**:
-  - Nativo → `expo-secure-store` (Keychain/Keystore). Resuelto.
-  - Web → **sin resolver todavía**. `localStorage` vs. cookie `httpOnly` (esto último requeriría que el backend cambie cómo devuelve el token en el login, algo no contemplado hoy en `../docs/04-arquitectura.md`). No asumir una opción sin confirmar — señalarlo si una tarea toca login web.
+  - Nativo → `expo-secure-store` (Keychain/Keystore).
+  - Web → `localStorage`. Se descartó la cookie `httpOnly` porque exigía cambiar cómo el backend devuelve el token en el login (`../docs/04-arquitectura.md`, 4.2). El riesgo de XSS queda acotado por la rotación de un solo uso del propio esquema, no por el almacenamiento. Lo decide un solo módulo: `src/lib/almacenamiento-refresh.ts`.
+  - El canje se serializa entre pestañas con `navigator.locks`: comparten el token y dos refrescos simultáneos se leerían como reuso.
 - **Interceptor de red**: un 401 por token de acceso vencido dispara un único intento de refresh y reintenta el request original; si el refresh falla, se limpia la sesión y se redirige a `/(auth)/login`. Nunca un loop de reintentos.
 - El `canal` es fijo por plataforma en el código, no configurable por el usuario (ver principios heredados, arriba).
 
