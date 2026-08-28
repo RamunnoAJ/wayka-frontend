@@ -1,9 +1,29 @@
+import type { TipoUsuario } from '../constants/roles';
 import { http } from '../lib/http';
+import type { Usuario } from '../types/sesion';
 
 /**
  * Cuentas de acceso. El tipo `Usuario` vive en `types/sesion.ts` porque es lo
  * que devuelve el login, y no se duplica acá.
  */
+
+export interface FiltrosDeUsuarios {
+  tipo_usuario?: TipoUsuario;
+  activo?: boolean;
+}
+
+/**
+ * Cuentas de la clínica del usuario autenticado. Es del clínica_admin: el
+ * alcance lo decide el rol del token, nunca un parámetro.
+ *
+ * Es la única forma de llegar del plantel a la cuenta: `Veterinario` no expone
+ * `usuario_id` —la referencia va al revés, `Usuario.veterinario_id`—, así que
+ * para restablecerle la contraseña a alguien del plantel hay que cruzar los dos
+ * listados por ese campo.
+ */
+export function listarUsuarios(filtros: FiltrosDeUsuarios = {}): Promise<Usuario[]> {
+  return http.get<Usuario[]>('/usuarios', { params: { ...filtros } });
+}
 
 export interface CambiarContrasenaEntrada {
   /**

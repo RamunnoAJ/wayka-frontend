@@ -1,6 +1,32 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, type UseQueryResult } from '@tanstack/react-query';
 
-import { cambiarContrasena, type CambiarContrasenaEntrada } from '../../api/usuario';
+import {
+  cambiarContrasena,
+  listarUsuarios,
+  type CambiarContrasenaEntrada,
+  type FiltrosDeUsuarios,
+} from '../../api/usuario';
+import type { Usuario } from '../../types/sesion';
+
+export const CLAVES_DE_CUENTA = {
+  usuarios: (filtros: FiltrosDeUsuarios) => ['usuarios', filtros] as const,
+};
+
+/**
+ * Cuentas de la clínica. Solo la alcanza el clínica_admin — para cualquier otro
+ * rol el backend responde 403, así que no se pide.
+ */
+export function useUsuariosDeLaClinica(
+  filtros: FiltrosDeUsuarios,
+  habilitada: boolean,
+): UseQueryResult<Usuario[]> {
+  return useQuery({
+    queryKey: CLAVES_DE_CUENTA.usuarios(filtros),
+    queryFn: () => listarUsuarios(filtros),
+    enabled: habilitada,
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 /**
  * Cambio de contraseña.

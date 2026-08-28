@@ -91,6 +91,23 @@ describe('FormularioDeContrasena', () => {
     expect(getByText('Una mayúscula')).toBeVisible();
   });
 
+  // El clínica_admin restablece la de alguien de su plantel: no la conoce, y el
+  // backend no se la pide (contrato, `cambiarContrasena`). Mandar el campo vacío
+  // sería mandar una contraseña actual que va a fallar.
+  it('en modo restablecer no pide ni manda la contraseña actual', async () => {
+    const utilidades = await render(
+      <FormularioDeContrasena usuarioId="u9" modo="restablecer" tieneContrasena />,
+    );
+
+    expect(utilidades.queryByLabelText('Contraseña actual')).toBeNull();
+
+    await completar(utilidades, { nueva: 'Nueva1234', repetida: 'Nueva1234' });
+    await fireEvent.press(utilidades.getByRole('button', { name: 'Restablecer contraseña' }));
+
+    await waitFor(() => expect(cambiar).toHaveBeenCalledTimes(1));
+    expect(cambiar).toHaveBeenCalledWith('u9', { contrasena_nueva: 'Nueva1234' });
+  });
+
   it('el error del servidor queda a la vista', async () => {
     cambiar.mockRejectedValue(new Error('La contraseña actual no coincide'));
     const utilidades = await render(<FormularioDeContrasena usuarioId="u1" tieneContrasena />);

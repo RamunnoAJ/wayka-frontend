@@ -3,8 +3,10 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ActualizarVeterinarioEntrada, TipoDocumento } from '../../api/veterinario';
 import { Button, InlineError, Input, Select, Skeleton } from '../../components';
+import { TIPO_USUARIO } from '../../constants/roles';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
+import { FormularioDeContrasena, useUsuariosDeLaClinica } from '../cuenta';
 
 import { TIPOS_DE_DOCUMENTO } from './FormularioDeVeterinario';
 import { useActualizarVeterinario, usePlantel } from './queries';
@@ -16,8 +18,12 @@ import { useActualizarVeterinario, usePlantel } from './queries';
  * el listado ya lo trae entero, así que la ficha se resuelve contra la query que
  * ya está en caché en vez de pedir lo mismo de nuevo.
  *
- * El email y la contraseña **no se editan acá**: viven en la entidad Usuario, no
- * en la ficha, y tienen su propio endpoint.
+ * El email no se edita acá: vive en la entidad Usuario, no en la ficha.
+ *
+ * La contraseña **sí**, porque es la única salida que tiene hoy alguien del
+ * plantel que olvidó la suya: no existe recuperación sin sesión (Alcance de
+ * Plataformas, sección 6), y el contrato deja que un clínica_admin restablezca
+ * la de una cuenta de su clínica sin conocerla.
  */
 export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string }) {
   const { t, px, texto } = useTheme();
@@ -25,8 +31,17 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
   const guardar = useActualizarVeterinario();
   const [tocado, setTocado] = useState<ActualizarVeterinarioEntrada>({});
   const [guardado, setGuardado] = useState(false);
+  const [restableciendo, setRestableciendo] = useState(false);
 
   const veterinario = plantel.data?.find((v) => v.id === veterinarioId);
+
+  // `Veterinario` no expone `usuario_id`: la referencia va al revés. Para llegar
+  // a la cuenta hay que cruzar los dos listados por `veterinario_id`.
+  const cuentas = useUsuariosDeLaClinica(
+    { tipo_usuario: TIPO_USUARIO.VETERINARIO },
+    Boolean(veterinario),
+  );
+  const cuenta = cuentas.data?.find((u) => u.veterinario_id === veterinarioId);
 
   if (plantel.isPending) {
     return (
@@ -167,6 +182,62 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
           >
             Guardar cambios
           </Button>
+
+          <View
+            style={[
+              estilos.tarjeta,
+              sombra('--shadow-sm'),
+              {
+                borderRadius: px('--radius-card'),
+                backgroundColor: t['--surface-card'],
+                borderColor: t['--border-default'],
+                padding: px('--gutter-card'),
+              },
+            ]}
+          >
+            <Text style={[texto('h3'), { color: t['--text-strong'] }]}>Acceso</Text>
+
+            {cuentas.isPending ? (
+              <Skeleton height={40} />
+            ) : cuentas.isError ? (
+              <InlineError
+                compact
+                title="No se pudo cargar la cuenta"
+                onRetry={() => cuentas.refetch()}
+              />
+            ) : !cuenta ? (
+              // Pasa con una ficha dada de alta antes de que existiera su cuenta,
+              // o con una cuenta desactivada: el listado filtra por rol, no por
+              // ficha, así que no encontrarla no es un error de red.
+              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                No encontramos una cuenta activa para esta ficha. Escribinos si esta persona debería
+                poder entrar.
+              </Text>
+            ) : !restableciendo ? (
+              <>
+                <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{cuenta.email}</Text>
+                <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+                  Si olvidó su contraseña, restablecela vos: no hay recuperación por correo todavía.
+                </Text>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  style={estilos.botonDeAcceso}
+                  onPress={() => setRestableciendo(true)}
+                >
+                  Restablecer contraseña
+                </Button>
+              </>
+            ) : (
+              <FormularioDeContrasena
+                usuarioId={cuenta.id}
+                modo="restablecer"
+                tieneContrasena={cuenta.tiene_contrasena}
+                onListo={() => setRestableciendo(false)}
+                onCancelar={() => setRestableciendo(false)}
+              />
+            )}
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -182,4 +253,5 @@ const estilos = StyleSheet.create({
   fila: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   campo: { flexGrow: 2, flexBasis: 200, minWidth: 180 },
   campoChico: { flexGrow: 1, flexBasis: 160, minWidth: 150 },
+  botonDeAcceso: { alignSelf: 'flex-start' },
 });

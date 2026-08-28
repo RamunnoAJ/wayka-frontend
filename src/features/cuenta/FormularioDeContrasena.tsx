@@ -15,6 +15,10 @@ import { useCambiarContrasena } from './queries';
  * —una pantalla propia en el veterinario, una sección en el tutor y en el
  * clínica_admin—, no qué pide ni qué valida.
  *
+ * En modo `restablecer` lo usa el clínica_admin sobre una cuenta de su clínica:
+ * ahí **no se pide la contraseña actual porque no la conoce**, y el contrato lo
+ * contempla explícitamente.
+ *
  * **La política se muestra desde el principio, no al fallar.** Mismo criterio
  * que el límite de tamaño en los adjuntos: la restricción del backend se
  * muestra, no se descubre. Cada regla se tilda sola mientras se escribe.
@@ -22,9 +26,14 @@ import { useCambiarContrasena } from './queries';
 interface FormularioDeContrasenaProps {
   usuarioId: string;
   /**
+   * `propia` la cambia el dueño de la cuenta; `restablecer`, un clínica_admin
+   * sobre una cuenta de su clínica.
+   */
+  modo?: 'propia' | 'restablecer';
+  /**
    * `false` en una cuenta creada con Google que todavía no tiene contraseña: ahí
    * la establece por primera vez y no hay una anterior que acreditar (contrato,
-   * `cambiarContrasena`).
+   * `cambiarContrasena`). Solo aplica en modo `propia`.
    */
   tieneContrasena: boolean;
   onListo?: () => void;
@@ -33,6 +42,7 @@ interface FormularioDeContrasenaProps {
 
 export function FormularioDeContrasena({
   usuarioId,
+  modo = 'propia',
   tieneContrasena,
   onListo,
   onCancelar,
@@ -45,16 +55,19 @@ export function FormularioDeContrasena({
   const [repetida, setRepetida] = useState('');
   const [tocado, setTocado] = useState(false);
 
+  // Un admin restableciendo no conoce la anterior, y el backend no se la pide.
+  const pideActual = modo === 'propia' && tieneContrasena;
+
   const errorDeNueva = validarContrasenaNueva(nueva);
   const noCoinciden = repetida.length > 0 && repetida !== nueva;
-  const completo = (!tieneContrasena || actual.length > 0) && !errorDeNueva && repetida === nueva;
+  const completo = (!pideActual || actual.length > 0) && !errorDeNueva && repetida === nueva;
 
   function guardar() {
     setTocado(true);
     if (!completo) return;
     cambiar.mutate(
       {
-        ...(tieneContrasena ? { contrasena_actual: actual } : {}),
+        ...(pideActual ? { contrasena_actual: actual } : {}),
         contrasena_nueva: nueva,
       },
       {
@@ -73,7 +86,12 @@ export function FormularioDeContrasena({
 
   return (
     <View style={estilos.raiz}>
-      {!tieneContrasena ? (
+      {modo === 'restablecer' ? (
+        <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+          Elegís una contraseña nueva y se la pasás por un medio seguro. No hace falta la anterior,
+          y nadie más que vos y esa persona van a conocer la nueva.
+        </Text>
+      ) : !tieneContrasena ? (
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
           Tu cuenta entra con Google y todavía no tiene contraseña. Si la definís, vas a poder usar
           las dos formas.
@@ -144,7 +162,7 @@ export function FormularioDeContrasena({
 
       <View style={estilos.acciones}>
         <Button disabled={!completo} loading={cambiar.isPending} onPress={guardar}>
-          Guardar contraseña
+          {modo === 'restablecer' ? 'Restablecer contraseña' : 'Guardar contraseña'}
         </Button>
         {onCancelar ? (
           <Button variant="ghost" onPress={onCancelar}>
