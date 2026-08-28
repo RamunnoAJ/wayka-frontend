@@ -2,10 +2,19 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ActualizarTutorEntrada, TipoDocumento } from '../../api/tutor';
-import { Badge, Button, InlineError, Input, Select, SkeletonText } from '../../components';
+import {
+  Badge,
+  Button,
+  EmptyState,
+  InlineError,
+  Input,
+  Select,
+  SkeletonText,
+} from '../../components';
 import { mensajeDeError } from '../../lib/errores';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
+import { BotonCerrarSesion } from '../auth';
 import { FormularioDeContrasena } from '../cuenta';
 import { useActualizarTutor, useTutor } from '../tutor/queries';
 import { TIPOS_DE_DOCUMENTO } from '../veterinario/FormularioDeVeterinario';
@@ -31,17 +40,38 @@ export function MisDatos() {
   const [tocado, setTocado] = useState<ActualizarTutorEntrada>({});
   const [guardado, setGuardado] = useState(false);
 
-  if (consulta.isPending || !tutorId) {
+  // Una cuenta de tutor sin ficha vinculada no se arregla esperando ni
+  // reintentando, así que este estado no es el mismo que "todavía cargando":
+  // lo único que le queda a esa persona es salir y volver a entrar con otra
+  // cuenta. Sin esta rama quedaba en el esqueleto para siempre.
+  if (!tutorId) {
+    return (
+      <View style={[estilos.raiz, estilos.cargando, { backgroundColor: t['--surface-page'] }]}>
+        <EmptyState
+          icon="user-round"
+          title="Tu cuenta no tiene una ficha de tutor"
+          description="Escribinos para que la vinculemos. Mientras tanto no hay datos que mostrar acá."
+          action={<BotonCerrarSesion />}
+        />
+      </View>
+    );
+  }
+  if (consulta.isPending) {
     return (
       <View style={[estilos.raiz, estilos.cargando, { backgroundColor: t['--surface-page'] }]}>
         <SkeletonText lines={4} />
       </View>
     );
   }
+  // El botón de salir también va acá: si la ficha no carga, esta pantalla es
+  // toda la cuenta que el tutor tiene a mano y sin él queda encerrado.
   if (consulta.isError) {
     return (
       <View style={[estilos.raiz, estilos.cargando, { backgroundColor: t['--surface-page'] }]}>
         <InlineError title="No se pudieron cargar tus datos" onRetry={() => consulta.refetch()} />
+        <View style={estilos.salida}>
+          <BotonCerrarSesion />
+        </View>
       </View>
     );
   }
@@ -198,6 +228,10 @@ export function MisDatos() {
             )}
           </View>
         ) : null}
+
+        <View style={[estilos.salida, { paddingHorizontal: px('--gutter-mobile') }]}>
+          <BotonCerrarSesion />
+        </View>
       </ScrollView>
     </View>
   );
@@ -214,4 +248,5 @@ const estilos = StyleSheet.create({
   consentimiento: { gap: 8 },
   // Vive fuera del contenedor con padding, así que se pone el suyo.
   tarjetaSuelta: { marginBottom: 24 },
+  salida: { alignItems: 'flex-start', paddingBottom: 32 },
 });

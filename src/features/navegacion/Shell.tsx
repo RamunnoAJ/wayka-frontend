@@ -90,6 +90,7 @@ export function Shell({ children }: { children: ReactNode }) {
               : undefined
           }
           onSalir={() => cerrarSesion.mutate()}
+          salidaEnCurso={cerrarSesion.isPending}
         />
         <View style={estilos.contenido}>{children}</View>
       </View>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, InlineError, SkeletonText } from '../../src/components';
+import { BotonCerrarSesion } from '../../src/features/auth';
 import { FormularioDeContrasena } from '../../src/features/cuenta';
 import { useMiFichaDeVeterinario } from '../../src/features/paciente/queries';
 import { useSesion } from '../../src/hooks/useSesion';
@@ -98,6 +99,10 @@ export default function MiCuenta() {
               />
             ) : null}
           </View>
+
+          <View style={estilos.salida}>
+            <BotonCerrarSesion />
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -124,4 +129,5 @@ const estilos = StyleSheet.create({
   bloque: { gap: 14 },
   dato: { gap: 2 },
   fila: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },
+  salida: { alignItems: 'flex-start', marginTop: 8 },
 });

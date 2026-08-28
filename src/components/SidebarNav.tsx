@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ANCHO_BORDE_FOCO, colorDeFoco, useTheme } from '../theme';
 
@@ -27,6 +27,8 @@ interface SidebarNavProps {
   user?: { name: string; role: string };
   /** Acción del pie: hoy, cerrar sesión. */
   onSalir?: () => void;
+  /** Cierre de sesión en curso: bloquea el botón y muestra el spinner. */
+  salidaEnCurso?: boolean;
 }
 
 function iniciales(nombre: string): string {
@@ -39,7 +41,15 @@ function iniciales(nombre: string): string {
     .toUpperCase();
 }
 
-export function SidebarNav({ items, value, onChange, clinic, user, onSalir }: SidebarNavProps) {
+export function SidebarNav({
+  items,
+  value,
+  onChange,
+  clinic,
+  user,
+  onSalir,
+  salidaEnCurso,
+}: SidebarNavProps) {
   const { t, px, texto } = useTheme();
   const [enfocado, setEnfocado] = useState<string | null>(null);
   const [sobrevolado, setSobrevolado] = useState<string | null>(null);
@@ -146,13 +156,21 @@ export function SidebarNav({ items, value, onChange, clinic, user, onSalir }: Si
             </Text>
           </View>
           {onSalir ? (
+            // Deshabilitado mientras cierra: la mutación revoca el token de
+            // refresco, y un segundo disparo revocaría uno que ya no vale.
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Cerrar sesión"
+              accessibilityState={{ disabled: salidaEnCurso, busy: salidaEnCurso }}
+              disabled={salidaEnCurso}
               onPress={onSalir}
               style={estilos.salir}
             >
-              <Icon name="log-out" size={18} color={t['--text-on-nav-muted']} />
+              {salidaEnCurso ? (
+                <ActivityIndicator size="small" color={t['--text-on-nav-muted']} />
+              ) : (
+                <Icon name="log-out" size={18} color={t['--text-on-nav-muted']} />
+              )}
             </Pressable>
           ) : null}
         </View>

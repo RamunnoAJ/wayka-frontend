@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 
 import { Button } from '../../src/components';
+import { BotonCerrarSesion } from '../../src/features/auth';
 import { FormularioDeClinica } from '../../src/features/clinica';
 import { FormularioDeContrasena } from '../../src/features/cuenta';
 import { useSesion } from '../../src/hooks/useSesion';
@@ -99,6 +100,10 @@ export default function Panel() {
                   onCancelar={() => setCambiandoContrasena(false)}
                 />
               )}
+
+              <View style={estilos.salida}>
+                <BotonCerrarSesion />
+              </View>
             </View>
           ) : null}
         </View>
@@ -114,4 +119,5 @@ const estilos = StyleSheet.create({
   titulo: { flex: 1, minWidth: 260, gap: 6 },
   cuenta: { borderWidth: 1, gap: 10, maxWidth: 520 },
   botonDeCuenta: { alignSelf: 'flex-start' },
+  salida: { alignItems: 'flex-start', marginTop: 4 },
 });
