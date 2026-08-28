@@ -33,7 +33,7 @@ Estructura de carpetas:
 
   /(clinica-admin)         → alcanzable solo si tipo_usuario = clínica_admin
   /(veterinario)           → alcanzable en web y en nativo (paridad total)
-  /(tutor)                 → alcanzable solo en build nativo
+  /(tutor)                 → alcanzable en web y en nativo
 
 /src
   /api          → un módulo por recurso (paciente.ts, tutor.ts, cita.ts, evento-clinico.ts,
@@ -59,7 +59,7 @@ Detalle completo de la estructura de rutas y de esta separación de carpetas: `d
 Este frontend no los implementa, pero toda pantalla se diseña sabiendo que están:
 
 - **Motor de permisos en dos niveles** (rol + alcance) — el backend rechaza lo que la UI no llegue a ocultar. Una pantalla que "confía" en que el usuario no va a intentar algo fuera de su rol está mal diseñada igual.
-- **Bloqueo de canal**: Tutor solo autentica desde móvil, Clínica_admin solo desde web, Veterinario desde ambos. El campo `canal` que manda el cliente es fijo por plataforma en el código — no una opción que elige el usuario — y es una regla de producto, no una barrera de seguridad (esa la aplica el backend).
+- **Bloqueo de canal**: Clínica_admin solo autentica desde web; Tutor y Veterinario desde ambos. El campo `canal` que manda el cliente es fijo por plataforma en el código — no una opción que elige el usuario — y es una regla de producto, no una barrera de seguridad (esa la aplica el backend). Lo que el tutor no tiene en web son el push y la cámara, por el aparato y no por permisos.
 - **Quién crea cada cuenta**: el Tutor se auto-registra desde la app; el Clínica_admin crea las cuentas de Veterinario de su propia clínica desde la web; la Clínica y su cuenta clínica_admin las crea el administrador de la plataforma por fuera de este proyecto (CLI del backend) — no hay pantalla acá para eso.
 - **Nunca DELETE físico** sobre entidades clínicas — toda baja que el usuario ve como "eliminar" es una baja lógica; el copy de la UI no debería decir "eliminar" cuando el dato sigue existiendo.
 - **Contraseñas**: mínimo 8 caracteres, una minúscula, una mayúscula y un dígito — se valida en el cliente por UX, pero el backend es quien decide si un alta se acepta.

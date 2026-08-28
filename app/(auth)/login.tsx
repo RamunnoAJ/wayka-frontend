@@ -30,11 +30,11 @@ const ANCHO_PANEL_PARTIDO = 900;
 export default function Login() {
   const ancho = useAnchoDeVentana();
 
-  // En nativo el ingreso arranca en tema tutor (naranja): es el rol mayoritario
-  // de esa plataforma y es el único que puede crear su cuenta desde acá. El
-  // veterinario que entra por móvil ve naranja solo en esta pantalla — apenas
-  // hay sesión, el tema del rol lo resuelve el layout raíz.
-  // En web el tutor no existe (Alcance de Plataformas, 1), así que va el default.
+  // Antes de entrar no se sabe el rol, así que el tema se elige por la
+  // plataforma: en nativo arranca en tutor (naranja), que es el rol mayoritario
+  // ahí; en web, en el default de la clínica. El tutor también entra por web
+  // (Alcance de Plataformas, 2), pero es minoría en ese canal y el tema del rol
+  // lo resuelve el layout raíz apenas hay sesión.
   return (
     <ThemeProvider nombre={esWeb ? 'default' : 'tutor'}>
       {ancho >= ANCHO_PANEL_PARTIDO ? <LoginAncho /> : <LoginAngosto />}
@@ -84,10 +84,13 @@ function mensajeDeFalla(error: unknown): { titulo: string; detalle: string } {
       return { titulo: 'No pudimos entrar', detalle: 'Revisá el correo y la contraseña.' };
     }
     if (error.esCodigo(CODIGO_ERROR.PERMISO_DENEGADO)) {
+      // El único bloqueo de canal que queda en pie es el del clínica_admin en
+      // móvil (regla 2.3): en web ya no hay cuenta que rebote por el canal, y
+      // por eso ese caso no tiene un mensaje propio.
       return {
         titulo: 'Esta cuenta no entra por acá',
         detalle: esWeb
-          ? 'Wayka para tutores está disponible solo en la app móvil.'
+          ? 'Probá de nuevo, o escribinos si el problema sigue.'
           : 'Las cuentas de administración de la clínica entran desde la web.',
       };
     }
@@ -179,9 +182,18 @@ function LoginAncho() {
             textoBoton="Ingresar"
           />
 
-          <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-            ¿Sos tutor de una mascota? Wayka para tutores está disponible solo en la app móvil.
-          </Text>
+          {/* El tutor también entra por acá desde que la web dejó de estar
+              cerrada para su rol. Se lo nombra explícitamente porque la columna
+              dice "correo profesional" y sin esto parecería que no es para él. */}
+          <View style={estilos.tutor}>
+            <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+              ¿Sos tutor de una mascota? Entrás por acá con el mismo correo. Los recordatorios de
+              turno y sacar una foto son de la app.
+            </Text>
+            <Button variant="ghost" size="sm" onPress={() => router.push('/(auth)/registro-tutor')}>
+              Crear una cuenta
+            </Button>
+          </View>
         </View>
       </View>
 
@@ -259,18 +271,16 @@ function LoginAngosto() {
             textoBoton="Entrar"
           />
 
-          {/* El alta abierta es solo del tutor, y el tutor solo existe en móvil
-              (Alcance de Plataformas, 5.1). */}
-          {!esWeb ? (
-            <Button
-              block
-              size="touch"
-              variant="ghost"
-              onPress={() => router.push('/(auth)/registro-tutor')}
-            >
-              Crear una cuenta
-            </Button>
-          ) : null}
+          {/* El alta abierta es solo del tutor, que ahora entra por los dos
+              canales (Alcance de Plataformas, 5.1). */}
+          <Button
+            block
+            size="touch"
+            variant="ghost"
+            onPress={() => router.push('/(auth)/registro-tutor')}
+          >
+            Crear una cuenta
+          </Button>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -278,6 +288,7 @@ function LoginAngosto() {
 }
 
 const estilos = StyleSheet.create({
+  tutor: { gap: 6, alignItems: 'flex-start' },
   pantalla: { flex: 1 },
   columnaCentrada: {
     flex: 1,

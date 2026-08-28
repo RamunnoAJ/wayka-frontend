@@ -22,7 +22,6 @@ import {
   validarContrasenaNueva,
 } from '../../src/features/auth';
 import { CODIGO_ERROR, ErrorApi, mensajeDeError } from '../../src/lib/errores';
-import { esWeb } from '../../src/lib/plataforma';
 import { ThemeProvider, useTheme } from '../../src/theme';
 
 /**
@@ -40,7 +39,7 @@ import { ThemeProvider, useTheme } from '../../src/theme';
 export default function RegistroTutor() {
   return (
     <ThemeProvider nombre="tutor">
-      {esWeb ? <SoloEnMovil /> : <FormularioDeRegistro />}
+      <FormularioDeRegistro />
     </ThemeProvider>
   );
 }
@@ -50,26 +49,6 @@ export default function RegistroTutor() {
  * Plataformas, sección 1): el backend rechazaría el alta por canal, así que
  * mostrar el formulario sería llevar a alguien a un rechazo evitable.
  */
-function SoloEnMovil() {
-  const { t, px, texto } = useTheme();
-
-  return (
-    <View style={[estilos.pantalla, estilos.centrado, { backgroundColor: t['--surface-card'] }]}>
-      <View style={{ maxWidth: 380, gap: px('--space-4'), alignItems: 'center' }}>
-        <Text style={[texto('h2'), { color: t['--text-strong'], textAlign: 'center' }]}>
-          Wayka para tutores está en la app
-        </Text>
-        <Text style={[texto('body'), { color: t['--text-muted'], textAlign: 'center' }]}>
-          Descargá la aplicación en tu teléfono para crear tu cuenta y ver la historia clínica de
-          tus mascotas.
-        </Text>
-        <Button variant="secondary" onPress={() => router.replace('/(auth)/login')}>
-          Volver al ingreso
-        </Button>
-      </View>
-    </View>
-  );
-}
 
 function FormularioDeRegistro() {
   const { t, px, texto } = useTheme();
