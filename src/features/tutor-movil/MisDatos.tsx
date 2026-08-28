@@ -4,7 +4,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { ActualizarTutorEntrada, TipoDocumento } from '../../api/tutor';
 import { Badge, Button, InlineError, Input, Select, SkeletonText } from '../../components';
 import { mensajeDeError } from '../../lib/errores';
+import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
+import { FormularioDeContrasena } from '../cuenta';
 import { useActualizarTutor, useTutor } from '../tutor/queries';
 import { TIPOS_DE_DOCUMENTO } from '../veterinario/FormularioDeVeterinario';
 
@@ -23,6 +25,8 @@ export function MisDatos() {
   const tutorId = useMiTutorID();
   const consulta = useTutor(tutorId);
   const guardar = useActualizarTutor(tutorId ?? '');
+  const { sesion } = useSesion();
+  const [cambiandoContrasena, setCambiandoContrasena] = useState(false);
 
   const [tocado, setTocado] = useState<ActualizarTutorEntrada>({});
   const [guardado, setGuardado] = useState(false);
@@ -151,6 +155,49 @@ export function MisDatos() {
             </Text>
           </View>
         </View>
+
+        {/*
+          La contraseña es un dato de la cuenta como el teléfono, y va donde el
+          tutor ya está mirando sus datos. En su propia tarjeta y no entre los
+          campos de la ficha: se guardan por separado y con otro botón.
+        */}
+        {sesion?.usuario ? (
+          <View
+            style={[
+              estilos.tarjeta,
+              estilos.tarjetaSuelta,
+              sombra('--shadow-sm'),
+              {
+                marginHorizontal: px('--gutter-mobile'),
+                borderRadius: px('--radius-card'),
+                backgroundColor: t['--surface-card'],
+                borderColor: t['--border-default'],
+                padding: px('--gutter-card'),
+              },
+            ]}
+          >
+            <Text style={[texto('h3'), { color: t['--text-strong'] }]}>Contraseña</Text>
+            {!cambiandoContrasena ? (
+              <View style={estilos.fila}>
+                <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                  {sesion.usuario.tiene_contrasena
+                    ? 'Definida. Cambiala cuando quieras.'
+                    : 'Todavía no tenés una: entrás con Google.'}
+                </Text>
+                <Button variant="secondary" size="sm" onPress={() => setCambiandoContrasena(true)}>
+                  {sesion.usuario.tiene_contrasena ? 'Cambiar' : 'Definir una'}
+                </Button>
+              </View>
+            ) : (
+              <FormularioDeContrasena
+                usuarioId={sesion.usuario.id}
+                tieneContrasena={sesion.usuario.tiene_contrasena}
+                onListo={() => setCambiandoContrasena(false)}
+                onCancelar={() => setCambiandoContrasena(false)}
+              />
+            )}
+          </View>
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -165,4 +212,6 @@ const estilos = StyleSheet.create({
   campo: { flexGrow: 2, flexBasis: 180, minWidth: 160 },
   campoChico: { flexGrow: 1, flexBasis: 150, minWidth: 140 },
   consentimiento: { gap: 8 },
+  // Vive fuera del contenedor con padding, así que se pone el suyo.
+  tarjetaSuelta: { marginBottom: 24 },
 });

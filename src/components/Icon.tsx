@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ClipboardCheck,
   CircleAlert,
+  CircleDot,
+  CircleUser,
   Dog,
   Download,
   ExternalLink,
@@ -81,6 +83,8 @@ const REGISTRO = {
   // usa el nombre viejo, que es el que vale acá.
   'alert-circle': CircleAlert,
   'alert-triangle': TriangleAlert,
+  'circle-dot': CircleDot,
+  'circle-user': CircleUser,
   x: X,
 
   // Ficha de paciente: identidad, tipos de evento clínico y acciones.

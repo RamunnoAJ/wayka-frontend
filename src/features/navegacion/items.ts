@@ -36,6 +36,16 @@ const VETERINARIO: ItemDeNavegacion[] = [
     label: 'Tutores',
     icono: 'user-round',
   },
+  // Va en el menú y no colgada del avatar de la barra lateral porque el
+  // veterinario tiene paridad entre web y móvil: en el teléfono no hay avatar
+  // donde colgarla, y una pantalla alcanzable solo en web rompería esa paridad.
+  {
+    href: '/(veterinario)/mi-cuenta',
+    prefijo: '/mi-cuenta',
+    label: 'Mi cuenta',
+    labelCorta: 'Cuenta',
+    icono: 'circle-user',
+  },
 ];
 
 // El clínica_admin no tiene "Pacientes" ni "Agenda" y no es un olvido: su rol

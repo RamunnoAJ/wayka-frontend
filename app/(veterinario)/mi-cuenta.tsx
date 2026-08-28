@@ -1,0 +1,127 @@
+import { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { Button, InlineError, SkeletonText } from '../../src/components';
+import { FormularioDeContrasena } from '../../src/features/cuenta';
+import { useMiFichaDeVeterinario } from '../../src/features/paciente/queries';
+import { useSesion } from '../../src/hooks/useSesion';
+import { sombra, useTheme } from '../../src/theme';
+
+/**
+ * Mi cuenta (rol veterinario).
+ *
+ * El tutor edita su ficha en "Mis datos" y el clínica_admin la suya en el panel;
+ * el veterinario no tenía ningún lugar donde vivieran sus propios datos, y por
+ * eso el cambio de contraseña no tenía dónde ir.
+ *
+ * **Es de solo lectura salvo la contraseña.** El nombre y la matrícula los carga
+ * el clínica_admin al dar de alta la cuenta (proceso 4.12) y no son editables
+ * por el propio veterinario: la matrícula decide si puede escribir historial
+ * (regla 2.1), así que cambiársela a sí mismo sería cambiarse los permisos.
+ */
+export default function MiCuenta() {
+  const { t, px, texto } = useTheme();
+  const { sesion } = useSesion();
+  const ficha = useMiFichaDeVeterinario();
+
+  const [cambiando, setCambiando] = useState(false);
+
+  const usuario = sesion?.usuario;
+
+  const tarjeta = {
+    padding: px('--gutter-card'),
+    borderRadius: px('--radius-card'),
+    backgroundColor: t['--surface-card'],
+    borderColor: t['--border-default'],
+    borderWidth: 1,
+  };
+
+  return (
+    <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
+      <ScrollView>
+        <View
+          style={[estilos.contenido, { maxWidth: 640, paddingHorizontal: px('--gutter-page') }]}
+        >
+          <View style={estilos.titulo}>
+            <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Mi cuenta</Text>
+            <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
+              Tus datos y la contraseña con la que entrás.
+            </Text>
+          </View>
+
+          <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
+            {ficha.isPending ? (
+              <SkeletonText lines={3} />
+            ) : ficha.isError ? (
+              <InlineError
+                compact
+                title="No se pudieron cargar tus datos"
+                onRetry={() => ficha.refetch()}
+              />
+            ) : (
+              <>
+                <Dato etiqueta="NOMBRE" valor={ficha.data?.nombre} />
+                <Dato
+                  etiqueta="MATRÍCULA"
+                  valor={ficha.data?.matricula ?? 'Sin matrícula cargada'}
+                  nota={
+                    ficha.data?.matricula
+                      ? undefined
+                      : 'Sin matrícula no podés cargar historial ni medicación. La carga tu clínica.'
+                  }
+                />
+                <Dato etiqueta="CORREO" valor={usuario?.email} />
+              </>
+            )}
+          </View>
+
+          <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
+            <Text style={[texto('h3'), { color: t['--text-strong'] }]}>Contraseña</Text>
+
+            {!cambiando ? (
+              <View style={estilos.fila}>
+                <Text style={[texto('body'), { color: t['--text-muted'] }]}>
+                  {usuario?.tiene_contrasena
+                    ? 'Definida. Cambiala cuando quieras.'
+                    : 'Todavía no tenés una: entrás con Google.'}
+                </Text>
+                <Button variant="secondary" size="sm" onPress={() => setCambiando(true)}>
+                  {usuario?.tiene_contrasena ? 'Cambiar' : 'Definir una'}
+                </Button>
+              </View>
+            ) : usuario ? (
+              <FormularioDeContrasena
+                usuarioId={usuario.id}
+                tieneContrasena={usuario.tiene_contrasena}
+                onListo={() => setCambiando(false)}
+                onCancelar={() => setCambiando(false)}
+              />
+            ) : null}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+function Dato({ etiqueta, valor, nota }: { etiqueta: string; valor?: string; nota?: string }) {
+  const { t, texto } = useTheme();
+  return (
+    <View style={estilos.dato}>
+      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+        {etiqueta}
+      </Text>
+      <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>{valor ?? '—'}</Text>
+      {nota ? <Text style={[texto('caption'), { color: t['--text-warning'] }]}>{nota}</Text> : null}
+    </View>
+  );
+}
+
+const estilos = StyleSheet.create({
+  raiz: { flex: 1 },
+  contenido: { width: '100%', alignSelf: 'center', paddingVertical: 32, gap: 16 },
+  titulo: { gap: 6 },
+  bloque: { gap: 14 },
+  dato: { gap: 2 },
+  fila: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },
+});
