@@ -43,3 +43,6 @@ yarn-error.*
 # Variables de entorno locales
 .env
 .env.local
+
+# Artefactos de builds locales de EAS
+build-local/
