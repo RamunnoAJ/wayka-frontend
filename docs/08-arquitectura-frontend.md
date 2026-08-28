@@ -103,7 +103,9 @@ El design system entregado por Claude Design (CSS, componentes, kits de pantalla
 - **Interceptor de red**: un 401 por token de acceso vencido dispara un único intento de refresh; si el refresh falla (token inválido, reuso detectado, `Usuario.activo = false`), se limpia la sesión y se redirige a `/(auth)/login` — nunca un reintento en loop.
 - **Canje serializado entre pestañas.** Con el token en `localStorage`, todas las pestañas del navegador comparten el mismo: dos que reciben 401 a la vez presentarían el mismo token, y la segunda dispararía la detección de reuso tirando abajo la sesión de las dos. El canje se toma un candado de `navigator.locks` y **lee el token adentro**, así la segunda encuentra el ya rotado. Donde `navigator.locks` no existe se corre sin candado, que es el comportamiento de antes.
 
-> **Cerrar sesión en una pestaña no cierra las otras al instante.** La que quedó abierta sigue con su token de acceso en memoria hasta que expire —minutos—, y recién ahí su refresh falla y la manda a login. Es la misma ventana de revocación que el esquema ya asume para el token de acceso (Arquitectura, 4.2), no una fuga nueva. Cerrarla de inmediato pide escuchar el evento `storage`, y no está hecho.
+- **Cerrar sesión se propaga a las otras pestañas.** `useSesionEntrePestanas` escucha el evento `storage`: cuando otra pestaña borra el token, esta limpia su sesión y va a login. Sin eso, la que quedó abierta seguía usable con su token de acceso en memoria hasta que venciera —minutos con la ficha de un paciente a la vista en una máquina de la que el usuario ya se fue—. Solo el **borrado** cierra: un valor nuevo es la rotación normal de un refresh ajeno, y cerrar ahí echaría al usuario cada vez que vence un token de acceso.
+
+> **Iniciar sesión en una pestaña no la inicia en las otras.** El caso inverso no está cubierto: la pestaña que estaba en login se queda ahí hasta que se la recargue. Se resuelve con el mismo evento, pero exige canjear el token para conseguir uno de acceso propio, y no hacía falta para el problema que se estaba resolviendo.
 
 ## 7. Cliente de API
 

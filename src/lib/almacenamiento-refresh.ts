@@ -22,7 +22,14 @@ import { esWeb } from './plataforma';
  * que el dueño refresque, y ahí las dos sesiones se caen.
  */
 
-const CLAVE = 'wayka.token-refresco';
+/**
+ * Clave del token en el almacenamiento. Se exporta porque el aviso entre
+ * pestañas (`useSesionEntrePestanas`) escucha cambios sobre ella: si la clave
+ * viviera en dos lugares, renombrarla rompería el aviso en silencio.
+ */
+export const CLAVE_DEL_TOKEN = 'wayka.token-refresco';
+
+const CLAVE = CLAVE_DEL_TOKEN;
 
 /**
  * Respaldo para cuando `localStorage` no está.

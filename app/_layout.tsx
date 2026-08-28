@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { configurarPresentacionDeAvisos } from '../src/features/notificaciones';
 import { useRestaurarSesion } from '../src/hooks/useRestaurarSesion';
+import { useSesionEntrePestanas } from '../src/hooks/useSesionEntrePestanas';
 import { useSesion } from '../src/hooks/useSesion';
 import { crearQueryClient } from '../src/lib/query-client';
 import { TIPO_USUARIO } from '../src/constants/roles';
@@ -36,6 +37,7 @@ export default function LayoutRaiz() {
   const fuentesListas = useFuentes();
 
   useRestaurarSesion();
+  useSesionEntrePestanas();
 
   useEffect(() => {
     if (fuentesListas) SplashScreen.hideAsync().catch(() => {});

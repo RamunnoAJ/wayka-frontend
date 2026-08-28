@@ -11,9 +11,9 @@ import { limpiarSesion, obtenerSesion } from '../stores/sesion';
  * (doc 08, sección 6). Si no hay token guardado, o el canje falla, la sesión
  * queda explícitamente vacía y los guards mandan a login.
  *
- * En web esto hoy nunca recupera nada: el token de refresco vive en memoria
- * mientras siga abierta la decisión de almacenamiento
- * (ver `src/lib/almacenamiento-refresh.ts`).
+ * En web recupera desde `localStorage`, que es lo que hace que recargar la
+ * pestaña no saque al usuario de la sesión (ver
+ * `src/lib/almacenamiento-refresh.ts`).
  */
 export function useRestaurarSesion(): void {
   useEffect(() => {
