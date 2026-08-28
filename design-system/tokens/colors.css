@@ -1,6 +1,6 @@
 :root{
 /* --- Marca (hex derivados de los nombres de los logos: VALORES A CONFIRMAR) --- */
---wayka-naranja-claro:#E9A76F;
+--wayka-naranja-claro:#F6A56C;
 --wayka-naranja:#D97B47;
 --wayka-naranja-oscuro:#B85F2E;
 --wayka-lila:#B4A3D6;
@@ -132,7 +132,7 @@
 /* --- Tema TUTOR: naranja claro como primario, lila/violeta de acento --- */
 [data-theme="tutor"]{
 --color-primary:var(--wayka-naranja-claro);
---color-primary-hover:#D78B57; /* congelado: era color-mix(in oklab,naranja-claro 62%,naranja-oscuro) */
+--color-primary-hover:#DE8A55; /* congelado: era color-mix(in oklab,naranja-claro 62%,naranja-oscuro) */
 --color-primary-fg:#FFFFFF;
 --color-primary-fill:#A34F1D;
 --color-primary-fill-hover:#864016;
