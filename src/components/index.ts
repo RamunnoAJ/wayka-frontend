@@ -2,6 +2,13 @@ export { AllergyChip } from './AllergyChip';
 export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
+export {
+  CameraCapture,
+  MODOS_DE_CAMARA,
+  type EstadoDeCamara,
+  type FlashDeCamara,
+  type ModoDeCamara,
+} from './CameraCapture';
 export { Checkbox } from './Checkbox';
 export { EmptyState } from './EmptyState';
 export { FileDropzone } from './FileDropzone';

@@ -94,6 +94,26 @@ describe('SubidaDeAdjunto', () => {
     expect(queryByText('No se pudo abrir el selector')).toBeNull();
   });
 
+  // La cámara es el camino corto para la foto que todavía no existe. No
+  // reemplaza al selector: los dos tienen que seguir estando.
+  it('ofrece sacar una foto además de elegir un archivo', async () => {
+    const { getByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    expect(getByRole('button', { name: 'Sacar una foto' })).toBeVisible();
+    expect(getByRole('button', { name: 'Elegir foto' })).toBeVisible();
+  });
+
+  // Un PDF no sale de una cámara. El modo documento produce una imagen, así que
+  // vive bajo los tipos que sí la admiten.
+  it('no ofrece la cámara cuando el tipo declarado es PDF', async () => {
+    const { getByRole, queryByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    await fireEvent.press(getByRole('button', { name: 'Tipo de archivo' }));
+    await fireEvent.press(getByRole('menuitem', { name: 'PDF' }));
+
+    await waitFor(() => expect(queryByRole('button', { name: 'Sacar una foto' })).toBeNull());
+  });
+
   it('el fallo del servidor deja el archivo a la vista, con su motivo y el reintento', async () => {
     devuelveArchivo();
     subir.mockRejectedValue(new Error('El bucket no responde'));

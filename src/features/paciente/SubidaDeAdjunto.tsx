@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import type { TipoDeAdjunto } from '../../api/adjunto';
 import {
+  Button,
   FileDropzone,
   InlineError,
   Select,
@@ -18,6 +19,7 @@ import {
 } from '../../lib/archivos';
 import { mensajeDeError } from '../../lib/errores';
 
+import { CamaraDeAdjunto } from './CamaraDeAdjunto';
 import { useSubirAdjunto } from './queries';
 
 /**
@@ -47,8 +49,17 @@ interface EnCurso {
   corte: AbortController;
 }
 
+/**
+ * La cámara solo tiene sentido donde hay una: en la web de la clínica el
+ * archivo llega del disco, y `expo-camera` ahí pediría `getUserMedia` con su
+ * propio permiso del navegador.
+ */
+const HAY_CAMARA = Platform.OS !== 'web';
+
 interface SubidaDeAdjuntoProps {
   pacienteId: string;
+  /** Para qué se saca la foto, si se abre la cámara: "Herida · Mora". */
+  tituloDeCamara?: string;
   /** Evento que el archivo documenta. Sin él, queda como adjunto general. */
   eventoId?: string;
   /** La ficha no admite escrituras (paciente dado de baja, matrícula vencida). */
@@ -58,6 +69,7 @@ interface SubidaDeAdjuntoProps {
 
 export function SubidaDeAdjunto({
   pacienteId,
+  tituloDeCamara,
   eventoId,
   bloqueado = false,
   motivoBloqueo,
@@ -68,6 +80,7 @@ export function SubidaDeAdjunto({
   const [rechazo, setRechazo] = useState<string | null>(null);
   const [errorAlAbrir, setErrorAlAbrir] = useState<string | null>(null);
   const [enCurso, setEnCurso] = useState<EnCurso[]>([]);
+  const [camaraAbierta, setCamaraAbierta] = useState(false);
 
   // Un contador y no un id aleatorio: solo tiene que distinguir las filas de
   // esta pantalla, y el id real lo asigna el backend cuando el archivo llega.
@@ -105,19 +118,8 @@ export function SubidaDeAdjunto({
     }
   }
 
-  async function elegir() {
-    setRechazo(null);
-    setErrorAlAbrir(null);
-
-    let archivo: ArchivoElegido | null;
-    try {
-      archivo = await elegirArchivo(tipo);
-    } catch (error) {
-      setErrorAlAbrir(mensajeDeError(error));
-      return;
-    }
-    if (!archivo) return;
-
+  /** Punto de entrada común del archivo elegido del disco y del sacado con la cámara. */
+  async function encolar(archivo: ArchivoElegido) {
     // El límite y el formato se verifican **antes** de subir: el 413 del backend
     // no puede ser el primer aviso después de mandar 10 MB por red móvil.
     const motivo = motivoDeRechazo(archivo, tipo);
@@ -135,6 +137,22 @@ export function SubidaDeAdjunto({
     };
     setEnCurso((filas) => [...filas, fila]);
     await despachar(fila);
+  }
+
+  async function elegir() {
+    setRechazo(null);
+    setErrorAlAbrir(null);
+
+    let archivo: ArchivoElegido | null;
+    try {
+      archivo = await elegirArchivo(tipo);
+    } catch (error) {
+      setErrorAlAbrir(mensajeDeError(error));
+      return;
+    }
+    if (!archivo) return;
+
+    await encolar(archivo);
   }
 
   function reintentar(fila: EnCurso) {
@@ -173,6 +191,28 @@ export function SubidaDeAdjunto({
         onPick={() => void elegir()}
       />
 
+      {/*
+        La cámara no reemplaza al selector: es el camino corto para la foto que
+        todavía no existe. Un PDF no se saca con la cámara — para eso está el
+        modo documento, que igual produce una imagen.
+      */}
+      {HAY_CAMARA && tipo !== 'pdf' ? (
+        <Button
+          block
+          size="touch"
+          variant="secondary"
+          iconLeft="camera"
+          disabled={bloqueado}
+          accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+          onPress={() => {
+            setRechazo(null);
+            setCamaraAbierta(true);
+          }}
+        >
+          Sacar una foto
+        </Button>
+      ) : null}
+
       {errorAlAbrir ? (
         <InlineError compact title="No se pudo abrir el selector" description={errorAlAbrir} />
       ) : null}
@@ -181,7 +221,9 @@ export function SubidaDeAdjunto({
         <UploadItem
           key={fila.id}
           name={fila.archivo.nombre}
-          size={tamanoLegible(fila.archivo.tamanoBytes)}
+          // La foto recién sacada no trae peso: leerlo exigiría cargar el
+          // archivo entero, que es lo que la subida evita.
+          size={fila.archivo.tamanoBytes > 0 ? tamanoLegible(fila.archivo.tamanoBytes) : undefined}
           type={fila.tipo}
           status={fila.estado}
           // Sin porcentaje: el cliente HTTP sube con `fetch`, que no informa
@@ -193,6 +235,18 @@ export function SubidaDeAdjunto({
           removeLabel={fila.estado === 'fallo' ? 'Descartar' : 'Cancelar la subida'}
         />
       ))}
+
+      {HAY_CAMARA && camaraAbierta ? (
+        <CamaraDeAdjunto
+          titulo={tituloDeCamara}
+          onCerrar={() => setCamaraAbierta(false)}
+          onTomada={(archivo) => void encolar(archivo)}
+          onAbrirCarrete={() => {
+            setCamaraAbierta(false);
+            void elegir();
+          }}
+        />
+      ) : null}
     </View>
   );
 }

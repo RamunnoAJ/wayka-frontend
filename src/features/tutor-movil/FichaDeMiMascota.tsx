@@ -276,6 +276,7 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
           */}
           <SeccionAdjuntos
             pacienteId={pacienteId}
+            nombreDePaciente={mascota.nombre}
             adjuntos={generales}
             usuarioId={sesion?.usuario.id}
             error={adjuntos.isError}

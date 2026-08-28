@@ -18,6 +18,8 @@ import { SubidaDeAdjunto } from './SubidaDeAdjunto';
  */
 interface AdjuntosProps {
   pacienteId: string;
+  /** Nombre de la mascota, para que la cámara diga de quién es la foto. */
+  nombreDePaciente?: string;
   adjuntos: Adjunto[];
   /** Cuenta autenticada, para saber qué adjuntos puede retirar. */
   usuarioId: string | undefined;
@@ -31,6 +33,7 @@ interface AdjuntosProps {
 
 export function SeccionAdjuntos({
   pacienteId,
+  nombreDePaciente,
   adjuntos,
   usuarioId,
   error,
@@ -53,6 +56,7 @@ export function SeccionAdjuntos({
       >
         <SubidaDeAdjunto
           pacienteId={pacienteId}
+          tituloDeCamara={nombreDePaciente}
           bloqueado={bloqueado}
           motivoBloqueo={motivoBloqueo}
         />

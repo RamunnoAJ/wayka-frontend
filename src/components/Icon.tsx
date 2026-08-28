@@ -8,6 +8,8 @@ import {
   CalendarClock,
   CalendarDays,
   CalendarPlus,
+  Camera,
+  CameraOff,
   Cat,
   Check,
   ChevronDown,
@@ -23,6 +25,7 @@ import {
   FileText,
   FileX,
   Image as ImageIcon,
+  Images,
   LoaderCircle,
   LogOut,
   Lock,
@@ -34,7 +37,9 @@ import {
   Pencil,
   Pill,
   Plus,
+  RefreshCw,
   RotateCcw,
+  ScanLine,
   Scissors,
   ShieldAlert,
   SquareCheck,
@@ -45,6 +50,8 @@ import {
   Upload,
   UserRound,
   X,
+  Zap,
+  ZapOff,
   type LucideProps,
 } from 'lucide-react-native';
 import type { ComponentType } from 'react';
@@ -110,6 +117,15 @@ const REGISTRO = {
   'file-x': FileX,
   download: Download,
   'rotate-ccw': RotateCcw,
+
+  // Cámara en pantalla.
+  camera: Camera,
+  'camera-off': CameraOff,
+  'scan-line': ScanLine,
+  'refresh-cw': RefreshCw,
+  images: Images,
+  zap: Zap,
+  'zap-off': ZapOff,
 
   // Shell de navegación.
   bell: Bell,
