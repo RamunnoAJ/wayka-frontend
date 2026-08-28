@@ -142,6 +142,12 @@ function CamposDeLogin({ formulario, etiquetaEmail, tamanoBoton, textoBoton }: C
       <Button block size={tamanoBoton} loading={formulario.isPending} onPress={formulario.enviar}>
         {textoBoton}
       </Button>
+
+      {/* Va abajo del botón y no arriba: quien entra todos los días no necesita
+          verlo, y quien lo busca lo hace después de que la contraseña falló. */}
+      <Button variant="ghost" size="sm" onPress={() => router.push('/(auth)/recuperar')}>
+        Olvidé mi contraseña
+      </Button>
     </View>
   );
 }
