@@ -11,6 +11,7 @@ import {
 import {
   actualizarCita,
   crearCita,
+  darDeBajaCita,
   listarCitas,
   type ActualizarCitaEntrada,
   type Cita,
@@ -247,10 +248,33 @@ export function useCrearEvento(pacienteId: string) {
   const cliente = useQueryClient();
   return useMutation({
     mutationFn: (entrada: CrearEventoEntrada) => crearEventoClinico(pacienteId, entrada),
-    onSuccess: () => {
+    onSuccess: (_evento, entrada) => {
       cliente.invalidateQueries({ queryKey: CLAVES.eventos(pacienteId) });
       // Una alergia o una vacuna cambian la banda de datos críticos, que se
       // deriva de los mismos eventos: no hay una segunda query que invalidar.
+
+      // El evento que referencia una cita la pasa a cumplida del lado del
+      // backend (Reglas de Negocio, 4.4). El calendario no se entera solo: sin
+      // esto, la cita sigue mostrándose pendiente hasta el próximo refetch.
+      if (entrada.cita_id) {
+        cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
+        cliente.invalidateQueries({ queryKey: ['citas'] });
+      }
+    },
+  });
+}
+
+/**
+ * Retira una cita del calendario. Es una baja lógica: la cita no se borra, deja
+ * de aparecer (regla 4.4, punto 6).
+ */
+export function useRetirarCita(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (citaId: string) => darDeBajaCita(citaId),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
+      cliente.invalidateQueries({ queryKey: ['citas'] });
     },
   });
 }

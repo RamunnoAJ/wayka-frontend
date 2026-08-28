@@ -151,3 +151,27 @@ export function darDeBajaCita(citaId: string): Promise<null> {
 export function esReagendable(cita: Cita): boolean {
   return cita.estado === ESTADO_DE_CITA.PENDIENTE;
 }
+
+/**
+ * Si esta cita puede cerrarla un Evento clínico que la referencie.
+ *
+ * **Una vencida también se cierra**: la mascota llegó tarde y se la atendió
+ * igual, y dejarla vencida para siempre falsearía el historial (Reglas de
+ * Negocio, 4.4). La que no se puede es la que ya está cumplida — el backend
+ * rechaza el segundo evento que la reclame.
+ */
+export function esCerrable(cita: Cita): boolean {
+  return cita.estado !== ESTADO_DE_CITA.CUMPLIDO;
+}
+
+/**
+ * Si tiene sentido retirarla del calendario. La baja es para **lo que no va a
+ * ocurrir** (regla 4.4, punto 6), y una cita cumplida ya ocurrió: retirarla
+ * sería borrar del calendario una atención que pasó.
+ *
+ * El backend no lo restringe por estado — esto es criterio de la interfaz, no
+ * una regla que se esté replicando.
+ */
+export function esRetirable(cita: Cita): boolean {
+  return cita.estado !== ESTADO_DE_CITA.CUMPLIDO;
+}

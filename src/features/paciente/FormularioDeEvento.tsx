@@ -1,6 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { esCerrable, type Cita } from '../../api/cita';
+import type { Clinica } from '../../api/clinica';
 import {
   TIPO_DE_EVENTO,
   type CampoEstructurado,
@@ -11,7 +13,7 @@ import {
 import { Button, InlineError, Input, Select, type OpcionDeSelect } from '../../components';
 import { useTheme } from '../../theme';
 
-import { hoyEnLaClinica } from './formato';
+import { hoyEnLaClinica, momentoCorto } from './formato';
 
 /**
  * Carga de un evento clínico (Alcance de Plataformas, 3.4).
@@ -34,6 +36,19 @@ const TIPOS: OpcionDeSelect<TipoDeEvento>[] = [
   { value: TIPO_DE_EVENTO.ALERGIA, label: 'Alergia' },
 ];
 
+/**
+ * Valor del selector cuando la atención no cierra ninguna cita. Es una cadena
+ * vacía y no un id inventado: `Select` compara por valor y un uuid falso sería
+ * un id válido que significa otra cosa.
+ */
+const SIN_CITA = '';
+
+const ETIQUETA_DE_TIPO_DE_CITA: Record<Cita['tipo'], string> = {
+  vacuna: 'Vacuna',
+  control: 'Control',
+  cirugia: 'Cirugía',
+};
+
 const SEVERIDADES: OpcionDeSelect<SeveridadDeAlergia>[] = [
   { value: 'leve', label: 'Leve' },
   { value: 'moderada', label: 'Moderada' },
@@ -43,6 +58,16 @@ const SEVERIDADES: OpcionDeSelect<SeveridadDeAlergia>[] = [
 interface FormularioDeEventoProps {
   enviando: boolean;
   error?: string;
+  /**
+   * Citas de la mascota que esta atención podría estar cumpliendo. Se filtran
+   * acá adentro: las ya cumplidas no se ofrecen porque el backend rechaza el
+   * segundo evento que las reclame.
+   */
+  citas?: Cita[];
+  /** Solo para escribir la fecha de cada cita en la zona de la clínica. */
+  clinica?: Clinica;
+  /** Cita preseleccionada, cuando se llega desde el calendario. */
+  citaInicial?: string;
   onGuardar: (entrada: CrearEventoEntrada) => void;
   onCancelar: () => void;
 }
@@ -50,6 +75,9 @@ interface FormularioDeEventoProps {
 export function FormularioDeEvento({
   enviando,
   error,
+  citas,
+  clinica,
+  citaInicial,
   onGuardar,
   onCancelar,
 }: FormularioDeEventoProps) {
@@ -59,6 +87,7 @@ export function FormularioDeEvento({
   const [fecha, setFecha] = useState(hoyEnLaClinica());
   const [descripcion, setDescripcion] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
+  const [citaId, setCitaId] = useState(citaInicial ?? SIN_CITA);
 
   // Un estado por esquema, no uno compartido: cambiar de tipo no debería
   // arrastrar el lote de una vacuna al alérgeno de una alergia.
@@ -84,6 +113,27 @@ export function FormularioDeEvento({
   })();
 
   const completo = descripcion.trim() && fechaValida && estructuradoCompleto;
+
+  /**
+   * Es la única forma de cerrar una cita: no hay endpoint que escriba `estado`
+   * —pasa a cumplido cuando llega el evento que la referencia (Reglas de
+   * Negocio, 4.4)—. Una vencida también se ofrece: la mascota llegó tarde y se
+   * la atendió igual.
+   */
+  const cerrables = useMemo(() => (citas ?? []).filter(esCerrable), [citas]);
+
+  const opcionesDeCita = useMemo<OpcionDeSelect[]>(
+    () => [
+      { value: SIN_CITA, label: 'No cierra ninguna cita' },
+      ...cerrables.map((cita) => ({
+        value: cita.id,
+        label: `${ETIQUETA_DE_TIPO_DE_CITA[cita.tipo]} · ${momentoCorto(cita.fecha_programada, clinica?.zona_horaria)}${
+          cita.estado === 'vencido' ? ' (vencida)' : ''
+        }`,
+      })),
+    ],
+    [cerrables, clinica?.zona_horaria],
+  );
 
   function campoEstructurado(): CampoEstructurado | undefined {
     if (tipo === TIPO_DE_EVENTO.VACUNA) {
@@ -130,6 +180,22 @@ export function FormularioDeEvento({
             />
           </View>
         </View>
+
+        {/*
+          Cerrar la cita es un efecto del evento, no un campo más: va acá arriba,
+          junto a qué atención fue y cuándo, y no perdido al final del
+          formulario. Si la mascota no tenía nada agendado no se dibuja — un
+          selector con una sola opción que dice "ninguna" es ruido.
+        */}
+        {cerrables.length > 0 ? (
+          <Select
+            label="¿Cierra una cita agendada?"
+            hint="Al guardar, la cita elegida pasa a cumplida. Es la única forma de cerrarla."
+            options={opcionesDeCita}
+            value={citaId}
+            onChange={setCitaId}
+          />
+        ) : null}
 
         <Input
           label="Descripción"
@@ -263,6 +329,7 @@ export function FormularioDeEvento({
                 descripcion: descripcion.trim(),
                 ...(diagnostico.trim() ? { diagnostico: diagnostico.trim() } : {}),
                 ...(campoEstructurado() ? { campo_estructurado: campoEstructurado() } : {}),
+                ...(citaId !== SIN_CITA ? { cita_id: citaId } : {}),
               })
             }
           >

@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
+  esCerrable,
   esReagendable,
+  esRetirable,
   type Cita,
   type CrearCitaEntrada,
   type EstadoDeCita,
@@ -79,6 +81,14 @@ interface CalendarioProps {
   motivoBloqueo: string;
   onAgendar: (entrada: CrearCitaEntrada) => void;
   onReagendar: (cita: Cita, entrada: CrearCitaEntrada) => void;
+  /**
+   * Lleva a cargar el evento clínico que cierra esta cita. **Es la única forma
+   * de que pase a cumplida**: `estado` no se escribe desde ningún endpoint, lo
+   * mueve el evento que la referencia (Reglas de Negocio, 4.4).
+   */
+  onRegistrarAtencion: (cita: Cita) => void;
+  /** Baja lógica: la cita que no va a ocurrir se retira del calendario. */
+  onRetirar: (cita: Cita) => void;
   guardando: boolean;
   errorAlGuardar?: string;
 }
@@ -94,6 +104,8 @@ export function SeccionCalendario({
   motivoBloqueo,
   onAgendar,
   onReagendar,
+  onRegistrarAtencion,
+  onRetirar,
   guardando,
   errorAlGuardar,
 }: CalendarioProps) {
@@ -327,29 +339,62 @@ export function SeccionCalendario({
                 </Text>
               </View>
 
-              {/* Solo lo pendiente se reagenda: mover una cita es mover algo que
-                  todavía va a pasar (regla 2.2). */}
-              {esReagendable(cita) ? (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  iconLeft="calendar-clock"
-                  disabled={bloqueado}
-                  accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                  onPress={() => setFormulario((abierto) => (abierto === cita.id ? null : cita.id))}
-                >
-                  Reagendar
-                </Button>
-              ) : (
-                <View style={estilos.fija}>
-                  <Icon name="lock" size={13} color={t['--text-subtle']} />
-                  <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-                    {cita.estado === 'cumplido'
-                      ? 'Cumplida: no se reagenda'
-                      : 'Vencida: no se reagenda'}
-                  </Text>
-                </View>
-              )}
+              <View style={estilos.acciones}>
+                {/* Cerrar la cita es lo que se hace con la que ya se atendió, y
+                    lo que más se usa: va primero y con más peso que reagendar.
+                    Una vencida también se cierra — la mascota llegó tarde y se
+                    la atendió igual (Reglas de Negocio, 4.4). */}
+                {esCerrable(cita) ? (
+                  <Button
+                    size="sm"
+                    iconLeft="clipboard-check"
+                    disabled={bloqueado}
+                    accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+                    onPress={() => onRegistrarAtencion(cita)}
+                  >
+                    Registrar atención
+                  </Button>
+                ) : (
+                  <View style={estilos.fija}>
+                    <Icon name="check" size={13} color={t['--appt-done']} />
+                    <Text style={[texto('caption'), { color: t['--appt-done'] }]}>
+                      Cumplida con un evento del historial
+                    </Text>
+                  </View>
+                )}
+
+                {/* Solo lo pendiente se reagenda: mover una cita es mover algo que
+                    todavía va a pasar (regla 2.2). */}
+                {esReagendable(cita) ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    iconLeft="calendar-clock"
+                    disabled={bloqueado}
+                    accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+                    onPress={() =>
+                      setFormulario((abierto) => (abierto === cita.id ? null : cita.id))
+                    }
+                  >
+                    Reagendar
+                  </Button>
+                ) : null}
+
+                {/* La baja es para lo que no va a ocurrir. No dice "eliminar":
+                    la cita no se borra, deja de aparecer en el calendario. */}
+                {esRetirable(cita) ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    iconLeft="archive"
+                    disabled={bloqueado}
+                    accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+                    onPress={() => onRetirar(cita)}
+                  >
+                    Retirar
+                  </Button>
+                ) : null}
+              </View>
 
               {formulario === cita.id && !bloqueado ? (
                 <View style={estilos.reagenda}>
@@ -407,6 +452,7 @@ function construirMes(foco: Date): Date[][] {
 export { desdeIso };
 
 const estilos = StyleSheet.create({
+  acciones: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
   navegacion: {
     flexDirection: 'row',
     alignItems: 'center',

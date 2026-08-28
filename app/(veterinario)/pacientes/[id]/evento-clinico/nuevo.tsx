@@ -4,7 +4,12 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Icon } from '../../../../../src/components';
 import { FormularioDeEvento } from '../../../../../src/features/paciente/FormularioDeEvento';
-import { useCrearEvento, usePaciente } from '../../../../../src/features/paciente/queries';
+import { useClinica } from '../../../../../src/features/clinica/queries';
+import {
+  useCitas,
+  useCrearEvento,
+  usePaciente,
+} from '../../../../../src/features/paciente/queries';
 import { SubidaDeAdjunto } from '../../../../../src/features/paciente/SubidaDeAdjunto';
 import { mensajeDeError } from '../../../../../src/lib/errores';
 import { sombra, useTheme } from '../../../../../src/theme';
@@ -24,9 +29,14 @@ import { sombra, useTheme } from '../../../../../src/theme';
  * con su propio estado. Está señalado para revisar con Claude Design.
  */
 export default function NuevoEventoClinico() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // `cita` la pone el calendario cuando se entra desde una cita concreta: llegar
+  // con la atención ya apuntada evita volver a elegirla de una lista.
+  const { id, cita } = useLocalSearchParams<{ id: string; cita?: string }>();
   const { t, px, texto } = useTheme();
   const paciente = usePaciente(id);
+  const citas = useCitas(id);
+  // La clínica solo hace falta para escribir la fecha de cada cita en su zona.
+  const clinica = useClinica(paciente.data?.clinica_id);
   const crear = useCrearEvento(id);
 
   const [eventoCargado, setEventoCargado] = useState<string | null>(null);
@@ -91,6 +101,9 @@ export default function NuevoEventoClinico() {
             <FormularioDeEvento
               enviando={crear.isPending}
               error={crear.error ? mensajeDeError(crear.error) : undefined}
+              citas={citas.data}
+              clinica={clinica.data}
+              citaInicial={cita}
               onGuardar={(entrada) =>
                 crear.mutate(entrada, { onSuccess: (evento) => setEventoCargado(evento.id) })
               }

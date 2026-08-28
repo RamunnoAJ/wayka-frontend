@@ -34,6 +34,7 @@ import {
   usePlantel,
   useReagendarCita,
   useRetirarAdjunto,
+  useRetirarCita,
   useTutor,
 } from './queries';
 
@@ -90,6 +91,7 @@ export function FichaDePaciente({
   const cerrar = useCerrarMedicacion(pacienteId);
   const crear = useCrearMedicacion(pacienteId);
   const retirar = useRetirarAdjunto(pacienteId);
+  const retirarCita = useRetirarCita(pacienteId);
   const agendar = useCrearCita(pacienteId);
   const reagendar = useReagendarCita(pacienteId);
 
@@ -238,10 +240,16 @@ export function FichaDePaciente({
               },
             })
           }
+          onRegistrarAtencion={(cita) =>
+            router.push(
+              `/(veterinario)/pacientes/${pacienteId}/evento-clinico/nuevo?cita=${cita.id}`,
+            )
+          }
+          onRetirar={(cita) => retirarCita.mutate(cita.id)}
           guardando={agendar.isPending || reagendar.isPending}
           errorAlGuardar={
-            agendar.error || reagendar.error
-              ? mensajeDeError(agendar.error ?? reagendar.error)
+            agendar.error || reagendar.error || retirarCita.error
+              ? mensajeDeError(agendar.error ?? reagendar.error ?? retirarCita.error)
               : undefined
           }
         />
