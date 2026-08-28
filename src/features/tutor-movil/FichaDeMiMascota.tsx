@@ -13,14 +13,19 @@ import {
   SkeletonText,
 } from '../../components';
 import { mensajeDeError } from '../../lib/errores';
+import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { capitalizar, edad, fechaCorta, peso } from '../paciente/formato';
 import {
+  derivarAdjuntos,
   useActualizarPeso,
+  useAdjuntos,
   useEventosClinicos,
   useMedicaciones,
   usePaciente,
+  useRetirarAdjunto,
 } from '../paciente/queries';
+import { SeccionAdjuntos } from '../paciente/SeccionAdjuntos';
 
 /**
  * Ficha de mi mascota, en solo lectura (Alcance de Plataformas, 5.3).
@@ -34,7 +39,10 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
   const paciente = usePaciente(pacienteId);
   const eventos = useEventosClinicos(pacienteId);
   const medicaciones = useMedicaciones(pacienteId);
+  const adjuntos = useAdjuntos(pacienteId);
   const guardarPeso = useActualizarPeso(pacienteId);
+  const retirar = useRetirarAdjunto(pacienteId);
+  const { sesion } = useSesion();
 
   const [editandoPeso, setEditandoPeso] = useState(false);
   const [pesoNuevo, setPesoNuevo] = useState('');
@@ -55,6 +63,7 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
   }
 
   const mascota = paciente.data;
+  const { generales } = derivarAdjuntos(adjuntos.data);
   const alergias = (eventos.data ?? []).filter((e) => e.tipo === TIPO_DE_EVENTO.ALERGIA);
   const { activas, historicas } = partirPorVigencia(medicaciones.data ?? []);
   const pesoValido = Number(pesoNuevo.replace(',', '.')) > 0;
@@ -252,6 +261,30 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
               ))
             )}
           </View>
+
+          {/*
+            Adjuntos (Alcance de Plataformas, 5.6): el tutor sube la ficha
+            histórica en papel o la foto de una herida. Es la misma sección que
+            ve el veterinario, con la misma regla — cada uno retira solo lo que
+            subió (regla 2.4), y el listado ya distingue al dueño por la cuenta
+            autenticada.
+
+            No se le pasa `bloqueado`: los motivos de bloqueo de la ficha del
+            veterinario son la matrícula vencida y el paciente dado de baja, y
+            ninguno de los dos es una decisión que el tutor pueda ver ni
+            resolver. Si el backend rechaza, el error aparece en la fila.
+          */}
+          <SeccionAdjuntos
+            pacienteId={pacienteId}
+            adjuntos={generales}
+            usuarioId={sesion?.usuario.id}
+            error={adjuntos.isError}
+            onReintentar={() => adjuntos.refetch()}
+            esMovil
+            bloqueado={false}
+            motivoBloqueo=""
+            onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
+          />
         </View>
       </ScrollView>
     </View>

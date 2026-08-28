@@ -21,7 +21,10 @@ export async function render(elemento: ReactElement) {
   const cliente = new QueryClient({
     defaultOptions: {
       queries: { retry: false, gcTime: 0 },
-      mutations: { retry: false },
+      // `gcTime: 0` también en las mutaciones: el default son 5 minutos, y un
+      // test que dispara una deja ese timer vivo hasta que Jest mata al worker
+      // ("a worker process has failed to exit gracefully").
+      mutations: { retry: false, gcTime: 0 },
     },
   });
 

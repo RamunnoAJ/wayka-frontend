@@ -7,6 +7,7 @@ import { useTheme } from '../../theme';
 import { fechaCorta, tamanoDeArchivo } from './formato';
 import { iconoDeArchivo } from './HistorialClinico';
 import { Seccion } from './Seccion';
+import { SubidaDeAdjunto } from './SubidaDeAdjunto';
 
 /**
  * Zona 4: los adjuntos que **no** cuelgan de un evento (la ficha histórica en
@@ -16,6 +17,7 @@ import { Seccion } from './Seccion';
  * que subió (regla 2.4) — por eso la acción depende de quién es el dueño.
  */
 interface AdjuntosProps {
+  pacienteId: string;
   adjuntos: Adjunto[];
   /** Cuenta autenticada, para saber qué adjuntos puede retirar. */
   usuarioId: string | undefined;
@@ -24,11 +26,11 @@ interface AdjuntosProps {
   esMovil: boolean;
   bloqueado: boolean;
   motivoBloqueo: string;
-  onSubir?: () => void;
   onRetirar: (adjunto: Adjunto) => void;
 }
 
 export function SeccionAdjuntos({
+  pacienteId,
   adjuntos,
   usuarioId,
   error,
@@ -36,29 +38,26 @@ export function SeccionAdjuntos({
   esMovil,
   bloqueado,
   motivoBloqueo,
-  onSubir,
   onRetirar,
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
 
-  const accion = (
-    <Button
-      size="sm"
-      iconLeft="upload"
-      disabled={bloqueado}
-      accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-      onPress={onSubir}
-    >
-      Subir adjunto
-    </Button>
-  );
-
   return (
-    <Seccion
-      titulo="Adjuntos generales"
-      nota="No se editan: se retiran y se sube otro"
-      accion={accion}
-    >
+    <Seccion titulo="Adjuntos generales" nota="No se editan: se retiran y se sube otro">
+      <View
+        style={{
+          padding: px('--gutter-card'),
+          borderBottomWidth: 1,
+          borderBottomColor: t['--border-subtle'],
+        }}
+      >
+        <SubidaDeAdjunto
+          pacienteId={pacienteId}
+          bloqueado={bloqueado}
+          motivoBloqueo={motivoBloqueo}
+        />
+      </View>
+
       {error ? (
         <View style={{ padding: px('--gutter-card') }}>
           <InlineError title="No se pudieron cargar los adjuntos" onRetry={onReintentar} />
@@ -68,17 +67,7 @@ export function SeccionAdjuntos({
           <EmptyState
             icon="paperclip"
             title="Sin adjuntos generales"
-            description="Subí acá lo que no cuelga de un evento: la ficha histórica en papel, el carnet de vacunación."
-            action={
-              <Button
-                iconLeft="upload"
-                disabled={bloqueado}
-                accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                onPress={onSubir}
-              >
-                Subir adjunto
-              </Button>
-            }
+            description="Acá va lo que no cuelga de un evento: la ficha histórica en papel, el carnet de vacunación."
           />
         </View>
       ) : (

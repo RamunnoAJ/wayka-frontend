@@ -28,6 +28,12 @@ export function registrarRefrescador(fn: Refrescador): void {
 interface OpcionesRequest {
   /** Cuerpo JSON. Se serializa acá; no pasar un string ya serializado. */
   body?: unknown;
+  /**
+   * Cuerpo `multipart/form-data`, para los endpoints que reciben un archivo.
+   * Excluyente con `body`. El header **no se escribe a mano**: `fetch` le pone
+   * el `boundary`, que es parte del `Content-Type` y no se puede adivinar.
+   */
+  formulario?: FormData;
   /** Query string. Los `undefined` se omiten. */
   params?: Record<string, string | number | boolean | undefined>;
   /** Omite el header Authorization (login, registro, renovación de token). */
@@ -66,13 +72,17 @@ async function ejecutar(
   if (opciones.body !== undefined) headers['Content-Type'] = 'application/json';
   if (token && !opciones.publico) headers.Authorization = `Bearer ${token}`;
 
+  const cuerpo =
+    opciones.formulario ??
+    (opciones.body === undefined ? undefined : JSON.stringify(opciones.body));
+
   // Sin `credentials: 'include'`: el backend no habilita credenciales en CORS
   // y el navegador rechazaría la respuesta. El token va siempre en Authorization.
   try {
     return await fetch(construirUrl(ruta, opciones.params), {
       method: metodo,
       headers,
-      body: opciones.body === undefined ? undefined : JSON.stringify(opciones.body),
+      body: cuerpo,
       signal: opciones.signal,
     });
   } catch (causa) {
@@ -112,6 +122,16 @@ async function request<T>(
 export const http = {
   get: <T>(ruta: string, opciones?: OpcionesRequest) => request<T>('GET', ruta, opciones),
   post: <T>(ruta: string, opciones?: OpcionesRequest) => request<T>('POST', ruta, opciones),
+  /**
+   * POST de un archivo. Es un `post` con `FormData`, aparte solo para que el
+   * llamador no tenga que acordarse de no escribir el `Content-Type`.
+   *
+   * **Sin progreso de subida**: `fetch` no lo expone — haría falta
+   * `XMLHttpRequest`, que no pasa por el refresh de token de este cliente. Por
+   * eso la interfaz muestra la barra indeterminada y no un porcentaje.
+   */
+  subirArchivo: <T>(ruta: string, formulario: FormData, opciones?: OpcionesRequest) =>
+    request<T>('POST', ruta, { ...opciones, formulario }),
   put: <T>(ruta: string, opciones?: OpcionesRequest) => request<T>('PUT', ruta, opciones),
   patch: <T>(ruta: string, opciones?: OpcionesRequest) => request<T>('PATCH', ruta, opciones),
   delete: <T>(ruta: string, opciones?: OpcionesRequest) => request<T>('DELETE', ruta, opciones),

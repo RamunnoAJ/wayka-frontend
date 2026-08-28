@@ -4,7 +4,9 @@ import {
   listarAdjuntos,
   partirPorPertenencia,
   retirarAdjunto,
+  subirAdjunto,
   type Adjunto,
+  type SubirAdjuntoEntrada,
 } from '../../api/adjunto';
 import {
   actualizarCita,
@@ -270,6 +272,21 @@ export function useReagendarCita(pacienteId: string) {
       actualizarCita(citaId, cambios),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
+    },
+  });
+}
+
+/**
+ * Sube un archivo a la mascota. Se usa con `mutateAsync` y **una llamada por
+ * archivo**: cada subida vive y falla sola, así que el estado de cada una lo
+ * lleva la pantalla y no el `isPending` compartido de la mutación.
+ */
+export function useSubirAdjunto(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: SubirAdjuntoEntrada) => subirAdjunto(pacienteId, entrada),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
     },
   });
 }

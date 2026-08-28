@@ -249,6 +249,7 @@ export function FichaDePaciente({
 
       {pestania === 'adjuntos' ? (
         <SeccionAdjuntos
+          pacienteId={pacienteId}
           adjuntos={generales}
           usuarioId={sesion?.usuario.id}
           error={adjuntos.isError}
