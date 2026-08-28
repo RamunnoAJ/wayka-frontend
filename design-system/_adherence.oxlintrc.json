@@ -107,6 +107,10 @@
         "message": "<CalendarEvent> status must be one of 'pendiente' | 'cumplido' | 'vencido'."
       },
       {
+        "selector": "JSXOpeningElement[name.name='CameraCapture'] > JSXAttribute > JSXIdentifier[name!=/^(?:status|mode|modes|flash|title|hint|previewSrc|galleryThumb|galleryCount|confirmLabel|retakeLabel|deniedTitle|deniedBody|framed|onCapture|onRetake|onConfirm|onClose|onFlip|onGallery|onModeChange|onFlashChange|onOpenSettings|key|ref|className|style|children)$/]",
+        "message": "<CameraCapture> doesn't accept that prop. Declared props: status, mode, modes, flash, title, hint, previewSrc, galleryThumb, galleryCount, confirmLabel, retakeLabel, deniedTitle, deniedBody, framed, onCapture, onRetake, onConfirm, onClose, onFlip, onGallery, onModeChange, onFlashChange, onOpenSettings."
+      },
+      {
         "selector": "JSXOpeningElement[name.name='Card'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|action|tone|padded|children|style|key|ref|className|style|children)$/]",
         "message": "<Card> doesn't accept that prop. Declared props: title, action, tone, padded, children, style."
       },
@@ -392,6 +396,9 @@
         "replaces": []
       },
       "CalendarEvent": {
+        "replaces": []
+      },
+      "CameraCapture": {
         "replaces": []
       },
       "Card": {

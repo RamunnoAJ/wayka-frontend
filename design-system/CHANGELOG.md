@@ -10,6 +10,24 @@ Regla para el pipeline: **regenerar el espejo de tokens cuando cambie `version` 
 
 ---
 
+## 1.4.0 — 2026-08-28
+
+### Agregado
+
+**Cámara** (`components/core/`)
+- **`CameraCapture`** — cámara en pantalla, dentro de la app. No reemplaza al picker del sistema para "elegir del carrete": existe porque la foto clínica necesita **guía de encuadre** y un **paso de revisión** antes de subir, y de ahí el archivo entra a `UploadItem`. Visor a sangre sobre `--surface-nav-deep` con `data-surface="dark"` (misma superficie que la navegación y el `Toast`, así que el foco visible pasa a blanco); controles flotantes en los blancos translúcidos de la nav con blur, sin tarjetas ni paneles opacos encima de la imagen. Los degradados superior e inferior salen del propio token de superficie: no se introdujo ningún negro nuevo.
+- Cuatro estados: `listo` (visor vivo, selector de modo, obturador), `revisando` (toma congelada, `Repetir` y `Usar foto` con el mismo peso, sin selector de modo), `procesando` (los mismos dos botones, inertes, spinner en confirmar — el botón no se saca de debajo del dedo) y `sin-permiso`.
+- Modos `foto` y `documento`. `documento` dibuja **solo cuatro esquinas** en `--nav-accent`: un rectángulo cerrado se lee como recorte ya aplicado. `foto` no dibuja guía. Cada modo trae su ayuda de encuadre en una línea, reemplazable con `hint`.
+- `status="sin-permiso"` sigue el criterio de `PermissionCard`: superficie neutra y **no roja**, consecuencia concreta ("podés adjuntar del carrete, no tomar una foto nueva") y ajustes del teléfono como texto, no como botón de relleno. No vuelve a pedir el permiso.
+- `previewSrc` es el único punto de contacto con la plataforma: fotograma de `expo-camera` en nativo, `<video>` montado por el consumidor en web.
+
+**Card nueva:** "Core · Cámara".
+
+### Sin tokens nuevos
+El componente se pinta entero con tokens existentes (`--surface-nav-deep`, `--surface-nav-item`, `--border-on-nav`, `--nav-accent`, `--wayka-blanco`, `--wayka-oscuro`). Sin excepciones declaradas.
+
+---
+
 ## 1.3.0 — 2026-08-27
 
 ### Agregado

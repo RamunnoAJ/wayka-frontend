@@ -1,6 +1,6 @@
 /**
  * ARCHIVO GENERADO — no editar a mano.
- * Fuente: design-system v1.3.0 (2026-08-27).
+ * Fuente: design-system v1.4.0 (2026-08-28).
  * Regenerar: npm run tokens:generar
  *
  * Espejo en JS/TS de las custom properties de `/design-system/tokens/*.css`,
@@ -13,7 +13,7 @@
  * doc 09, sección 3.2.
  */
 
-export const VERSION_DESIGN_SYSTEM = '1.3.0';
+export const VERSION_DESIGN_SYSTEM = '1.4.0';
 
 /** Tema default: clínica y veterinario (lila primario, naranjas de acento). */
 export const tokensDefault = {
@@ -60,7 +60,7 @@ export const tokensDefault = {
   '--danger-500': '#B04438',
   '--danger-600': '#8F3229',
   '--ds-released': '"2026-08-27"',
-  '--ds-version': '"1.2.0"',
+  '--ds-version': '"1.4.0"',
   '--dur-fast': '140ms',
   '--dur-instant': '80ms',
   '--dur-normal': '220ms',

@@ -1,0 +1,28 @@
+<!-- @dsCard group="Components" viewport="1120x820" name="Core · Cámara" subtitle="Visor, modos, revisión de la toma y sin permiso" -->
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{margin:0;padding:20px;background:var(--surface-card)}.lbl{font:var(--fw-bold) var(--fs-overline) var(--font-sans);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-subtle);margin-bottom:10px}.col{display:grid;gap:10px}.fr{height:640px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { CameraCapture } = window.WaykaDesignSystem_51ee47;
+function Demo(){
+  const [mode,setMode]=React.useState('documento');
+  const [flash,setFlash]=React.useState('off');
+  return(<div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:20,alignItems:'start'}}>
+    <div className="col"><div className="lbl">Visor · modo foto</div>
+      <div className="fr"><CameraCapture title="Herida · Mora" modes={['foto','documento']} mode="foto" flash={flash} onFlashChange={setFlash}
+        onCapture={()=>{}} onClose={()=>{}} onFlip={()=>{}} onGallery={()=>{}} onModeChange={setMode} galleryCount={2} /></div></div>
+    <div className="col"><div className="lbl">Modo documento · guía de esquinas</div>
+      <div className="fr"><CameraCapture title="Ficha en papel" mode={mode==='foto'?'documento':mode} modes={['foto','documento']} flash="on"
+        onCapture={()=>{}} onClose={()=>{}} onFlip={()=>{}} onGallery={()=>{}} onModeChange={setMode} /></div></div>
+    <div className="col"><div className="lbl">Revisión de la toma</div>
+      <div className="fr"><CameraCapture status="revisando" title="Herida · Mora" hint="Se va a adjuntar al evento del 27/08."
+        onRetake={()=>{}} onConfirm={()=>{}} onClose={()=>{}} /></div></div>
+    <div className="col"><div className="lbl">Sin permiso de cámara</div>
+      <div className="fr"><CameraCapture status="sin-permiso" onOpenSettings={()=>{}} onClose={()=>{}} /></div></div>
+  </div>)}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script></body></html>

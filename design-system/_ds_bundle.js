@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"WaykaDesignSystem_51ee47","components":[{"name":"AllergyChip","sourcePath":"components/clinical/AllergyChip.jsx"},{"name":"AppointmentCard","sourcePath":"components/clinical/AppointmentCard.jsx"},{"name":"CalendarEvent","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CalendarWeek","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CriticalPanel","sourcePath":"components/clinical/CriticalPanel.jsx"},{"name":"DataField","sourcePath":"components/clinical/DataField.jsx"},{"name":"MedicationItem","sourcePath":"components/clinical/MedicationItem.jsx"},{"name":"PatientRow","sourcePath":"components/clinical/PatientRow.jsx"},{"name":"PetHeader","sourcePath":"components/clinical/PetHeader.jsx"},{"name":"StatusDot","sourcePath":"components/clinical/StatusDot.jsx"},{"name":"TimelineEvent","sourcePath":"components/clinical/TimelineEvent.jsx"},{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Checkbox","sourcePath":"components/core/Checkbox.jsx"},{"name":"DataTable","sourcePath":"components/core/DataTable.jsx"},{"name":"Calendar","sourcePath":"components/core/DatePicker.jsx"},{"name":"DatePicker","sourcePath":"components/core/DatePicker.jsx"},{"name":"Dialog","sourcePath":"components/core/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/core/EmptyState.jsx"},{"name":"FileDropzone","sourcePath":"components/core/FileDropzone.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"InlineError","sourcePath":"components/core/InlineError.jsx"},{"name":"Input","sourcePath":"components/core/Input.jsx"},{"name":"PermissionCard","sourcePath":"components/core/PermissionCard.jsx"},{"name":"ProgressBar","sourcePath":"components/core/ProgressBar.jsx"},{"name":"Radio","sourcePath":"components/core/Radio.jsx"},{"name":"SearchField","sourcePath":"components/core/SearchField.jsx"},{"name":"Select","sourcePath":"components/core/Select.jsx"},{"name":"Sheet","sourcePath":"components/core/Sheet.jsx"},{"name":"Skeleton","sourcePath":"components/core/Skeleton.jsx"},{"name":"SkeletonText","sourcePath":"components/core/Skeleton.jsx"},{"name":"SocialButton","sourcePath":"components/core/SocialButton.jsx"},{"name":"Switch","sourcePath":"components/core/Switch.jsx"},{"name":"Tabs","sourcePath":"components/core/Tabs.jsx"},{"name":"Tag","sourcePath":"components/core/Tag.jsx"},{"name":"Textarea","sourcePath":"components/core/Textarea.jsx"},{"name":"Toast","sourcePath":"components/core/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/core/Tooltip.jsx"},{"name":"FILE_TYPES","sourcePath":"components/core/UploadItem.jsx"},{"name":"UploadItem","sourcePath":"components/core/UploadItem.jsx"},{"name":"MobileHeader","sourcePath":"components/navigation/MobileHeader.jsx"},{"name":"MobileTabBar","sourcePath":"components/navigation/MobileTabBar.jsx"},{"name":"PageHeader","sourcePath":"components/navigation/PageHeader.jsx"},{"name":"SidebarNav","sourcePath":"components/navigation/SidebarNav.jsx"}],"sourceHashes":{"components/clinical/AllergyChip.jsx":"5a4b0de2185c","components/clinical/AppointmentCard.jsx":"b2c180f21e06","components/clinical/CalendarWeek.jsx":"a76ef3341b50","components/clinical/CriticalPanel.jsx":"c16950d8dc0f","components/clinical/DataField.jsx":"f709562cb2ae","components/clinical/MedicationItem.jsx":"3fb539f86308","components/clinical/PatientRow.jsx":"6d7f10c272d3","components/clinical/PetHeader.jsx":"c88383b35cef","components/clinical/StatusDot.jsx":"7e0d716dc835","components/clinical/TimelineEvent.jsx":"434832d60a76","components/core/Avatar.jsx":"4e8103cb8973","components/core/Badge.jsx":"1611bd6a6615","components/core/Button.jsx":"abb046f5f8a5","components/core/Card.jsx":"2e18d1688e38","components/core/Checkbox.jsx":"36211f2e87cc","components/core/DataTable.jsx":"a6a31f760a98","components/core/DatePicker.jsx":"0deaf8679b54","components/core/Dialog.jsx":"61778ebb7492","components/core/EmptyState.jsx":"fd49ef7229b5","components/core/FileDropzone.jsx":"454e96ca3c61","components/core/Icon.jsx":"cbf04e8d5b80","components/core/IconButton.jsx":"bf84841dbe9c","components/core/InlineError.jsx":"1d167ba4a293","components/core/Input.jsx":"20c12d1dcbb0","components/core/PermissionCard.jsx":"0861c7e402d0","components/core/ProgressBar.jsx":"17d3c8b3c5cd","components/core/Radio.jsx":"d1376b04822c","components/core/SearchField.jsx":"17722c1fed02","components/core/Select.jsx":"ba94fa3daeb4","components/core/Sheet.jsx":"47b9a7d8803c","components/core/Skeleton.jsx":"90a9bbd00dde","components/core/SocialButton.jsx":"ecee3bcff8e3","components/core/Switch.jsx":"175c6ecc9811","components/core/Tabs.jsx":"f28482b5e63f","components/core/Tag.jsx":"00ff5c526570","components/core/Textarea.jsx":"121325142f93","components/core/Toast.jsx":"d6ac24de2050","components/core/Tooltip.jsx":"be67584253c3","components/core/UploadItem.jsx":"542ce0e947e4","components/navigation/MobileHeader.jsx":"06cf54ef9a3e","components/navigation/MobileTabBar.jsx":"053bb63c6685","components/navigation/PageHeader.jsx":"df7c57134cb5","components/navigation/SidebarNav.jsx":"cb438219082f","ui_kits/clinica-web/Agenda.jsx":"eac4f9e2c7d8","ui_kits/clinica-web/ClinicPanel.jsx":"615f515b2055","ui_kits/clinica-web/EventForm.jsx":"5f44feb811bd","ui_kits/clinica-web/Login.jsx":"eddb34f90253","ui_kits/clinica-web/PatientDetail.jsx":"fc5f58ab7c91","ui_kits/clinica-web/Patients.jsx":"144d146f100d","ui_kits/clinica-web/data.js":"430377ccfb73","ui_kits/tutor-movil/TutorScreens.jsx":"07c6face22a9","ui_kits/tutor-movil/TutorUploadScreens.jsx":"0354cc2f1df8","ui_kits/vet-movil/VetScreens.jsx":"84dfddc0224d"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"WaykaDesignSystem_51ee47","components":[{"name":"AllergyChip","sourcePath":"components/clinical/AllergyChip.jsx"},{"name":"AppointmentCard","sourcePath":"components/clinical/AppointmentCard.jsx"},{"name":"CalendarEvent","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CalendarWeek","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CriticalPanel","sourcePath":"components/clinical/CriticalPanel.jsx"},{"name":"DataField","sourcePath":"components/clinical/DataField.jsx"},{"name":"MedicationItem","sourcePath":"components/clinical/MedicationItem.jsx"},{"name":"PatientRow","sourcePath":"components/clinical/PatientRow.jsx"},{"name":"PetHeader","sourcePath":"components/clinical/PetHeader.jsx"},{"name":"StatusDot","sourcePath":"components/clinical/StatusDot.jsx"},{"name":"TimelineEvent","sourcePath":"components/clinical/TimelineEvent.jsx"},{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"CAMERA_MODES","sourcePath":"components/core/CameraCapture.jsx"},{"name":"CameraCapture","sourcePath":"components/core/CameraCapture.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Checkbox","sourcePath":"components/core/Checkbox.jsx"},{"name":"DataTable","sourcePath":"components/core/DataTable.jsx"},{"name":"Calendar","sourcePath":"components/core/DatePicker.jsx"},{"name":"DatePicker","sourcePath":"components/core/DatePicker.jsx"},{"name":"Dialog","sourcePath":"components/core/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/core/EmptyState.jsx"},{"name":"FileDropzone","sourcePath":"components/core/FileDropzone.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"InlineError","sourcePath":"components/core/InlineError.jsx"},{"name":"Input","sourcePath":"components/core/Input.jsx"},{"name":"PermissionCard","sourcePath":"components/core/PermissionCard.jsx"},{"name":"ProgressBar","sourcePath":"components/core/ProgressBar.jsx"},{"name":"Radio","sourcePath":"components/core/Radio.jsx"},{"name":"SearchField","sourcePath":"components/core/SearchField.jsx"},{"name":"Select","sourcePath":"components/core/Select.jsx"},{"name":"Sheet","sourcePath":"components/core/Sheet.jsx"},{"name":"Skeleton","sourcePath":"components/core/Skeleton.jsx"},{"name":"SkeletonText","sourcePath":"components/core/Skeleton.jsx"},{"name":"SocialButton","sourcePath":"components/core/SocialButton.jsx"},{"name":"Switch","sourcePath":"components/core/Switch.jsx"},{"name":"Tabs","sourcePath":"components/core/Tabs.jsx"},{"name":"Tag","sourcePath":"components/core/Tag.jsx"},{"name":"Textarea","sourcePath":"components/core/Textarea.jsx"},{"name":"Toast","sourcePath":"components/core/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/core/Tooltip.jsx"},{"name":"FILE_TYPES","sourcePath":"components/core/UploadItem.jsx"},{"name":"UploadItem","sourcePath":"components/core/UploadItem.jsx"},{"name":"MobileHeader","sourcePath":"components/navigation/MobileHeader.jsx"},{"name":"MobileTabBar","sourcePath":"components/navigation/MobileTabBar.jsx"},{"name":"PageHeader","sourcePath":"components/navigation/PageHeader.jsx"},{"name":"SidebarNav","sourcePath":"components/navigation/SidebarNav.jsx"}],"sourceHashes":{"components/clinical/AllergyChip.jsx":"5a4b0de2185c","components/clinical/AppointmentCard.jsx":"b2c180f21e06","components/clinical/CalendarWeek.jsx":"a76ef3341b50","components/clinical/CriticalPanel.jsx":"c16950d8dc0f","components/clinical/DataField.jsx":"f709562cb2ae","components/clinical/MedicationItem.jsx":"3fb539f86308","components/clinical/PatientRow.jsx":"6d7f10c272d3","components/clinical/PetHeader.jsx":"c88383b35cef","components/clinical/StatusDot.jsx":"7e0d716dc835","components/clinical/TimelineEvent.jsx":"434832d60a76","components/core/Avatar.jsx":"4e8103cb8973","components/core/Badge.jsx":"1611bd6a6615","components/core/Button.jsx":"abb046f5f8a5","components/core/CameraCapture.jsx":"3cfe5efca16d","components/core/Card.jsx":"2e18d1688e38","components/core/Checkbox.jsx":"36211f2e87cc","components/core/DataTable.jsx":"a6a31f760a98","components/core/DatePicker.jsx":"0deaf8679b54","components/core/Dialog.jsx":"61778ebb7492","components/core/EmptyState.jsx":"fd49ef7229b5","components/core/FileDropzone.jsx":"454e96ca3c61","components/core/Icon.jsx":"cbf04e8d5b80","components/core/IconButton.jsx":"bf84841dbe9c","components/core/InlineError.jsx":"1d167ba4a293","components/core/Input.jsx":"20c12d1dcbb0","components/core/PermissionCard.jsx":"0861c7e402d0","components/core/ProgressBar.jsx":"17d3c8b3c5cd","components/core/Radio.jsx":"d1376b04822c","components/core/SearchField.jsx":"17722c1fed02","components/core/Select.jsx":"ba94fa3daeb4","components/core/Sheet.jsx":"47b9a7d8803c","components/core/Skeleton.jsx":"90a9bbd00dde","components/core/SocialButton.jsx":"ecee3bcff8e3","components/core/Switch.jsx":"175c6ecc9811","components/core/Tabs.jsx":"f28482b5e63f","components/core/Tag.jsx":"00ff5c526570","components/core/Textarea.jsx":"121325142f93","components/core/Toast.jsx":"d6ac24de2050","components/core/Tooltip.jsx":"be67584253c3","components/core/UploadItem.jsx":"542ce0e947e4","components/navigation/MobileHeader.jsx":"06cf54ef9a3e","components/navigation/MobileTabBar.jsx":"053bb63c6685","components/navigation/PageHeader.jsx":"df7c57134cb5","components/navigation/SidebarNav.jsx":"cb438219082f","ui_kits/clinica-web/Agenda.jsx":"eac4f9e2c7d8","ui_kits/clinica-web/ClinicPanel.jsx":"615f515b2055","ui_kits/clinica-web/EventForm.jsx":"5f44feb811bd","ui_kits/clinica-web/Login.jsx":"eddb34f90253","ui_kits/clinica-web/PatientDetail.jsx":"fc5f58ab7c91","ui_kits/clinica-web/Patients.jsx":"144d146f100d","ui_kits/clinica-web/data.js":"430377ccfb73","ui_kits/tutor-movil/TutorScreens.jsx":"07c6face22a9","ui_kits/tutor-movil/TutorUploadScreens.jsx":"0354cc2f1df8","ui_kits/vet-movil/VetScreens.jsx":"84dfddc0224d"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -1140,6 +1140,493 @@ function Button({
 }
 Object.assign(__ds_scope, { Button });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/Button.jsx", error: String((e && e.message) || e) }); }
+
+// components/core/CameraCapture.jsx
+try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+/**
+ * Cámara en pantalla: visor a sangre, controles flotantes y revisión de la toma.
+ * Vive dentro de la app (no es el picker del sistema) porque la foto clínica necesita guía de encuadre.
+ * @startingPoint section="Core" subtitle="Cámara en pantalla: visor, modos y revisión" viewport="420x760"
+ */
+
+const CAMERA_MODES = {
+  foto: {
+    label: 'Foto',
+    icon: 'camera',
+    hint: 'Acercate y evitá el contraluz.'
+  },
+  documento: {
+    label: 'Documento',
+    icon: 'scan-line',
+    hint: 'Apoyá la ficha en una superficie plana.'
+  }
+};
+const FLASH = {
+  off: {
+    icon: 'zap-off',
+    label: 'Flash apagado'
+  },
+  on: {
+    icon: 'zap',
+    label: 'Flash encendido'
+  },
+  auto: {
+    icon: 'zap',
+    label: 'Flash automático'
+  }
+};
+const FLASH_ORDER = ['off', 'auto', 'on'];
+function Chip({
+  icon,
+  label,
+  onClick,
+  active,
+  size = 44
+}) {
+  const [h, setH] = React.useState(false);
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    "aria-label": label,
+    title: label,
+    onClick: onClick,
+    onMouseEnter: () => setH(true),
+    onMouseLeave: () => setH(false),
+    style: {
+      width: size,
+      height: size,
+      display: 'grid',
+      placeItems: 'center',
+      borderRadius: 'var(--radius-pill)',
+      border: '1px solid ' + (active ? 'var(--nav-accent)' : 'var(--border-on-nav)'),
+      background: active ? 'var(--nav-accent)' : h ? 'var(--surface-nav-item)' : 'var(--surface-nav-item-hover)',
+      color: active ? 'var(--wayka-oscuro)' : 'var(--text-on-nav)',
+      cursor: 'pointer',
+      backdropFilter: 'blur(8px)',
+      transition: 'var(--transition-control)'
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 20
+  }));
+}
+
+/** Marco de encuadre: solo esquinas, en el acento de la nav. No es una caja: no encierra la imagen. */
+function FrameGuide({
+  ratio
+}) {
+  const corner = {
+    position: 'absolute',
+    width: 26,
+    height: 26,
+    borderColor: 'var(--nav-accent)',
+    borderStyle: 'solid',
+    borderWidth: 0
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    "aria-hidden": "true",
+    style: {
+      position: 'absolute',
+      inset: 0,
+      display: 'grid',
+      placeItems: 'center',
+      pointerEvents: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      width: '82%',
+      aspectRatio: ratio,
+      maxHeight: '68%'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...corner,
+      top: 0,
+      left: 0,
+      borderTopWidth: 2,
+      borderLeftWidth: 2,
+      borderTopLeftRadius: 'var(--radius-sm)'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...corner,
+      top: 0,
+      right: 0,
+      borderTopWidth: 2,
+      borderRightWidth: 2,
+      borderTopRightRadius: 'var(--radius-sm)'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...corner,
+      bottom: 0,
+      left: 0,
+      borderBottomWidth: 2,
+      borderLeftWidth: 2,
+      borderBottomLeftRadius: 'var(--radius-sm)'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...corner,
+      bottom: 0,
+      right: 0,
+      borderBottomWidth: 2,
+      borderRightWidth: 2,
+      borderBottomRightRadius: 'var(--radius-sm)'
+    }
+  })));
+}
+function CameraCapture({
+  status = 'listo',
+  mode = 'foto',
+  modes = ['foto', 'documento'],
+  flash = 'off',
+  title,
+  hint,
+  previewSrc,
+  galleryThumb,
+  galleryCount,
+  confirmLabel = 'Usar',
+  retakeLabel = 'Repetir',
+  deniedTitle = 'Wayka no tiene acceso a la cámara',
+  deniedBody = 'Sin cámara podés adjuntar fotos que ya tengas en el teléfono, pero no tomar una nueva desde acá.',
+  framed = true,
+  onCapture,
+  onRetake,
+  onConfirm,
+  onClose,
+  onFlip,
+  onGallery,
+  onModeChange,
+  onFlashChange,
+  onOpenSettings,
+  ...rest
+}) {
+  const m = CAMERA_MODES[mode] || CAMERA_MODES.foto;
+  const reviewing = status === 'revisando' || status === 'procesando';
+  const busy = status === 'procesando';
+  const denied = status === 'sin-permiso';
+  const f = FLASH[flash] || FLASH.off;
+  const cycleFlash = () => onFlashChange && onFlashChange(FLASH_ORDER[(FLASH_ORDER.indexOf(flash) + 1) % FLASH_ORDER.length]);
+  const scrim = dir => ({
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    [dir]: 0,
+    height: 148,
+    pointerEvents: 'none',
+    background: `linear-gradient(to ${dir === 'top' ? 'bottom' : 'top'}, var(--surface-nav-deep), transparent)`,
+    opacity: .9
+  });
+  return /*#__PURE__*/React.createElement("div", _extends({
+    "data-surface": "dark"
+  }, rest, {
+    style: {
+      position: 'relative',
+      width: '100%',
+      height: '100%',
+      minHeight: 520,
+      overflow: 'hidden',
+      borderRadius: framed ? 'var(--radius-card)' : 0,
+      background: 'var(--surface-nav-deep)',
+      color: 'var(--text-on-nav)',
+      font: 'var(--text-body)',
+      ...rest.style
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'var(--wayka-oscuro)'
+    }
+  }, previewSrc ? /*#__PURE__*/React.createElement("img", {
+    src: previewSrc,
+    alt: "",
+    style: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      filter: busy ? 'brightness(.7)' : 'none'
+    }
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      display: 'grid',
+      placeItems: 'center',
+      color: 'var(--text-on-nav-muted)',
+      font: 'var(--fw-medium) var(--fs-caption)/1 var(--font-sans)',
+      letterSpacing: 'var(--ls-overline)',
+      textTransform: 'uppercase'
+    }
+  }, "Visor")), !denied && !reviewing && mode === 'documento' && /*#__PURE__*/React.createElement(FrameGuide, {
+    ratio: "1 / 1.35"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: scrim('top')
+  }), /*#__PURE__*/React.createElement("div", {
+    style: scrim('bottom')
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      display: 'grid',
+      gridTemplateRows: 'auto 1fr auto',
+      padding: 'var(--gutter-mobile)',
+      gap: 'var(--space-4)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 'var(--space-4)'
+    }
+  }, /*#__PURE__*/React.createElement(Chip, {
+    icon: "x",
+    label: "Cerrar la c\xE1mara",
+    onClick: onClose
+  }), title && /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--fw-semibold) var(--fs-body-sm)/1 var(--font-sans)',
+      color: 'var(--text-on-nav)',
+      textAlign: 'center',
+      flex: 1
+    }
+  }, title), !denied && !reviewing ? /*#__PURE__*/React.createElement(Chip, {
+    icon: f.icon,
+    label: f.label,
+    active: flash !== 'off',
+    onClick: cycleFlash
+  }) : /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 44
+    }
+  })), denied ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      alignSelf: 'center',
+      justifySelf: 'center',
+      maxWidth: 320,
+      display: 'grid',
+      gap: 'var(--space-4)',
+      justifyItems: 'center',
+      textAlign: 'center',
+      padding: 'var(--space-7)',
+      borderRadius: 'var(--radius-card)',
+      background: 'var(--surface-nav-item)',
+      border: '1px solid var(--border-on-nav)',
+      backdropFilter: 'blur(10px)'
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "camera-off",
+    size: 24,
+    style: {
+      color: 'var(--text-on-nav-muted)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--fw-semibold) var(--fs-body-lg)/var(--lh-snug) var(--font-sans)'
+    }
+  }, deniedTitle), /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--text-body-sm)',
+      color: 'var(--text-on-nav-muted)',
+      textWrap: 'pretty'
+    }
+  }, deniedBody), onOpenSettings && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onOpenSettings,
+    style: {
+      background: 'none',
+      border: 0,
+      padding: 'var(--space-2) 0',
+      cursor: 'pointer',
+      font: 'var(--fw-semibold) var(--fs-body)/1 var(--font-sans)',
+      color: 'var(--nav-accent)',
+      textDecoration: 'underline',
+      textUnderlineOffset: 3
+    }
+  }, "Abrir ajustes del tel\xE9fono")) : /*#__PURE__*/React.createElement("span", null), !denied && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gap: 'var(--space-5)',
+      justifyItems: 'center'
+    }
+  }, (hint || !reviewing && m.hint) && /*#__PURE__*/React.createElement("div", {
+    style: {
+      font: 'var(--text-body-sm)',
+      color: 'var(--text-on-nav-muted)',
+      textAlign: 'center',
+      textWrap: 'pretty'
+    }
+  }, busy ? 'Guardando la toma…' : reviewing ? hint || '' : hint || m.hint), !reviewing && modes.length > 1 && /*#__PURE__*/React.createElement("div", {
+    role: "tablist",
+    style: {
+      display: 'flex',
+      gap: 'var(--space-1)',
+      padding: 3,
+      borderRadius: 'var(--radius-pill)',
+      background: 'var(--surface-nav-item-hover)',
+      border: '1px solid var(--border-on-nav)',
+      backdropFilter: 'blur(8px)'
+    }
+  }, modes.map(k => {
+    const on = k === mode;
+    const item = CAMERA_MODES[k] || CAMERA_MODES.foto;
+    return /*#__PURE__*/React.createElement("button", {
+      key: k,
+      type: "button",
+      role: "tab",
+      "aria-selected": on,
+      onClick: () => onModeChange && onModeChange(k),
+      style: {
+        border: 0,
+        cursor: 'pointer',
+        padding: '0 var(--space-5)',
+        height: 32,
+        borderRadius: 'var(--radius-pill)',
+        background: on ? 'var(--nav-accent)' : 'transparent',
+        color: on ? 'var(--wayka-oscuro)' : 'var(--text-on-nav-muted)',
+        font: 'var(--fw-semibold) var(--fs-body-sm)/1 var(--font-sans)',
+        transition: 'var(--transition-control)'
+      }
+    }, item.label);
+  })), reviewing ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 'var(--space-4)',
+      width: '100%'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onRetake,
+    disabled: busy,
+    style: {
+      height: 'var(--control-h-touch)',
+      borderRadius: 'var(--radius-control)',
+      cursor: busy ? 'not-allowed' : 'pointer',
+      background: 'var(--surface-nav-item)',
+      border: '1px solid var(--border-on-nav)',
+      color: 'var(--text-on-nav)',
+      font: 'var(--fw-semibold) var(--fs-body-lg)/1 var(--font-sans)',
+      backdropFilter: 'blur(8px)'
+    }
+  }, retakeLabel), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onConfirm,
+    disabled: busy,
+    style: {
+      height: 'var(--control-h-touch)',
+      borderRadius: 'var(--radius-control)',
+      cursor: busy ? 'not-allowed' : 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 'var(--space-3)',
+      background: 'var(--nav-accent)',
+      border: '1px solid var(--nav-accent)',
+      color: 'var(--wayka-oscuro)',
+      font: 'var(--fw-semibold) var(--fs-body-lg)/1 var(--font-sans)'
+    }
+  }, busy && /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "loader-circle",
+    size: 18,
+    style: {
+      animation: 'wayka-spin .8s linear infinite'
+    }
+  }), busy ? 'Guardando' : confirmLabel)) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '44px 1fr 44px',
+      alignItems: 'center',
+      width: '100%'
+    }
+  }, onGallery ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    "aria-label": "Elegir del carrete",
+    onClick: onGallery,
+    style: {
+      width: 44,
+      height: 44,
+      padding: 0,
+      borderRadius: 'var(--radius-md)',
+      cursor: 'pointer',
+      border: '1px solid var(--border-on-nav)',
+      background: 'var(--surface-nav-item)',
+      color: 'var(--text-on-nav)',
+      display: 'grid',
+      placeItems: 'center',
+      position: 'relative'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      borderRadius: 'inherit',
+      overflow: 'hidden',
+      display: 'grid',
+      placeItems: 'center'
+    }
+  }, galleryThumb ? /*#__PURE__*/React.createElement("img", {
+    src: galleryThumb,
+    alt: "",
+    style: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
+    }
+  }) : /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "images",
+    size: 18
+  })), galleryCount > 0 && /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      top: -6,
+      right: -6,
+      minWidth: 18,
+      height: 18,
+      padding: '0 5px',
+      borderRadius: 'var(--radius-pill)',
+      background: 'var(--nav-accent)',
+      color: 'var(--wayka-oscuro)',
+      font: 'var(--fw-bold) var(--fs-overline)/18px var(--font-sans)'
+    }
+  }, galleryCount)) : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    style: {
+      justifySelf: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    "aria-label": `Tomar ${m.label.toLowerCase()}`,
+    onClick: onCapture,
+    style: {
+      width: 76,
+      height: 76,
+      borderRadius: 'var(--radius-pill)',
+      cursor: 'pointer',
+      padding: 5,
+      background: 'transparent',
+      border: '2px solid var(--border-on-nav)',
+      display: 'grid',
+      placeItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 'var(--radius-pill)',
+      background: 'var(--wayka-blanco)',
+      display: 'block'
+    }
+  }))), onFlip ? /*#__PURE__*/React.createElement(Chip, {
+    icon: "refresh-cw",
+    label: "Cambiar de c\xE1mara",
+    onClick: onFlip
+  }) : /*#__PURE__*/React.createElement("span", null)))));
+}
+Object.assign(__ds_scope, { CAMERA_MODES, CameraCapture });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/core/CameraCapture.jsx", error: String((e && e.message) || e) }); }
 
 // components/core/Checkbox.jsx
 try { (() => {
@@ -5696,6 +6183,10 @@ __ds_ns.Avatar = __ds_scope.Avatar;
 __ds_ns.Badge = __ds_scope.Badge;
 
 __ds_ns.Button = __ds_scope.Button;
+
+__ds_ns.CAMERA_MODES = __ds_scope.CAMERA_MODES;
+
+__ds_ns.CameraCapture = __ds_scope.CameraCapture;
 
 __ds_ns.Card = __ds_scope.Card;
 
