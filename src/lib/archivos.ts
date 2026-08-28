@@ -12,12 +12,12 @@ import { TIPOS_DE_ARCHIVO, type TipoDeArchivo } from '../components';
  */
 
 /**
- * `TamanoMaximoDeAdjunto` del backend, `10 << 20`.
+ * Techo por archivo, en MiB. El contrato lo declara en el `maxLength` de
+ * `SubirAdjuntoRequest.archivo` y el backend lo aplica con la misma constante.
  *
- * **Está duplicado a mano**: el contrato declara el 413 pero no publica el
- * número, así que no hay de dónde leerlo. Si allá cambia, acá no se entera
- * nadie hasta que un usuario recibe el error — es el precio de mostrarlo antes
- * de subir, y la alternativa (no mostrarlo) es peor.
+ * Se sostiene a mano porque el contrato no viaja con la app: no hay de dónde
+ * leerlo en tiempo de ejecución. Lo que impide la deriva es `contrato.test.ts`,
+ * que compara este número contra el YAML del backend y falla si se separan.
  */
 export const TAMANO_MAXIMO_MB = 10;
 const TAMANO_MAXIMO_BYTES = TAMANO_MAXIMO_MB * 1024 * 1024;

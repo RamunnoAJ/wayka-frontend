@@ -1,3 +1,4 @@
+import { TAMANO_MAXIMO_MB } from '../lib/archivos';
 import {
   camposDeInterfaz,
   hayContratoDisponible,
@@ -64,4 +65,19 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
       expect(delContrato.filter((valor) => !delCliente.has(valor))).toEqual([]);
     },
   );
+
+  /**
+   * El límite de tamaño no es un tipo, pero deriva igual: la pantalla lo muestra
+   * antes de que el usuario elija el archivo, así que si el backend lo baja y acá
+   * no, la interfaz ofrece un tamaño que el servidor rechaza.
+   *
+   * No se puede leer en tiempo de ejecución —el contrato no viaja con la app— así
+   * que la constante se sostiene a mano y esto la ata al contrato.
+   */
+  it('el límite de tamaño de un adjunto es el que declara el contrato', () => {
+    const archivo = esquemas.SubirAdjuntoRequest?.properties?.archivo as
+      { maxLength?: number } | undefined;
+
+    expect(archivo?.maxLength).toBe(TAMANO_MAXIMO_MB * 1024 * 1024);
+  });
 });

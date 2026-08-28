@@ -19,7 +19,13 @@ export type TipoDeArchivo = 'foto' | 'pdf' | 'estudio';
 /**
  * El backend valida el MIME real contra el tipo declarado: el tipo **se
  * declara, no se adivina** por la extensión. `accept` es la lista que se le
- * pasa al selector de archivos; `human` es cómo se le nombra al usuario.
+ * pasa al selector de archivos; `humano` es cómo se le nombra al usuario.
+ *
+ * `accept` se aparta del `FILE_TYPES` del design system, que enumera
+ * `image/jpeg,image/png,image/heic`: el backend admite **cualquier** imagen
+ * para foto, y una lista cerrada deja afuera del selector archivos que el
+ * servidor sí acepta (un WEBP, un AVIF). El texto que lee el usuario sigue
+ * nombrando los tres formatos frecuentes, que es lo que le sirve saber.
  */
 export const TIPOS_DE_ARCHIVO: Record<
   TipoDeArchivo,
@@ -28,14 +34,14 @@ export const TIPOS_DE_ARCHIVO: Record<
   foto: {
     icono: 'image',
     etiqueta: 'Foto',
-    accept: 'image/jpeg,image/png,image/heic',
+    accept: 'image/*',
     humano: 'JPG, PNG o HEIC',
   },
   pdf: { icono: 'file-text', etiqueta: 'PDF', accept: 'application/pdf', humano: 'PDF' },
   estudio: {
     icono: 'microscope',
     etiqueta: 'Estudio',
-    accept: 'application/pdf,image/jpeg,image/png',
+    accept: 'application/pdf,image/*',
     humano: 'PDF o imagen',
   },
 };
