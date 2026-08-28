@@ -5,6 +5,7 @@ import { cerrarSesion } from '../../api/auth';
 import { RUTA_LOGIN } from '../../constants/roles';
 import { borrarTokenRefresco, leerTokenRefresco } from '../../lib/almacenamiento-refresh';
 import { limpiarSesion } from '../../stores/sesion';
+import { darDeBajaEsteDispositivo } from '../notificaciones';
 
 /**
  * Cierra la sesión.
@@ -23,6 +24,12 @@ export function useCerrarSesion() {
 
   return useMutation({
     mutationFn: async () => {
+      // La baja del teléfono va **antes** de revocar el token: el endpoint de
+      // dispositivos va autenticado, y después del logout ya no hay con qué.
+      // Es lo que evita que el próximo aviso de esta cuenta llegue a un aparato
+      // donde entró otra persona.
+      await darDeBajaEsteDispositivo();
+
       const tokenRefresco = await leerTokenRefresco();
       if (tokenRefresco) await cerrarSesion(tokenRefresco);
     },

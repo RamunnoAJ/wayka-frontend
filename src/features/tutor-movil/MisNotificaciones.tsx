@@ -1,7 +1,15 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Icon } from '../../components';
+import { Icon, PermissionCard } from '../../components';
 import { sombra, useTheme } from '../../theme';
+import {
+  HAY_PUSH,
+  leerEstadoDelPermiso,
+  pedirPermiso,
+  registrarEsteDispositivo,
+  type EstadoDelPermiso,
+} from '../notificaciones';
 
 /**
  * Notificaciones (Alcance de Plataformas, 5.5).
@@ -15,6 +23,10 @@ import { sombra, useTheme } from '../../theme';
  * porque es lo único que el tutor no puede deducir del resto de la app. El
  * interruptor por cita vive en la cita, que es donde el contrato lo pone
  * (`notificar_tutor`).
+ *
+ * Y es **el único lugar donde se pide el permiso de notificaciones**: pedirlo al
+ * arrancar la app sería pedirlo en el momento en que menos se entiende para qué
+ * es. Acá el tutor ya está leyendo qué avisos manda el sistema.
  */
 const AVISOS = [
   {
@@ -31,6 +43,25 @@ const AVISOS = [
 
 export function MisNotificaciones() {
   const { t, px, texto } = useTheme();
+  const [permiso, setPermiso] = useState<EstadoDelPermiso | null>(null);
+
+  useEffect(() => {
+    let vigente = true;
+    void leerEstadoDelPermiso().then((estado) => {
+      if (vigente) setPermiso(estado);
+    });
+    return () => {
+      vigente = false;
+    };
+  }, []);
+
+  async function permitir() {
+    const estado = await pedirPermiso();
+    setPermiso(estado);
+    // Recién con el permiso concedido hay token que registrar: el login lo
+    // intentó y se fue sin nada.
+    if (estado === 'concedido') await registrarEsteDispositivo();
+  }
 
   const tarjeta = {
     borderRadius: px('--radius-card'),
@@ -51,6 +82,31 @@ export function MisNotificaciones() {
               promociones.
             </Text>
           </View>
+
+          {/*
+            En web no hay push: el del navegador es otro mecanismo y el backend
+            solo habla Expo (Alcance de Plataformas, 5.5). Se lo decimos en vez
+            de ofrecer un botón que no hace nada.
+          */}
+          {!HAY_PUSH ? (
+            <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
+              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+                Los avisos llegan a la app del teléfono
+              </Text>
+              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                Desde el navegador podés ver todo lo de tus mascotas, pero los recordatorios de
+                turno se mandan al teléfono. Entrá una vez desde la app para empezar a recibirlos.
+              </Text>
+            </View>
+          ) : permiso ? (
+            <PermissionCard
+              status={permiso}
+              onAsk={permiso === 'sin-preguntar' ? () => void permitir() : undefined}
+              onOpenSettings={
+                permiso === 'denegado' ? () => void Linking.openSettings() : undefined
+              }
+            />
+          ) : null}
 
           <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
             {AVISOS.map((aviso) => (

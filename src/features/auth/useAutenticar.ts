@@ -11,6 +11,7 @@ import {
 import { HOME_POR_ROL } from '../../constants/roles';
 import { guardarTokenRefresco } from '../../lib/almacenamiento-refresh';
 import { setSesion } from '../../stores/sesion';
+import { registrarEsteDispositivo } from '../notificaciones';
 
 /**
  * Hooks de ingreso y de alta. Los dos terminan igual: guardan el token de
@@ -22,6 +23,13 @@ async function entrar(resultado: ResultadoAutenticacion, limpiarCache: () => voi
   limpiarCache();
   await guardarTokenRefresco(resultado.tokenRefresco);
   setSesion(resultado.sesion);
+
+  // El teléfono se registra recién con la sesión puesta, porque el registro va
+  // autenticado. No se espera el resultado: quedarse sin avisos no puede
+  // demorar la entrada, y el registro no falla de una forma que el usuario
+  // pueda resolver acá.
+  void registrarEsteDispositivo();
+
   router.replace(HOME_POR_ROL[resultado.sesion.usuario.tipo_usuario]);
 }
 

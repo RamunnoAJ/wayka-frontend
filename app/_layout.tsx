@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { configurarPresentacionDeAvisos } from '../src/features/notificaciones';
 import { useRestaurarSesion } from '../src/hooks/useRestaurarSesion';
 import { useSesion } from '../src/hooks/useSesion';
 import { crearQueryClient } from '../src/lib/query-client';
@@ -16,6 +17,10 @@ import { ThemeProvider, useFuentes, type NombreTema } from '../src/theme';
 // expo-font — pero en web es lo que hace que los componentes heredados de
 // /design-system sigan funcionando sin tocarlos.
 import '../design-system/styles.css';
+
+// Un aviso que llega con la app abierta tiene que verse igual que uno que llega
+// con la app cerrada. Se configura una sola vez, al cargar el módulo.
+configurarPresentacionDeAvisos();
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // En web no hay splash: que falle no es un problema.
