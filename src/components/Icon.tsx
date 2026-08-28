@@ -2,6 +2,7 @@ import {
   Archive,
   ArrowLeft,
   Bell,
+  BellOff,
   Building2,
   CalendarCheck,
   CalendarClock,
@@ -15,9 +16,12 @@ import {
   ClipboardCheck,
   CircleAlert,
   Dog,
+  Download,
+  ExternalLink,
   Eye,
   EyeOff,
   FileText,
+  FileX,
   Image as ImageIcon,
   LoaderCircle,
   LogOut,
@@ -30,6 +34,7 @@ import {
   Pencil,
   Pill,
   Plus,
+  RotateCcw,
   Scissors,
   ShieldAlert,
   SquareCheck,
@@ -39,6 +44,7 @@ import {
   TriangleAlert,
   Upload,
   UserRound,
+  X,
   type LucideProps,
 } from 'lucide-react-native';
 import type { ComponentType } from 'react';
@@ -68,6 +74,7 @@ const REGISTRO = {
   // usa el nombre viejo, que es el que vale acá.
   'alert-circle': CircleAlert,
   'alert-triangle': TriangleAlert,
+  x: X,
 
   // Ficha de paciente: identidad, tipos de evento clínico y acciones.
   'paw-print': PawPrint,
@@ -99,8 +106,15 @@ const REGISTRO = {
   image: ImageIcon,
   microscope: Microscope,
 
+  // Adjuntos: la zona de carga, el ítem que sube y sus salidas.
+  'file-x': FileX,
+  download: Download,
+  'rotate-ccw': RotateCcw,
+
   // Shell de navegación.
   bell: Bell,
+  'bell-off': BellOff,
+  'external-link': ExternalLink,
   'building-2': Building2,
   'log-out': LogOut,
 } as const satisfies Record<string, ComponentType<LucideProps>>;
