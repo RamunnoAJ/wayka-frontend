@@ -216,7 +216,7 @@ function LoginAncho() {
 
 /** Móvil: hero sobre superficie de navegación y hoja blanca con el formulario. */
 function LoginAngosto() {
-  const { t, px, texto } = useTheme();
+  const { t, px, texto, textoSobreMarca } = useTheme();
   const insets = useSafeAreaInsets();
   const formulario = useFormularioDeLogin();
 
@@ -231,17 +231,28 @@ function LoginAngosto() {
         bounces={false}
       >
         <View style={[estilos.hero, { paddingTop: insets.top + 32 }]}>
+          {/*
+            En blanco no se veía: el hero de esta pantalla es el naranja de marca
+            del tutor y el blanco al 14% queda en 1.11:1, prácticamente el mismo
+            color. Con el tono oscuro de la paleta a esta opacidad da 1.53:1, la
+            misma presencia que la marca de agua tiene sobre el hero lila.
+          */}
           <Isotipo
             width={420}
             height={300}
-            color="#FFFFFF"
-            style={{ position: 'absolute', opacity: 0.14, bottom: -60, right: -120 }}
+            color={t['--color-primary-strong']}
+            style={{ position: 'absolute', opacity: 0.55, bottom: -60, right: -120 }}
           />
           <Logo width={150} height={43} color="#FFFFFF" />
+          {/*
+            Blanco pleno y no al 85%: sobre el naranja de marca el blanco ya está
+            en 2.0:1, y atenuarlo para marcar jerarquía lo baja todavía más. Acá
+            la jerarquía la da el tamaño contra el logo, no la opacidad.
+          */}
           <Text
             style={[
-              texto('body-lg'),
-              { color: 'rgba(255,255,255,.85)', maxWidth: 250, textAlign: 'center' },
+              textoSobreMarca('body-lg'),
+              { color: t['--text-on-nav'], maxWidth: 250, textAlign: 'center' },
             ]}
           >
             La salud de tus mascotas, siempre a mano.
