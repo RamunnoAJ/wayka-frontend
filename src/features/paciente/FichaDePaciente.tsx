@@ -31,7 +31,7 @@ import {
   useMedicaciones,
   useMiFichaDeVeterinario,
   usePaciente,
-  usePlantel,
+  usePlantelPorId,
   useReagendarCita,
   useRetirarAdjunto,
   useRetirarCita,
@@ -82,7 +82,7 @@ export function FichaDePaciente({
   const medicaciones = useMedicaciones(pacienteId);
   const citas = useCitas(pacienteId);
   const adjuntos = useAdjuntos(pacienteId);
-  const plantel = usePlantel();
+  const plantel = usePlantelPorId();
   const miFicha = useMiFichaDeVeterinario();
   // La grilla la manda la clínica que atiende a la mascota, no la del actor
   // (Reglas de Negocio, 2.2). El alcance ya garantiza que sean la misma.

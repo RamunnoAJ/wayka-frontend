@@ -47,12 +47,12 @@ import {
 import { obtenerTutor, type Tutor } from '../../api/tutor';
 import {
   indexarPorId,
-  listarVeterinarios,
   obtenerVeterinario,
   puedeEscribirClinico,
   type Veterinario,
 } from '../../api/veterinario';
 import { useSesion } from '../../hooks/useSesion';
+import { CONSULTA_DEL_PLANTEL } from '../veterinario/queries';
 import { hoyEnLaClinica } from './formato';
 
 /**
@@ -146,15 +146,23 @@ export function useAdjuntos(pacienteId: string): UseQueryResult<Adjunto[]> {
 }
 
 /**
- * Plantel de la clínica, para resolver el nombre del autor de cada registro:
- * los Eventos clínicos y las Medicaciones traen `veterinario_id` y nada más.
+ * Plantel de la clínica indexado por id, para resolver el nombre del autor de
+ * cada registro: los Eventos clínicos y las Medicaciones traen
+ * `veterinario_id` y nada más.
+ *
+ * El índice se arma con `select` y **no dentro de `queryFn`**. La clave
+ * `['veterinarios']` es la misma que usa `usePlantel` de `../veterinario`, y
+ * tiene que serlo —es el mismo recurso, pedirlo dos veces sería pedirlo de
+ * más—, pero la caché de TanStack Query guarda un valor por clave: si cada
+ * consulta cacheara su propia forma, la primera en resolver le dejaría la suya
+ * a la otra. `select` transforma por observador y deja en la caché la lista
+ * que devuelve la API, que es la forma que las dos comparten.
+ *
+ * Se llama distinto que el de `../veterinario` a propósito: dos hooks con el
+ * mismo nombre y distinta forma es exactamente cómo se vuelve a romper.
  */
-export function usePlantel(): UseQueryResult<Map<string, Veterinario>> {
-  return useQuery({
-    queryKey: CLAVES.plantel(),
-    queryFn: async () => indexarPorId(await listarVeterinarios()),
-    staleTime: 5 * 60 * 1000,
-  });
+export function usePlantelPorId(): UseQueryResult<Map<string, Veterinario>> {
+  return useQuery({ ...CONSULTA_DEL_PLANTEL, select: indexarPorId });
 }
 
 /**
