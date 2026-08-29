@@ -51,7 +51,7 @@ export function SidebarNav({
   onSalir,
   salidaEnCurso,
 }: SidebarNavProps) {
-  const { t, px, texto } = useTheme();
+  const { t, px, texto, textoSobreMarca } = useTheme();
   const [enfocado, setEnfocado] = useState<string | null>(null);
   const [sobrevolado, setSobrevolado] = useState<string | null>(null);
 
@@ -61,9 +61,11 @@ export function SidebarNav({
       style={[estilos.base, { width: px('--sidebar-w'), backgroundColor: t['--surface-nav'] }]}
     >
       <View style={estilos.marca}>
-        <Text style={[texto('h3'), { color: t['--text-on-nav'] }]}>Wayka</Text>
+        <Text style={[textoSobreMarca('h3'), { color: t['--text-on-nav'] }]}>Wayka</Text>
         {clinic ? (
-          <Text style={[texto('caption'), { color: t['--text-on-nav-muted'], marginTop: 8 }]}>
+          <Text
+            style={[textoSobreMarca('caption'), { color: t['--text-on-nav-muted'], marginTop: 8 }]}
+          >
             {clinic}
           </Text>
         ) : null}
@@ -103,7 +105,7 @@ export function SidebarNav({
               />
               <Text
                 style={[
-                  texto('body'),
+                  textoSobreMarca('body'),
                   {
                     flex: 1,
                     fontWeight: activo ? '600' : '500',
@@ -135,20 +137,22 @@ export function SidebarNav({
       {user ? (
         <View style={[estilos.usuario, { borderTopColor: t['--border-on-nav'] }]}>
           <View style={[estilos.avatar, { backgroundColor: t['--surface-nav-item'] }]}>
-            <Text style={[texto('caption'), { fontWeight: '700', color: t['--text-on-nav'] }]}>
+            <Text
+              style={[textoSobreMarca('caption'), { fontWeight: '700', color: t['--text-on-nav'] }]}
+            >
               {iniciales(user.name)}
             </Text>
           </View>
           <View style={estilos.datos}>
             <Text
               numberOfLines={1}
-              style={[texto('body-sm'), { fontWeight: '600', color: t['--text-on-nav'] }]}
+              style={[textoSobreMarca('body-sm'), { fontWeight: '600', color: t['--text-on-nav'] }]}
             >
               {user.name}
             </Text>
             <Text
               numberOfLines={1}
-              style={[texto('overline'), { color: t['--text-on-nav-muted'] }]}
+              style={[textoSobreMarca('overline'), { color: t['--text-on-nav-muted'] }]}
             >
               {user.role}
             </Text>

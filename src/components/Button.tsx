@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 
-import { ANCHO_BORDE_FOCO, colorDeFoco, useTheme, type Tokens } from '../theme';
+import {
+  ANCHO_BORDE_FOCO,
+  colorDeFoco,
+  REFUERZO_SOBRE_MARCA_PX,
+  useTheme,
+  type Tokens,
+} from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
 
@@ -94,7 +100,7 @@ export function Button({
   accessibilityLabel,
   style,
 }: ButtonProps) {
-  const { t, px, texto } = useTheme();
+  const { t, px, texto, textoSobreMarca, reforzarSobreMarca } = useTheme();
   const [enfocado, setEnfocado] = useState(false);
   const [sobrevolado, setSobrevolado] = useState(false);
 
@@ -103,6 +109,10 @@ export function Button({
   const inhabilitado = Boolean(disabled || loading);
 
   const colorTexto = inhabilitado ? t['--text-subtle'] : tono.fg;
+
+  // El relleno del primario es el color de marca, que en el tutor es el naranja
+  // pleno con blanco encima (2.0:1): ahí el texto va con más cuerpo y peso.
+  const sobreMarca = variant === 'primary' && reforzarSobreMarca;
 
   return (
     <Pressable
@@ -150,8 +160,11 @@ export function Button({
       <Text
         numberOfLines={1}
         style={[
-          texto('body-strong'),
-          { fontSize: Number.parseFloat(t[medida.fs]), color: colorTexto },
+          sobreMarca ? textoSobreMarca('body-strong') : texto('body-strong'),
+          {
+            fontSize: Number.parseFloat(t[medida.fs]) + (sobreMarca ? REFUERZO_SOBRE_MARCA_PX : 0),
+            color: colorTexto,
+          },
         ]}
       >
         {children}

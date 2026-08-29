@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Platform, type TextStyle } from 'react-native';
 
-import { estiloDeTexto, aNumero, type NivelDeTexto } from './tipografia';
+import { estiloDeTexto, estiloDeTextoSobreMarca, aNumero, type NivelDeTexto } from './tipografia';
 import {
   tokensDefault,
   tokensReducedMotion,
@@ -20,8 +20,20 @@ interface ValorTema {
   px: (token: NombreToken) => number;
   /** Recompone un `--text-*` desde sus escalares (ver `tipografia.ts`). */
   texto: (nivel: NivelDeTexto) => TextStyle;
+  /**
+   * Igual que `texto`, para lo que va **encima del naranja de marca** del tutor
+   * (la navegación y el relleno primario). Ahí el contenido blanco da 2.0:1, y
+   * esto sube cuerpo y peso para que se lea. En clínica no cambia nada.
+   */
+  textoSobreMarca: (nivel: NivelDeTexto) => TextStyle;
   /** `true` si el sistema pide movimiento reducido: las duraciones van a 0ms. */
   movimientoReducido: boolean;
+  /**
+   * `true` cuando lo que se pinta sobre el color de marca necesita refuerzo —
+   * hoy, el tema tutor. Para componentes que arman su propio tamaño de texto y
+   * no pueden usar `textoSobreMarca` tal cual.
+   */
+  reforzarSobreMarca: boolean;
 }
 
 const Contexto = createContext<ValorTema | null>(null);
@@ -71,6 +83,8 @@ export function ThemeProvider({ nombre = 'default', children }: ThemeProviderPro
       t,
       px: (token) => aNumero(t[token]),
       texto: (nivel) => estiloDeTexto(t, nivel),
+      textoSobreMarca: (nivel) => estiloDeTextoSobreMarca(t, nivel, nombre === 'tutor'),
+      reforzarSobreMarca: nombre === 'tutor',
       movimientoReducido,
     };
   }, [nombre, movimientoReducido]);

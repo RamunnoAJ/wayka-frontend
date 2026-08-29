@@ -52,3 +52,54 @@ export function estiloDeTexto(t: Tokens, nivel: NivelDeTexto): TextStyle {
     letterSpacing: letterSpacing(t[def.ls], fontSize),
   };
 }
+
+/** Cuánto crece el cuerpo del texto sobre el naranja de marca. */
+export const REFUERZO_SOBRE_MARCA_PX = 2;
+
+/** Peso siguiente. En nativo 600 y 700 son la misma familia, en web no. */
+const PESO_REFORZADO: Record<string, keyof Tokens> = {
+  '300': '--fw-regular',
+  '400': '--fw-semibold',
+  '500': '--fw-semibold',
+  '600': '--fw-bold',
+  '700': '--fw-bold',
+  '900': '--fw-black',
+};
+
+/**
+ * Texto sobre el naranja de marca del tutor (`--surface-nav`,
+ * `--color-primary-fill`).
+ *
+ * Desde la 1.5.0 del design system esa superficie se pinta con el naranja pleno
+ * y contenido blanco, que da **2.0:1**. Subir cuerpo y peso es la mitigación que
+ * el propio design system recomienda, y es lo que hace esta función: un cuerpo
+ * más grande y el peso siguiente.
+ *
+ * **No alcanza AA y no pretende hacerlo.** El mínimo para texto grande es 3:1 y
+ * acá el fondo no cambia, así que el ratio sigue siendo 2.0:1 — esto mejora la
+ * legibilidad real, no el cumplimiento. Cumplir exigiría oscurecer el fondo, que
+ * es justo lo que la marca decidió no hacer.
+ *
+ * En el tema de clínica devuelve el estilo sin tocar: ahí la navegación es
+ * oscura y ya contrasta.
+ */
+export function estiloDeTextoSobreMarca(
+  t: Tokens,
+  nivel: NivelDeTexto,
+  reforzar: boolean,
+): TextStyle {
+  const base = estiloDeTexto(t, nivel);
+  if (!reforzar) return base;
+
+  const def = COMPUESTOS[nivel];
+  const fontSize = aNumero(t[def.fs]) + REFUERZO_SOBRE_MARCA_PX;
+  const pesoBase = t[def.fw];
+
+  return {
+    ...base,
+    ...familiaPara(t[PESO_REFORZADO[pesoBase] ?? def.fw], t['--font-sans']),
+    fontSize,
+    lineHeight: fontSize * Number.parseFloat(t[def.lh]),
+    letterSpacing: letterSpacing(t[def.ls], fontSize),
+  };
+}

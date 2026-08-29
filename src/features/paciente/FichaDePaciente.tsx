@@ -298,14 +298,14 @@ function Marco({
   titulo?: string;
   children: ReactNode;
 }) {
-  const { t, px, texto } = useTheme();
+  const { t, px, texto, textoSobreMarca } = useTheme();
 
   return (
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
       {esMovil ? (
         <View style={[estilos.cabeceraMovil, { backgroundColor: t['--surface-nav'] }]}>
           <IconButton icon="arrow-left" label="Volver a pacientes" size="sm" variant="on-dark" />
-          <Text style={[texto('body-strong'), { color: t['--text-on-nav'], flex: 1 }]}>
+          <Text style={[textoSobreMarca('body-strong'), { color: t['--text-on-nav'], flex: 1 }]}>
             {titulo ?? 'Ficha de paciente'}
           </Text>
         </View>
