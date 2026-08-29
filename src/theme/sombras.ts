@@ -48,7 +48,14 @@ export function sombra(nombre: NombreSombra): ViewStyle {
 
 /**
  * Foco. En nativo el anillo no se resuelve con sombra sino con un borde de 2px
- * en `--border-focus`; sobre superficie oscura (`--ring-focus-on-dark`), blanco.
+ * en `--border-focus`; sobre la superficie de la navegación, blanco.
+ *
+ * `sobreOscuro` es el nombre que quedó de cuando la nav era oscura en los dos
+ * temas. Desde la 1.5.0 del design system la del tutor es el naranja claro de
+ * marca, pero su contenido sigue siendo blanco y ahí el anillo es el mismo
+ * (`--ring-focus-on-brand` del tema tutor apunta a `--ring-focus-on-dark`): lo
+ * que cambió es el fondo, no el color del foco.
+ *
  * Devuelve solo el color: el ancho lo pone el componente, que ya reserva el
  * espacio del borde en su estado normal para que el foco no mueva el layout.
  */

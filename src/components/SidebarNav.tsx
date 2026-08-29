@@ -8,8 +8,9 @@ import { Icon, type NombreDeIcono } from './Icon';
 /**
  * Port a React Native de `design-system/components/navigation/SidebarNav.jsx`.
  *
- * Va sobre superficie oscura (`--surface-nav`), así que el foco se dibuja en
- * blanco: el borde de foco por defecto no se ve contra el lila oscuro.
+ * Va sobre `--surface-nav`, que es oscura en clínica y el naranja claro de marca
+ * en el tutor (design system 1.5.0). En las dos el contenido es blanco, así que
+ * el foco también: el borde por defecto no se ve contra ninguna de las dos.
  */
 export interface ItemDeSidebar {
   value: string;
@@ -120,10 +121,7 @@ export function SidebarNav({
                   ]}
                 >
                   <Text
-                    style={[
-                      texto('overline'),
-                      { fontWeight: '700', color: t['--surface-nav-deep'] },
-                    ]}
+                    style={[texto('overline'), { fontWeight: '700', color: t['--nav-accent-fg'] }]}
                   >
                     {item.badge}
                   </Text>

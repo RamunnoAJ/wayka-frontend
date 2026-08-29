@@ -1,7 +1,7 @@
 # Wayka — Integración del Design System
 
 MVP — Capa de tokens compartida entre web y nativo
-Versión 1.2 · Complementa a 08-arquitectura-frontend.md y al Brief de Integración Frontend entregado por Claude Design (v1.1.1, 2026-08-25)
+Versión 1.3 · Complementa a 08-arquitectura-frontend.md y al Brief de Integración Frontend entregado por Claude Design (v1.5.0, 2026-08-28)
 
 ## 1. Alcance
 
@@ -93,14 +93,22 @@ Consecuencia técnica: en nativo, cada peso es una **familia de fuente distinta*
 
 Documentado por Claude Design en `/design-system/readme.md`, bloque **Imagenería** — tono, proporción por tipo de imagen (perfil de mascota 1:1, adjunto/estudio 4:3 sin recortar, miniatura 1:1 56px) y fallback (`--surface-sunken` + ícono de especie, nunca el ícono roto del navegador ni una inicial sobre color de marca). En React Native el fallback se implementa con `defaultSource` / el estado de error del componente `Image`. No se repite acá para no duplicar — está en el `readme.md` del design system, no en este documento.
 
-## 7. Bloqueado — depende de la marca, no se resuelve por nuestra cuenta
+## 7. Marca: confirmado el naranja del tutor, sigue abierto el resto
 
-Dos puntos que Claude Design señaló explícitamente como no resolubles de su lado, y que tampoco resolvemos nosotros inventando un valor:
+**Resuelto en la 1.5.0 del design system (2026-08-28).** `--wayka-naranja-claro` pasó de `#E9A76F` (derivado del nombre de archivo del logo) a **`#F6A56C`, confirmado por marca**, y con él se rehízo el tema tutor. Los dos tokens que esta sección anotaba como "no mecánicos" se resolvieron por decisión de marca y no por ratio de contraste:
 
-- **Hexadecimales de marca** (`--wayka-*` en `tokens/colors.css`, 9 líneas) — derivados hoy de los nombres de archivo de los logos, no de un original confirmado. Bloquea también el ícono de app (la geometría de los SVG ya es la real, según la respuesta de Claude Design — solo falta el color).
-- **Colores por variante de logo** — el `<defs>` vacío no permite saber si alguna variante usa más de un color.
+- `--color-primary-fill` y `--surface-nav` del tutor **dejaron de oscurecerse**: donde antes iba `#A34F1D`, ahora va el naranja de marca con **blanco encima**. Eso da **2.0:1**, por debajo del mínimo AA (4.5:1 en cuerpo de texto, 3:1 en títulos grandes). Está asumido y registrado en el changelog del design system: donde haya texto chico sobre naranja hay que subir cuerpo y peso, o pasarlo a fondo oscuro.
+- `--color-primary-strong` del tutor **sigue siendo** el naranja oscuro `#B85F2E`. Es el color de texto, íconos y enlaces **sobre blanco**, donde el naranja de marca es ilegible. No se usa como fondo en ningún lado.
 
-Cuando lleguen, el cambio sale como **PATCH** en el changelog y el espejo se regenera solo — pero hay dos tokens que no son un reemplazo mecánico y hay que remedir a mano contra la paleta nueva: `--color-primary-fill` / `--color-primary-fill-hover` (elegidos por ratio de contraste, no derivados del logo) y `--surface-nav` del tema tutor. Anotado para no perderlo cuando llegue ese momento.
+De ahí salieron tres tokens que el espejo ya refleja y que conviene no confundir entre sí:
+
+| Token | Para qué |
+|---|---|
+| `--color-primary-fill-fg` | Contenido sobre el relleno sólido. Reemplaza los `#fff` que estaban escritos a mano en `Button` primario e `IconButton` sólido. |
+| `--nav-accent-fg` | Texto del badge de la barra lateral, que antes leía `--surface-nav-deep` — inservible cuando el acento cambia de claridad. |
+| Familia `--surface-immersive-*` | Lo que es oscuro **por su función y no por el tema**: la cámara. Colgada de los tokens de nav, el visor se habría vuelto naranja claro en el tutor. |
+
+**Sigue bloqueado:** el resto de los hexadecimales de marca (`--wayka-*`) y los colores por variante de logo — el `<defs>` vacío no permite saber si alguna variante usa más de un color. Bloquean todavía el ícono de app (la geometría de los SVG ya es la real; falta el color).
 
 ## 8. Qué queda explícitamente afuera de esta etapa
 

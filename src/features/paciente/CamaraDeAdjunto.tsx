@@ -105,7 +105,7 @@ export function CamaraDeAdjunto({
       onRequestClose={onCerrar}
       statusBarTranslucent
     >
-      <View style={[estilos.raiz, { backgroundColor: t['--surface-nav-deep'] }]}>
+      <View style={[estilos.raiz, { backgroundColor: t['--surface-immersive'] }]}>
         <CameraCapture
           framed={false}
           status={estado}

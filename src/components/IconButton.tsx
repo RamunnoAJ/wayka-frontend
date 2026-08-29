@@ -50,7 +50,7 @@ export function IconButton({
   })();
 
   const color = (() => {
-    if (variant === 'solid') return t['--color-primary-fg'];
+    if (variant === 'solid') return t['--color-primary-fill-fg'];
     if (sobreOscuro) return t['--text-on-nav'];
     return disabled ? t['--text-subtle'] : t['--text-muted'];
   })();

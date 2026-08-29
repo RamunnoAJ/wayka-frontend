@@ -139,7 +139,7 @@ export function CameraCapture({
         estilos.raiz,
         {
           borderRadius: framed ? px('--radius-card') : 0,
-          backgroundColor: t['--surface-nav-deep'],
+          backgroundColor: t['--surface-immersive'],
         },
       ]}
     >
@@ -154,24 +154,26 @@ export function CameraCapture({
         ) : (
           (visor ?? (
             <View style={estilos.centrado}>
-              <Text style={[texto('overline'), { color: t['--text-on-nav-muted'] }]}>VISOR</Text>
+              <Text style={[texto('overline'), { color: t['--text-on-immersive-muted'] }]}>
+                VISOR
+              </Text>
             </View>
           ))
         )}
       </View>
 
       {!sinPermiso && !revisando && mode === 'documento' ? (
-        <GuiaDeEncuadre color={t['--nav-accent']} radio={px('--radius-sm')} />
+        <GuiaDeEncuadre color={t['--immersive-accent']} radio={px('--radius-sm')} />
       ) : null}
 
       <LinearGradient
         pointerEvents="none"
-        colors={[t['--surface-nav-deep'], 'transparent']}
+        colors={[t['--surface-immersive'], 'transparent']}
         style={[estilos.degradado, estilos.degradadoArriba]}
       />
       <LinearGradient
         pointerEvents="none"
-        colors={['transparent', t['--surface-nav-deep']]}
+        colors={['transparent', t['--surface-immersive']]}
         style={[estilos.degradado, estilos.degradadoAbajo]}
       />
 
@@ -181,7 +183,7 @@ export function CameraCapture({
           {title ? (
             <Text
               numberOfLines={1}
-              style={[texto('body-strong'), estilos.titulo, { color: t['--text-on-nav'] }]}
+              style={[texto('body-strong'), estilos.titulo, { color: t['--text-on-immersive'] }]}
             >
               {title}
             </Text>
@@ -207,24 +209,32 @@ export function CameraCapture({
               {
                 padding: px('--space-7'),
                 borderRadius: px('--radius-card'),
-                backgroundColor: t['--surface-nav-item'],
-                borderColor: t['--border-on-nav'],
+                backgroundColor: t['--surface-immersive-item'],
+                borderColor: t['--border-on-immersive'],
               },
             ]}
           >
-            <Icon name="camera-off" size={24} color={t['--text-on-nav-muted']} />
-            <Text style={[texto('body-lg'), estilos.centrarTexto, { color: t['--text-on-nav'] }]}>
+            <Icon name="camera-off" size={24} color={t['--text-on-immersive-muted']} />
+            <Text
+              style={[texto('body-lg'), estilos.centrarTexto, { color: t['--text-on-immersive'] }]}
+            >
               {deniedTitle}
             </Text>
             <Text
-              style={[texto('body-sm'), estilos.centrarTexto, { color: t['--text-on-nav-muted'] }]}
+              style={[
+                texto('body-sm'),
+                estilos.centrarTexto,
+                { color: t['--text-on-immersive-muted'] },
+              ]}
             >
               {deniedBody}
             </Text>
             {/* Como en PermissionCard: los ajustes son texto, no un botón de relleno. */}
             {onOpenSettings ? (
               <Pressable accessibilityRole="button" onPress={onOpenSettings}>
-                <Text style={[texto('body-strong'), estilos.enlace, { color: t['--nav-accent'] }]}>
+                <Text
+                  style={[texto('body-strong'), estilos.enlace, { color: t['--immersive-accent'] }]}
+                >
                   Abrir ajustes del teléfono
                 </Text>
               </Pressable>
@@ -241,7 +251,7 @@ export function CameraCapture({
                 style={[
                   texto('body-sm'),
                   estilos.centrarTexto,
-                  { color: t['--text-on-nav-muted'] },
+                  { color: t['--text-on-immersive-muted'] },
                 ]}
               >
                 {ocupado
@@ -260,8 +270,8 @@ export function CameraCapture({
                   estilos.selectorDeModo,
                   {
                     borderRadius: px('--radius-pill'),
-                    backgroundColor: t['--surface-nav-item-hover'],
-                    borderColor: t['--border-on-nav'],
+                    backgroundColor: t['--surface-immersive-item-hover'],
+                    borderColor: t['--border-on-immersive'],
                   },
                 ]}
               >
@@ -277,7 +287,7 @@ export function CameraCapture({
                         estilos.modo,
                         {
                           borderRadius: px('--radius-pill'),
-                          backgroundColor: activo ? t['--nav-accent'] : 'transparent',
+                          backgroundColor: activo ? t['--immersive-accent'] : 'transparent',
                         },
                       ]}
                     >
@@ -286,7 +296,7 @@ export function CameraCapture({
                           texto('body-strong'),
                           {
                             fontSize: Number.parseFloat(t['--fs-body-sm']),
-                            color: activo ? t['--wayka-oscuro'] : t['--text-on-nav-muted'],
+                            color: activo ? t['--wayka-oscuro'] : t['--text-on-immersive-muted'],
                           },
                         ]}
                       >
@@ -310,13 +320,13 @@ export function CameraCapture({
                     {
                       height: px('--control-h-touch'),
                       borderRadius: px('--radius-control'),
-                      backgroundColor: t['--surface-nav-item'],
-                      borderColor: t['--border-on-nav'],
+                      backgroundColor: t['--surface-immersive-item'],
+                      borderColor: t['--border-on-immersive'],
                       borderWidth: 1,
                     },
                   ]}
                 >
-                  <Text style={[texto('body-lg'), { color: t['--text-on-nav'] }]}>
+                  <Text style={[texto('body-lg'), { color: t['--text-on-immersive'] }]}>
                     {retakeLabel}
                   </Text>
                 </Pressable>
@@ -332,7 +342,7 @@ export function CameraCapture({
                     {
                       height: px('--control-h-touch'),
                       borderRadius: px('--radius-control'),
-                      backgroundColor: t['--nav-accent'],
+                      backgroundColor: t['--immersive-accent'],
                     },
                   ]}
                 >
@@ -353,8 +363,8 @@ export function CameraCapture({
                       estilos.carrete,
                       {
                         borderRadius: px('--radius-md'),
-                        backgroundColor: t['--surface-nav-item'],
-                        borderColor: t['--border-on-nav'],
+                        backgroundColor: t['--surface-immersive-item'],
+                        borderColor: t['--border-on-immersive'],
                       },
                     ]}
                   >
@@ -366,7 +376,7 @@ export function CameraCapture({
                           style={estilos.llena}
                         />
                       ) : (
-                        <Icon name="images" size={18} color={t['--text-on-nav']} />
+                        <Icon name="images" size={18} color={t['--text-on-immersive']} />
                       )}
                     </View>
                     {galleryCount ? (
@@ -375,7 +385,7 @@ export function CameraCapture({
                           estilos.contador,
                           {
                             borderRadius: px('--radius-pill'),
-                            backgroundColor: t['--nav-accent'],
+                            backgroundColor: t['--immersive-accent'],
                           },
                         ]}
                       >
@@ -396,7 +406,7 @@ export function CameraCapture({
                   onPress={onCapture}
                   style={[
                     estilos.obturador,
-                    { borderRadius: px('--radius-pill'), borderColor: t['--border-on-nav'] },
+                    { borderRadius: px('--radius-pill'), borderColor: t['--border-on-immersive'] },
                   ]}
                 >
                   <View
@@ -452,21 +462,25 @@ function Chip({
         {
           borderRadius: px('--radius-pill'),
           backgroundColor: activo
-            ? t['--nav-accent']
+            ? t['--immersive-accent']
             : sobrevolado
-              ? t['--surface-nav-item']
-              : t['--surface-nav-item-hover'],
+              ? t['--surface-immersive-item']
+              : t['--surface-immersive-item-hover'],
           // El visor es superficie oscura: el anillo de foco va blanco.
           borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
           borderColor: enfocado
             ? colorDeFoco(t['--border-focus'], true)
             : activo
-              ? t['--nav-accent']
-              : t['--border-on-nav'],
+              ? t['--immersive-accent']
+              : t['--border-on-immersive'],
         },
       ]}
     >
-      <Icon name={icono} size={20} color={activo ? t['--wayka-oscuro'] : t['--text-on-nav']} />
+      <Icon
+        name={icono}
+        size={20}
+        color={activo ? t['--wayka-oscuro'] : t['--text-on-immersive']}
+      />
     </Pressable>
   );
 }

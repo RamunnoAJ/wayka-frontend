@@ -27,11 +27,13 @@ interface Tono {
 
 function tonos(t: Tokens): Record<Variante, Tono> {
   return {
-    // El primario claro no llega a AA con texto blanco: lo que se pinta lleno
-    // usa --color-primary-fill, nunca --color-primary (BRIEF, sección 3).
+    // Lo que se pinta lleno usa --color-primary-fill, nunca --color-primary, y
+    // el contenido encima sale de --color-primary-fill-fg. En el tutor los dos
+    // son el naranja de marca y blanco: da 2.0:1, por debajo de AA, y es una
+    // decision de marca registrada en el CHANGELOG del design system (1.5.0).
     primary: {
       bg: t['--color-primary-fill'],
-      fg: '#fff',
+      fg: t['--color-primary-fill-fg'],
       border: 'transparent',
       hover: t['--color-primary-fill-hover'],
     },
