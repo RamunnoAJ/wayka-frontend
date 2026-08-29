@@ -1,9 +1,9 @@
 import { useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { camposDeAlergia, camposDeVacuna, type EventoClinico } from '../../api/evento-clinico';
-import { AllergyChip, Icon, MedicationItem, StatusDot } from '../../components';
-import { sombra, useTheme } from '../../theme';
+import { AllergyChip, Icon, MedicationItem, Presionable, StatusDot } from '../../components';
+import { ESCALA_DE_PRESION, sombra, useTheme } from '../../theme';
 
 import { fechaCorta } from './formato';
 import type { DatosCriticos } from './queries';
@@ -56,23 +56,19 @@ export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps)
         <Text style={[texto('body-sm'), estilos.resumen, { color: t['--text-muted'] }]}>
           {resumir(datos)}
         </Text>
-        <Pressable
-          accessibilityRole="button"
+        <Presionable
           accessibilityState={{ expanded: abierta }}
           onPress={() => setAbiertaManual(!abierta)}
-          style={[
-            estilos.toggle,
-            {
-              borderRadius: px('--radius-control'),
-              borderColor: t['--border-default'],
-              backgroundColor: t['--surface-card'],
-            },
-          ]}
+          escala={ESCALA_DE_PRESION}
+          fondo={t['--surface-card']}
+          fondoDestacado={t['--surface-hover']}
+          borde={t['--border-default']}
+          style={[estilos.toggle, { borderRadius: px('--radius-control') }]}
         >
           <Text style={[texto('caption'), { fontWeight: '600', color: t['--text-brand'] }]}>
             {abierta ? 'Ocultar detalle' : 'Ver detalle'}
           </Text>
-        </Pressable>
+        </Presionable>
       </View>
 
       {abierta ? (

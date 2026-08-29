@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 
 import { FichaDePaciente } from '../../../../src/features/paciente';
+import { EntradaDePantalla } from '../../../../src/components';
 
 /**
  * Medicación de un paciente (Alcance de Plataformas, 3.5).
@@ -11,5 +12,9 @@ import { FichaDePaciente } from '../../../../src/features/paciente';
  */
 export default function MedicacionDelPaciente() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <FichaDePaciente pacienteId={id} pestaniaInicial="medicacion" />;
+  return (
+    <EntradaDePantalla>
+      <FichaDePaciente pacienteId={id} pestaniaInicial="medicacion" />
+    </EntradaDePantalla>
+  );
 }

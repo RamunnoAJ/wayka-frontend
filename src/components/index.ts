@@ -11,6 +11,7 @@ export {
 } from './CameraCapture';
 export { Checkbox } from './Checkbox';
 export { EmptyState } from './EmptyState';
+export { EntradaDePantalla } from './EntradaDePantalla';
 export { FileDropzone } from './FileDropzone';
 export { GuardDeRol } from './GuardDeRol';
 export { Icon, type NombreDeIcono } from './Icon';
@@ -21,6 +22,7 @@ export { MedicationItem } from './MedicationItem';
 export { MobileTabBar, type ItemDeTabBar } from './MobileTabBar';
 export { PermissionCard } from './PermissionCard';
 export { Placeholder } from './Placeholder';
+export { Presionable } from './Presionable';
 export { ProgressBar } from './ProgressBar';
 export { Select, type OpcionDeSelect } from './Select';
 export { SidebarNav, type ItemDeSidebar } from './SidebarNav';

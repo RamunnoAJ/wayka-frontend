@@ -1,7 +1,14 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Paciente } from '../../api/paciente';
-import { Avatar, Badge, EmptyState, InlineError, SkeletonText } from '../../components';
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  InlineError,
+  Presionable,
+  SkeletonText,
+} from '../../components';
 import { sombra, useTheme } from '../../theme';
 import { capitalizar, edad, peso } from '../paciente/formato';
 
@@ -41,18 +48,16 @@ export function MisMascotas({ onAbrir }: { onAbrir: (mascota: Paciente) => void 
           ) : (
             <View style={estilos.lista}>
               {mascotas.data?.map((mascota) => (
-                <Pressable
+                <Presionable
                   key={mascota.id}
-                  accessibilityRole="button"
                   onPress={() => onAbrir(mascota)}
-                  style={({ pressed }) => [
+                  fondo={t['--surface-card']}
+                  fondoDestacado={t['--surface-hover']}
+                  borde={t['--border-default']}
+                  style={[
                     estilos.tarjeta,
                     sombra('--shadow-sm'),
-                    {
-                      borderRadius: px('--radius-card'),
-                      borderColor: t['--border-default'],
-                      backgroundColor: pressed ? t['--surface-hover'] : t['--surface-card'],
-                    },
+                    { borderRadius: px('--radius-card') },
                   ]}
                 >
                   <Avatar name={mascota.nombre} species={mascota.especie} size="lg" />
@@ -65,7 +70,7 @@ export function MisMascotas({ onAbrir }: { onAbrir: (mascota: Paciente) => void 
                     </Text>
                   </View>
                   <Badge tone="neutral">{peso(mascota.peso_actual)}</Badge>
-                </Pressable>
+                </Presionable>
               ))}
             </View>
           )}

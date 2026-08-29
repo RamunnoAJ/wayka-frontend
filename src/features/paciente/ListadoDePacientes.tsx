@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { CrearPacienteEntrada, Paciente } from '../../api/paciente';
 import {
@@ -9,6 +9,7 @@ import {
   EmptyState,
   InlineError,
   Input,
+  Presionable,
   SkeletonText,
 } from '../../components';
 import { mensajeDeError } from '../../lib/errores';
@@ -129,19 +130,16 @@ export function ListadoDePacientes({ onAbrir }: ListadoProps) {
           ) : (
             <View style={estilos.lista}>
               {pacientes.data?.map((paciente) => (
-                <Pressable
+                <Presionable
                   key={paciente.id}
-                  accessibilityRole="button"
                   onPress={() => onAbrir(paciente)}
-                  style={({ hovered, pressed }) => [
+                  fondo={t['--surface-card']}
+                  fondoDestacado={t['--surface-hover']}
+                  borde={t['--border-default']}
+                  style={[
                     estilos.tarjeta,
                     sombra('--shadow-sm'),
-                    {
-                      borderRadius: px('--radius-card'),
-                      borderColor: t['--border-default'],
-                      backgroundColor:
-                        hovered || pressed ? t['--surface-hover'] : t['--surface-card'],
-                    },
+                    { borderRadius: px('--radius-card') },
                   ]}
                 >
                   <Avatar name={paciente.nombre} species={paciente.especie} size="md" />
@@ -158,7 +156,7 @@ export function ListadoDePacientes({ onAbrir }: ListadoProps) {
                     </Text>
                   </View>
                   <Badge tone="neutral">{peso(paciente.peso_actual)}</Badge>
-                </Pressable>
+                </Presionable>
               ))}
             </View>
           )}

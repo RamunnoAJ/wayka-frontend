@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { ANCHO_BORDE_FOCO, sombra, useTheme } from '../theme';
+import { useEntrada, usePresion, useTransicionDeControl } from '../hooks';
+import { ANCHO_BORDE_FOCO, duracion, sombra, useTheme } from '../theme';
 
 import { Icon } from './Icon';
+
+const PressableAnimado = Animated.createAnimatedComponent(Pressable);
 
 /**
  * Port a React Native de `design-system/components/core/Select.jsx`.
@@ -40,13 +44,19 @@ export function Select<V extends string>({
   const [abierto, setAbierto] = useState(false);
   const [enfocado, setEnfocado] = useState(false);
 
+  const presion = usePresion();
+  const entrada = useEntrada();
+  const colores = useTransicionDeControl({
+    borderColor: enfocado ? t['--border-focus'] : t['--border-default'],
+  });
+
   const seleccionada = options.find((o) => o.value === value);
 
   return (
     <View style={estilos.contenedor}>
       {label ? <Text style={[texto('caption'), { color: t['--text-muted'] }]}>{label}</Text> : null}
 
-      <Pressable
+      <PressableAnimado
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? label}
         accessibilityValue={{ text: seleccionada?.label }}
@@ -54,6 +64,7 @@ export function Select<V extends string>({
         onPress={() => setAbierto(true)}
         onFocus={() => setEnfocado(true)}
         onBlur={() => setEnfocado(false)}
+        {...presion.gestos}
         style={[
           estilos.control,
           {
@@ -61,8 +72,9 @@ export function Select<V extends string>({
             borderRadius: px('--radius-control'),
             backgroundColor: t['--surface-card'],
             borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
-            borderColor: enfocado ? t['--border-focus'] : t['--border-default'],
           },
+          colores,
+          presion.estilo,
         ]}
       >
         <Text
@@ -72,18 +84,27 @@ export function Select<V extends string>({
           {seleccionada?.label ?? ''}
         </Text>
         <Icon name="chevron-down" size={16} color={t['--text-subtle']} />
-      </Pressable>
+      </PressableAnimado>
 
       {hint ? <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>{hint}</Text> : null}
 
+      {/* `animationType="none"`: la entrada la pone el sistema de movimiento, no
+          la del sistema operativo. El telón cruza con timing (es opacidad) y el
+          panel entra con el resorte suave, igual que una pantalla. */}
       <Modal
         visible={abierto}
         transparent
-        animationType="fade"
+        animationType="none"
         onRequestClose={() => setAbierto(false)}
       >
-        <Pressable style={estilos.telon} onPress={() => setAbierto(false)}>
-          <Pressable
+        <PressableAnimado
+          entering={FadeIn.duration(duracion.normal.duration)}
+          exiting={FadeOut.duration(duracion.fast.duration)}
+          style={estilos.telon}
+          onPress={() => setAbierto(false)}
+        >
+          <Animated.View
+            entering={entrada}
             style={[
               estilos.panel,
               sombra('--shadow-lg'),
@@ -132,8 +153,8 @@ export function Select<V extends string>({
                 );
               })}
             </ScrollView>
-          </Pressable>
-        </Pressable>
+          </Animated.View>
+        </PressableAnimado>
       </Modal>
     </View>
   );

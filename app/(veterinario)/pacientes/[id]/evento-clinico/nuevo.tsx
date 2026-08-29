@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Icon } from '../../../../../src/components';
+import { Button, Icon, EntradaDePantalla } from '../../../../../src/components';
 import { FormularioDeEvento } from '../../../../../src/features/paciente/FormularioDeEvento';
 import { useClinica } from '../../../../../src/features/clinica/queries';
 import {
@@ -46,7 +46,7 @@ export default function NuevoEventoClinico() {
   }
 
   return (
-    <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
+    <EntradaDePantalla style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
       <ScrollView>
         <View
           style={[
@@ -112,7 +112,7 @@ export default function NuevoEventoClinico() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </EntradaDePantalla>
   );
 }
 

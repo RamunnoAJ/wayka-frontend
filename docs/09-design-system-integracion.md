@@ -1,7 +1,7 @@
 # Wayka — Integración del Design System
 
 MVP — Capa de tokens compartida entre web y nativo
-Versión 1.3 · Complementa a 08-arquitectura-frontend.md y al Brief de Integración Frontend entregado por Claude Design (v1.5.0, 2026-08-28)
+Versión 1.4 · Complementa a 08-arquitectura-frontend.md y al Brief de Integración Frontend entregado por Claude Design (v1.6.0, 2026-08-29)
 
 ## 1. Alcance
 
@@ -31,7 +31,13 @@ Este documento define cómo conviven, desde ahora, una fuente de valores en JS/T
   sombras.ts                     tabla de sombra/elevación por plataforma — no se parsea del CSS, ver 3.3
   tipografia-nativa.ts           mapeo de --fw-* a fontFamily para nativo — ver sección 5
   ThemeProvider.tsx              Context + hook useTheme()
+  movimiento.ts                  espejo de los tokens de movimiento (resortes, duraciones, escalas), ver 3.5
   generar-tokens.ts              script que parsea tokens/*.css y regenera tokens.generated.ts
+
+/src/hooks                    → los tres hooks del sistema de movimiento (sección 3.5)
+  useEntrada.ts                  entrada de pantalla (fade + 6px)
+  usePresion.ts                  hundido del press
+  useTransicionDeControl.ts      espejo en nativo de --transition-control
 ```
 
 `/design-system` no se edita a mano. `/src/theme/tokens.generated.ts`, `sombras.ts` y `tipografia-nativa.ts` tampoco — los tres son generados o derivados de una tabla fija que documenta este archivo, nunca escritos a mano componente por componente.
@@ -77,6 +83,22 @@ Claude Design tradujo `--shadow-*` a valores de plataforma. Esto vive como const
 
 El espejo sale como `{ default: {...}, tutor: {...} }`. El tema tutor **hereda** todo lo que no redefine — no es un objeto completo aparte, es un merge sobre `default`.
 
+### 3.5 Movimiento: valores generados, recetas propias
+
+El design system 1.6.0 sumó el vocabulario de movimiento para nativo: tres resortes (`--spring-snap-*`, `--spring-default-*`, `--spring-gentle-*`), sus umbrales de reposo, el desplazamiento de entrada y las dos escalas del press. Son escalares y **los parsea el script como cualquier otro token** — no hacen falta excepciones nuevas.
+
+Lo que sí es propio de este repo es la capa de arriba, porque el CSS no puede expresarla:
+
+- **`/src/theme/movimiento.ts`** agrupa esos tokens sueltos en los tres objetos que consume `withSpring`, y convierte `"140ms"` y `".97"` a números. Es derivado, no escrito a mano: si un valor cambia en el design system, cambia acá al regenerar. Lee de `tokensDefault` y **no del tema activo** — el movimiento no cambia con el rol.
+- **`/src/hooks/{useEntrada,usePresion,useTransicionDeControl}.ts`** son las recetas de `MOVIMIENTO-REANIMATED.md` con los nombres de este repo. Ningún componente escribe un número de resorte: si un valor aparece a mano en una pantalla, es un error de revisión.
+
+Dos decisiones que el código no explica solo:
+
+- **Movimiento reducido se resuelve en el hook, no en el token.** El design system redeclara `--motion-offset` y las escalas del press bajo `@media (prefers-reduced-motion)`, y el `ThemeProvider` ya mergea ese segundo juego en `t`. Los `--spring-*` **no** están redeclarados a propósito: un resorte no tiene "duración 0", así que en nativo el hook consulta `useReducedMotion()` de Reanimated y asigna el valor final de una. Por eso `movimiento.ts` lee los valores plenos y la reducción vive una capa más arriba.
+- **`--transition-control` sigue sin parsearse, pero ahora tiene implementación.** La sección 3.2 lo declara ignorado en nativo; `useTransicionDeControl` es esa implementación: anima `backgroundColor`, `borderColor` y `color` con `--dur-fast` y la curva estándar, que es lo que la lista de transiciones dice en CSS.
+
+`Skeleton` y `ProgressBar` **no** se migraron a Reanimated. No implementan este sistema: replican los `@keyframes` de `tokens/base.css` (`wayka-spin`, `wayka-indeterminate`), que son otra familia de tokens, y ya respetan el movimiento reducido por `useTheme()`. Convivir con `Animated` de React Native ahí es deliberado.
+
 ## 4. `ThemeProvider` y `useTheme()`
 
 Sin cambios respecto de la v1.0: vive en `/src/theme/ThemeProvider.tsx`, envuelve la app en `app/_layout.tsx`, resuelve `temaDefault` o `temaTutor` según el rol de la sesión, y en web sincroniza `document.body.dataset.theme` para que los componentes heredados sigan funcionando sin tocarlos.
@@ -115,6 +137,8 @@ De ahí salieron tres tokens que el espejo ya refleja y que conviene no confundi
 - **Adaptación de los 39 componentes a primitivas de React Native.** Sigue sin planificarse — nada de lo resuelto en esta versión lo adelanta, solo prepara el terreno (tokens ya traducibles a nativo).
 - **Íconos**: `Icon.jsx` sigue usando `mask-image` (CSS). La sustitución nativa (`lucide-react-native` o SVGs propios) sigue sin resolverse.
 - **Soporte real de fuentes variables en nativo** — descartado para la primera versión por la decisión de la sección 5, pero queda como opción a reconsiderar si el mapeo 600→700 se ve mal en pantalla real.
+- **Las recetas de movimiento sin consumidor todavía**: toast y bottom sheet con arrastre (secciones 7 y 11 de `MOVIMIENTO-REANIMATED.md`). No existen los componentes, y la del sheet además pide `react-native-gesture-handler`, que no está en el árbol. Se aplican cuando se construyan esos componentes, no antes.
+- **La coreografía de entrada y salida del stack.** El handoff la deja pendiente porque asume que no hay navegador; acá hay expo-router. Cada pantalla entra sola con `useEntrada` y el stack conserva su transición por defecto — coordinar el par entrante/saliente pide valores que Claude Design todavía no entregó.
 
 ## 9. Fuera de alcance de este documento
 

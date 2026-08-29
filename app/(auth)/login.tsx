@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Isotipo from '../../design-system/assets/wayka-isotipo.svg';
 import Logo from '../../design-system/assets/wayka-logo.svg';
-import { Button, Input, InlineError } from '../../src/components';
+import { Button, Input, InlineError, EntradaDePantalla } from '../../src/components';
 import { useLogin, validarContrasenaDeIngreso, validarEmail } from '../../src/features/auth';
 import { CODIGO_ERROR, ErrorApi, mensajeDeError } from '../../src/lib/errores';
 import { esWeb } from '../../src/lib/plataforma';
@@ -36,7 +36,9 @@ export default function Login() {
   // lo resuelve el layout raíz apenas hay sesión.
   return (
     <ThemeProvider nombre={esWeb ? 'default' : 'tutor'}>
-      {ancho >= ANCHO_PANEL_PARTIDO ? <LoginAncho /> : <LoginAngosto />}
+      <EntradaDePantalla>
+        {ancho >= ANCHO_PANEL_PARTIDO ? <LoginAncho /> : <LoginAngosto />}
+      </EntradaDePantalla>
     </ThemeProvider>
   );
 }

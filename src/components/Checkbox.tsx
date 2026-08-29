@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { usePresion, useTransicionDeControl } from '../hooks';
 import { useTheme } from '../theme';
 
 import { Icon } from './Icon';
@@ -20,6 +22,13 @@ interface CheckboxProps {
 
 export function Checkbox({ label, description, checked, onChange, disabled }: CheckboxProps) {
   const { t, px, texto } = useTheme();
+  // Se hunde la caja, no la fila: el área táctil es toda la fila, pero el
+  // control que el dedo está tocando es el cuadrado de 20px.
+  const presion = usePresion();
+  const colores = useTransicionDeControl({
+    borderColor: checked ? t['--color-primary-strong'] : t['--border-strong'],
+    backgroundColor: checked ? t['--color-primary-strong'] : t['--surface-card'],
+  });
 
   return (
     <Pressable
@@ -28,23 +37,26 @@ export function Checkbox({ label, description, checked, onChange, disabled }: Ch
       accessibilityLabel={label}
       disabled={disabled}
       onPress={() => onChange(!checked)}
+      {...presion.gestos}
       style={estilos.fila}
     >
-      <View
-        style={{
-          width: 20,
-          height: 20,
-          marginTop: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: px('--radius-xs'),
-          borderWidth: 1,
-          borderColor: checked ? t['--color-primary-strong'] : t['--border-strong'],
-          backgroundColor: checked ? t['--color-primary-strong'] : t['--surface-card'],
-        }}
+      <Animated.View
+        style={[
+          {
+            width: 20,
+            height: 20,
+            marginTop: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: px('--radius-xs'),
+            borderWidth: 1,
+          },
+          colores,
+          presion.estilo,
+        ]}
       >
         {checked ? <Icon name="check" size={14} color="#fff" /> : null}
-      </View>
+      </Animated.View>
 
       <View style={estilos.textos}>
         <Text style={[texto('body'), { color: t['--text-body'] }]}>{label}</Text>

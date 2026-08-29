@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { activarCuenta } from '../../src/api/auth';
-import { Button, Icon, InlineError, Input } from '../../src/components';
+import { Button, Icon, InlineError, Input, EntradaDePantalla } from '../../src/components';
 import { REGLAS_CONTRASENA, validarContrasenaNueva } from '../../src/features/auth';
 import { mensajeDeError } from '../../src/lib/errores';
 import { RUTA_LOGIN } from '../../src/constants/roles';
@@ -22,7 +22,9 @@ import { ThemeProvider, useTheme } from '../../src/theme';
 export default function Activacion() {
   return (
     <ThemeProvider>
-      <PantallaDeActivacion />
+      <EntradaDePantalla>
+        <PantallaDeActivacion />
+      </EntradaDePantalla>
     </ThemeProvider>
   );
 }

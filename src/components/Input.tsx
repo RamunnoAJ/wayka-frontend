@@ -8,7 +8,9 @@ import {
   type KeyboardTypeOptions,
   type TextInputProps,
 } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { useTransicionDeControl } from '../hooks';
 import { ANCHO_BORDE_FOCO, colorDeFoco, useTheme } from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
@@ -71,22 +73,31 @@ export function Input({
   const bordeFoco = colorDeFoco(error ? t['--border-danger'] : t['--border-focus']);
   const ayuda = error ?? hint;
 
+  // El campo no se hunde al tocarlo: lo que responde al dedo es el teclado que
+  // se abre, no el control. Lo único que se anima es el cruce de color del
+  // borde al enfocar y al aparecer un error, que es `--transition-control`.
+  const colores = useTransicionDeControl({
+    backgroundColor: readOnly ? t['--surface-sunken'] : t['--surface-card'],
+    borderColor: enfocado ? bordeFoco : bordeNormal,
+  });
+
   return (
     <View style={estilos.contenedor}>
       {label ? <Text style={[texto('caption'), { color: t['--text-muted'] }]}>{label}</Text> : null}
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-          height: px('--control-h-md'),
-          paddingHorizontal: 12,
-          borderRadius: px('--radius-control'),
-          backgroundColor: readOnly ? t['--surface-sunken'] : t['--surface-card'],
-          borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
-          borderColor: enfocado ? bordeFoco : bordeNormal,
-        }}
+      <Animated.View
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            height: px('--control-h-md'),
+            paddingHorizontal: 12,
+            borderRadius: px('--radius-control'),
+            borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
+          },
+          colores,
+        ]}
       >
         {icon ? <Icon name={icon} size={16} color={t['--text-subtle']} /> : null}
 
@@ -128,7 +139,7 @@ export function Input({
         {suffix ? (
           <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>{suffix}</Text>
         ) : null}
-      </View>
+      </Animated.View>
 
       {ayuda ? (
         <Text

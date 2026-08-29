@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { usePresion, useTransicionDeControl } from '../hooks';
 import {
   ANCHO_BORDE_FOCO,
   colorDeFoco,
@@ -10,6 +12,8 @@ import {
 } from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
+
+const PressableAnimado = Animated.createAnimatedComponent(Pressable);
 
 /**
  * Botón de acción. Port a React Native de `design-system/components/core/Button.jsx`
@@ -103,6 +107,8 @@ export function Button({
   const { t, px, texto, textoSobreMarca, reforzarSobreMarca } = useTheme();
   const [enfocado, setEnfocado] = useState(false);
   const [sobrevolado, setSobrevolado] = useState(false);
+  const [presionado, setPresionado] = useState(false);
+  const presion = usePresion();
 
   const tono = tonos(t)[variant];
   const medida = MEDIDAS[size];
@@ -110,12 +116,27 @@ export function Button({
 
   const colorTexto = inhabilitado ? t['--text-subtle'] : tono.fg;
 
+  // El fondo y el borde cruzan con timing; el hundido va por resorte aparte.
+  // Un botón deshabilitado no se mueve, pero sí cambia de color.
+  const colores = useTransicionDeControl({
+    backgroundColor: inhabilitado
+      ? t['--surface-disabled']
+      : presionado || sobrevolado
+        ? tono.hover
+        : tono.bg,
+    borderColor: enfocado
+      ? colorDeFoco(variant === 'danger' ? t['--border-danger'] : t['--border-focus'], sobreOscuro)
+      : tono.border === 'transparent'
+        ? 'transparent'
+        : tono.border,
+  });
+
   // El relleno del primario es el color de marca, que en el tutor es el naranja
   // pleno con blanco encima (2.0:1): ahí el texto va con más cuerpo y peso.
   const sobreMarca = variant === 'primary' && reforzarSobreMarca;
 
   return (
-    <Pressable
+    <PressableAnimado
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: inhabilitado, busy: loading }}
@@ -125,7 +146,15 @@ export function Button({
       onBlur={() => setEnfocado(false)}
       onHoverIn={() => setSobrevolado(true)}
       onHoverOut={() => setSobrevolado(false)}
-      style={({ pressed }) => [
+      onPressIn={() => {
+        setPresionado(true);
+        presion.gestos.onPressIn();
+      }}
+      onPressOut={() => {
+        setPresionado(false);
+        presion.gestos.onPressOut();
+      }}
+      style={[
         estilos.base,
         {
           width: block ? '100%' : undefined,
@@ -134,21 +163,10 @@ export function Button({
           height: px(medida.alto),
           paddingHorizontal: medida.px,
           borderRadius: px('--radius-control'),
-          backgroundColor: inhabilitado
-            ? t['--surface-disabled']
-            : pressed || sobrevolado
-              ? tono.hover
-              : tono.bg,
           borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
-          borderColor: enfocado
-            ? colorDeFoco(
-                variant === 'danger' ? t['--border-danger'] : t['--border-focus'],
-                sobreOscuro,
-              )
-            : tono.border === 'transparent'
-              ? 'transparent'
-              : tono.border,
         },
+        colores,
+        presion.estilo,
         style,
       ]}
     >
@@ -170,7 +188,7 @@ export function Button({
         {children}
       </Text>
       {iconRight && <Icon name={iconRight} size={medida.icono} color={colorTexto} />}
-    </Pressable>
+    </PressableAnimado>
   );
 }
 

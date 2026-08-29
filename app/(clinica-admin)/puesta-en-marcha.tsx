@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 
 import { OnboardingClinica } from '../../src/features/onboarding';
+import { EntradaDePantalla } from '../../src/components';
 
 /**
  * Puesta en marcha de una clínica nueva (handoff "Onboarding Clínica"), solo web.
@@ -10,5 +11,9 @@ import { OnboardingClinica } from '../../src/features/onboarding';
  * momentos distintos y consecutivos.
  */
 export default function PuestaEnMarcha() {
-  return <OnboardingClinica onTerminar={() => router.replace('/(clinica-admin)/panel')} />;
+  return (
+    <EntradaDePantalla>
+      <OnboardingClinica onTerminar={() => router.replace('/(clinica-admin)/panel')} />
+    </EntradaDePantalla>
+  );
 }

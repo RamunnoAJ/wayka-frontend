@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   ESTADO_DE_CITA,
@@ -12,6 +12,7 @@ import {
   Avatar,
   EmptyState,
   InlineError,
+  Presionable,
   Select,
   SkeletonText,
   type OpcionDeSelect,
@@ -191,19 +192,16 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                   }) => {
                     const colores = tono(t, cita.estado);
                     return (
-                      <Pressable
+                      <Presionable
                         key={cita.id}
-                        accessibilityRole="button"
                         onPress={() => onAbrirPaciente(cita.paciente_id)}
-                        style={({ hovered, pressed }) => [
+                        fondo={t['--surface-card']}
+                        fondoDestacado={t['--surface-hover']}
+                        borde={t['--border-default']}
+                        style={[
                           estilos.fila,
                           sombra('--shadow-sm'),
-                          {
-                            borderRadius: px('--radius-card'),
-                            borderColor: t['--border-default'],
-                            backgroundColor:
-                              hovered || pressed ? t['--surface-hover'] : t['--surface-card'],
-                          },
+                          { borderRadius: px('--radius-card') },
                         ]}
                       >
                         <View
@@ -236,7 +234,7 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                             {cita.estado.toUpperCase()}
                           </Text>
                         ) : null}
-                      </Pressable>
+                      </Presionable>
                     );
                   },
                 )}

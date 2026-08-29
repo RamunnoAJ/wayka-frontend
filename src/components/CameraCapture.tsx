@@ -1,10 +1,28 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
-import { ANCHO_BORDE_FOCO, colorDeFoco, useTheme } from '../theme';
+import { ANCHO_BORDE_FOCO, colorDeFoco, duracion, resorte, useTheme } from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
+
+const PressableAnimado = Animated.createAnimatedComponent(Pressable);
+
+/** Cuánto se hunde el obturador. Es su propio valor: no es un press de control. */
+const HUNDIDO_DEL_OBTURADOR = 0.9;
+
+/** Opacidad del velo. Un blanco pleno tapa de más y se lee como un corte. */
+const OPACIDAD_DEL_FLASH = 0.85;
 
 /**
  * Port a React Native de `design-system/components/core/CameraCapture.jsx`.
@@ -121,6 +139,33 @@ export function CameraCapture({
   onOpenSettings,
 }: CameraCaptureProps) {
   const { t, px, texto } = useTheme();
+  const reducido = useReducedMotion();
+
+  // Los tres momentos de la captura (Movimiento, sección 9): el obturador
+  // confirma que se sacó la foto, el velo tapa el salto del sensor, y el paso a
+  // revisión cruza sin desplazamiento — el encuadre no puede saltar.
+  const flashDeCaptura = useSharedValue(0);
+  const hundido = useSharedValue(1);
+
+  const veloDeFlash = useAnimatedStyle(() => ({ opacity: flashDeCaptura.get() }));
+  const estiloDelObturador = useAnimatedStyle(() => ({
+    transform: [{ scale: hundido.get() }],
+  }));
+
+  const capturar = () => {
+    if (!reducido) {
+      hundido.set(
+        withSequence(withSpring(HUNDIDO_DEL_OBTURADOR, resorte.snap), withSpring(1, resorte.snap)),
+      );
+      flashDeCaptura.set(
+        withSequence(
+          withTiming(OPACIDAD_DEL_FLASH, duracion.instant),
+          withTiming(0, duracion.instant),
+        ),
+      );
+    }
+    onCapture?.();
+  };
 
   const modoActual = MODOS_DE_CAMARA[mode];
   const revisando = status === 'revisando' || status === 'procesando';
@@ -145,21 +190,43 @@ export function CameraCapture({
     >
       {/* El visor vivo lo aporta quien usa el componente; la toma congelada entra por previewSrc. */}
       <View style={[estilos.visor, { backgroundColor: t['--wayka-oscuro'] }]}>
-        {previewSrc ? (
-          <Image
-            source={{ uri: previewSrc }}
-            resizeMode="cover"
-            style={[estilos.llena, ocupado && estilos.atenuada]}
-          />
-        ) : (
-          (visor ?? (
-            <View style={estilos.centrado}>
-              <Text style={[texto('overline'), { color: t['--text-on-immersive-muted'] }]}>
-                VISOR
-              </Text>
-            </View>
-          ))
+        {visor ?? (
+          <View style={estilos.centrado}>
+            <Text style={[texto('overline'), { color: t['--text-on-immersive-muted'] }]}>
+              VISOR
+            </Text>
+          </View>
         )}
+
+        {/* La toma congelada se dibuja encima y cruza con timing, sin
+            desplazamiento. El visor vivo queda montado debajo: desmontarlo para
+            volver a montarlo al repetir la foto reiniciaría la cámara. */}
+        {previewSrc ? (
+          <Animated.View
+            entering={FadeIn.duration(reducido ? 0 : duracion.normal.duration)}
+            exiting={FadeOut.duration(reducido ? 0 : duracion.normal.duration)}
+            style={[estilos.llena, estilos.encima]}
+          >
+            {/* La atenuación de `procesando` va en una capa aparte: si
+                compartiera vista con el cruce, la opacidad de la entrada la
+                pisaría. */}
+            <View style={[estilos.llena, ocupado && estilos.atenuada]}>
+              <Image source={{ uri: previewSrc }} resizeMode="cover" style={estilos.llena} />
+            </View>
+          </Animated.View>
+        ) : null}
+
+        {/* Velo del obturador. `pointerEvents="none"`: tapa la imagen, no los
+            controles que están debajo del dedo. */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            estilos.llena,
+            estilos.encima,
+            { backgroundColor: t['--wayka-blanco'] },
+            veloDeFlash,
+          ]}
+        />
       </View>
 
       {!sinPermiso && !revisando && mode === 'documento' ? (
@@ -400,13 +467,14 @@ export function CameraCapture({
                 )}
 
                 {/* El obturador queda blanco: es la convención de cámara y no compite con el acento. */}
-                <Pressable
+                <PressableAnimado
                   accessibilityRole="button"
                   accessibilityLabel={`Tomar ${modoActual.etiqueta.toLowerCase()}`}
-                  onPress={onCapture}
+                  onPress={capturar}
                   style={[
                     estilos.obturador,
                     { borderRadius: px('--radius-pill'), borderColor: t['--border-on-immersive'] },
+                    estiloDelObturador,
                   ]}
                 >
                   <View
@@ -415,7 +483,7 @@ export function CameraCapture({
                       { borderRadius: px('--radius-pill'), backgroundColor: t['--wayka-blanco'] },
                     ]}
                   />
-                </Pressable>
+                </PressableAnimado>
 
                 {onFlip ? (
                   <Chip icono="refresh-cw" etiqueta="Cambiar de cámara" onPress={onFlip} />
@@ -535,6 +603,7 @@ const estilos = StyleSheet.create({
   raiz: { flex: 1, width: '100%', minHeight: 520, overflow: 'hidden' },
   visor: { ...LLENA },
   llena: { width: '100%', height: '100%' },
+  encima: { position: 'absolute', top: 0, left: 0 },
   atenuada: { opacity: 0.7 },
   centrado: { ...LLENA, alignItems: 'center', justifyContent: 'center' },
   degradado: { position: 'absolute', left: 0, right: 0, height: ALTO_DEL_DEGRADADO, opacity: 0.9 },

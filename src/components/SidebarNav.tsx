@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { ANCHO_BORDE_FOCO, colorDeFoco, useTheme } from '../theme';
+import { usePresion, useTransicionDeControl } from '../hooks';
+import { ANCHO_BORDE_FOCO, colorDeFoco, ESCALA_DE_PRESION_LG, useTheme } from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
+
+const PressableAnimado = Animated.createAnimatedComponent(Pressable);
 
 /**
  * Port a React Native de `design-system/components/navigation/SidebarNav.jsx`.
@@ -51,7 +55,7 @@ export function SidebarNav({
   onSalir,
   salidaEnCurso,
 }: SidebarNavProps) {
-  const { t, px, texto, textoSobreMarca } = useTheme();
+  const { t, px, textoSobreMarca } = useTheme();
   const [enfocado, setEnfocado] = useState<string | null>(null);
   const [sobrevolado, setSobrevolado] = useState<string | null>(null);
 
@@ -72,66 +76,20 @@ export function SidebarNav({
       </View>
 
       <View style={estilos.items}>
-        {items.map((item) => {
-          const activo = item.value === value;
-          return (
-            <Pressable
-              key={item.value}
-              accessibilityRole="menuitem"
-              accessibilityState={{ selected: activo }}
-              onPress={() => onChange(item.value)}
-              onFocus={() => setEnfocado(item.value)}
-              onBlur={() => setEnfocado(null)}
-              onHoverIn={() => setSobrevolado(item.value)}
-              onHoverOut={() => setSobrevolado(null)}
-              style={[
-                estilos.item,
-                {
-                  borderRadius: px('--radius-control'),
-                  backgroundColor: activo
-                    ? t['--surface-nav-item']
-                    : sobrevolado === item.value
-                      ? t['--surface-nav-item-hover']
-                      : 'transparent',
-                  borderWidth: enfocado === item.value ? ANCHO_BORDE_FOCO : 0,
-                  borderColor: colorDeFoco(t['--border-focus'], true),
-                },
-              ]}
-            >
-              <Icon
-                name={item.icon}
-                size={18}
-                color={activo ? t['--text-on-nav'] : t['--text-on-nav-muted']}
-              />
-              <Text
-                style={[
-                  textoSobreMarca('body'),
-                  {
-                    flex: 1,
-                    fontWeight: activo ? '600' : '500',
-                    color: activo ? t['--text-on-nav'] : t['--text-on-nav-muted'],
-                  },
-                ]}
-              >
-                {item.label}
-              </Text>
-              {item.badge != null ? (
-                <View
-                  style={[
-                    estilos.badge,
-                    { borderRadius: px('--radius-pill'), backgroundColor: t['--nav-accent'] },
-                  ]}
-                >
-                  <Text
-                    style={[texto('overline'), { fontWeight: '700', color: t['--nav-accent-fg'] }]}
-                  >
-                    {item.badge}
-                  </Text>
-                </View>
-              ) : null}
-            </Pressable>
-          );
-        })}
+        {items.map((item) => (
+          <ItemDeNavegacion
+            key={item.value}
+            item={item}
+            activo={item.value === value}
+            enfocado={enfocado === item.value}
+            sobrevolado={sobrevolado === item.value}
+            onPress={() => onChange(item.value)}
+            onFocus={() => setEnfocado(item.value)}
+            onBlur={() => setEnfocado(null)}
+            onHoverIn={() => setSobrevolado(item.value)}
+            onHoverOut={() => setSobrevolado(null)}
+          />
+        ))}
       </View>
 
       {user ? (
@@ -178,6 +136,94 @@ export function SidebarNav({
         </View>
       ) : null}
     </View>
+  );
+}
+
+interface ItemDeNavegacionProps {
+  item: ItemDeSidebar;
+  activo: boolean;
+  enfocado: boolean;
+  sobrevolado: boolean;
+  onPress: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+  onHoverIn: () => void;
+  onHoverOut: () => void;
+}
+
+/**
+ * Un destino de la navegación. Vive aparte por los hooks de animación, que no
+ * se pueden llamar dentro del `map`.
+ *
+ * Se anima el fondo del ítem, que es la afordancia principal, y no el color del
+ * ícono ni el de la etiqueta: el ícono es un SVG cuyo color es una prop y no un
+ * estilo, y cruzar solo el texto dejaría los dos desincronizados.
+ *
+ * La escala del press es la grande: es una fila ancha, y el factor chico ahí se
+ * lee como un salto.
+ */
+function ItemDeNavegacion({
+  item,
+  activo,
+  enfocado,
+  sobrevolado,
+  onPress,
+  onFocus,
+  onBlur,
+  onHoverIn,
+  onHoverOut,
+}: ItemDeNavegacionProps) {
+  const { t, px, texto, textoSobreMarca } = useTheme();
+  const presion = usePresion(ESCALA_DE_PRESION_LG);
+  const color = activo ? t['--text-on-nav'] : t['--text-on-nav-muted'];
+  const fondo = useTransicionDeControl({
+    backgroundColor: activo
+      ? t['--surface-nav-item']
+      : sobrevolado
+        ? t['--surface-nav-item-hover']
+        : 'transparent',
+  });
+
+  return (
+    <PressableAnimado
+      accessibilityRole="menuitem"
+      accessibilityState={{ selected: activo }}
+      onPress={onPress}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onHoverIn={onHoverIn}
+      onHoverOut={onHoverOut}
+      {...presion.gestos}
+      style={[
+        estilos.item,
+        {
+          borderRadius: px('--radius-control'),
+          borderWidth: enfocado ? ANCHO_BORDE_FOCO : 0,
+          borderColor: colorDeFoco(t['--border-focus'], true),
+        },
+        fondo,
+        presion.estilo,
+      ]}
+    >
+      <Icon name={item.icon} size={18} color={color} />
+      <Text
+        style={[textoSobreMarca('body'), { flex: 1, fontWeight: activo ? '600' : '500', color }]}
+      >
+        {item.label}
+      </Text>
+      {item.badge != null ? (
+        <View
+          style={[
+            estilos.badge,
+            { borderRadius: px('--radius-pill'), backgroundColor: t['--nav-accent'] },
+          ]}
+        >
+          <Text style={[texto('overline'), { fontWeight: '700', color: t['--nav-accent-fg'] }]}>
+            {item.badge}
+          </Text>
+        </View>
+      ) : null}
+    </PressableAnimado>
   );
 }
 

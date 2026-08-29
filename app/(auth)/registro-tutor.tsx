@@ -11,7 +11,14 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, Checkbox, Icon, Input, InlineError } from '../../src/components';
+import {
+  Button,
+  Checkbox,
+  Icon,
+  Input,
+  InlineError,
+  EntradaDePantalla,
+} from '../../src/components';
 import {
   REGLAS_CONTRASENA,
   RegistroSinSesion,
@@ -39,7 +46,9 @@ import { ThemeProvider, useTheme } from '../../src/theme';
 export default function RegistroTutor() {
   return (
     <ThemeProvider nombre="tutor">
-      <FormularioDeRegistro />
+      <EntradaDePantalla>
+        <FormularioDeRegistro />
+      </EntradaDePantalla>
     </ThemeProvider>
   );
 }

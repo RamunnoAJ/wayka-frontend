@@ -1,13 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Clinica } from '../../api/clinica';
 import { turnosDelDia } from '../clinica/grilla';
 import { TIPO_DE_CITA, type CrearCitaEntrada, type TipoDeCita } from '../../api/cita';
 import type { Veterinario } from '../../api/veterinario';
 import { useAgenda } from '../agenda/queries';
-import { Button, Checkbox, InlineError, Select, type OpcionDeSelect } from '../../components';
-import { useTheme } from '../../theme';
+import {
+  Button,
+  Checkbox,
+  InlineError,
+  Presionable,
+  Select,
+  type OpcionDeSelect,
+} from '../../components';
+import { ESCALA_DE_PRESION, useTheme } from '../../theme';
 
 import { aIso, fechaConDiaDeSemana, hoyEnLaClinica } from './formato';
 
@@ -178,27 +185,24 @@ export function FormularioDeCita({
               {turnos.map((opcion) => {
                 const elegido = turno === opcion.valor;
                 return (
-                  <Pressable
+                  <Presionable
                     key={opcion.valor}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: elegido, disabled: !opcion.disponible }}
+                    accessibilityState={{ selected: elegido }}
                     accessibilityLabel={
                       opcion.disponible ? opcion.etiqueta : `${opcion.etiqueta}, ya pasó`
                     }
                     disabled={!opcion.disponible}
                     onPress={() => setTurno(opcion.valor)}
-                    style={[
-                      estilos.turno,
-                      {
-                        borderRadius: px('--radius-control'),
-                        backgroundColor: elegido
-                          ? t['--color-primary-fill']
-                          : opcion.disponible
-                            ? t['--surface-card']
-                            : t['--surface-disabled'],
-                        borderColor: elegido ? t['--color-primary-fill'] : t['--border-default'],
-                      },
-                    ]}
+                    escala={ESCALA_DE_PRESION}
+                    fondo={
+                      elegido
+                        ? t['--color-primary-fill']
+                        : opcion.disponible
+                          ? t['--surface-card']
+                          : t['--surface-disabled']
+                    }
+                    borde={elegido ? t['--color-primary-fill'] : t['--border-default']}
+                    style={[estilos.turno, { borderRadius: px('--radius-control') }]}
                   >
                     <Text
                       style={[
@@ -215,7 +219,7 @@ export function FormularioDeCita({
                     >
                       {opcion.etiqueta}
                     </Text>
-                  </Pressable>
+                  </Presionable>
                 );
               })}
             </View>

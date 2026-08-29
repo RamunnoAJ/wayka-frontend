@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Icon, InlineError, Input } from '../../src/components';
+import { Button, Icon, InlineError, Input, EntradaDePantalla } from '../../src/components';
 import { validarEmail } from '../../src/features/auth/validaciones';
 import { canjearRecuperacion, pedirRecuperacion } from '../../src/api/recuperacion';
 import { CamposDeContrasena } from '../../src/features/cuenta';
@@ -31,7 +31,9 @@ export default function Recuperar() {
   // es el rol mayoritario de esa plataforma.
   return (
     <ThemeProvider nombre={esWeb ? 'default' : 'tutor'}>
-      {token ? <DefinirNueva token={token} /> : <PedirElEnlace />}
+      <EntradaDePantalla>
+        {token ? <DefinirNueva token={token} /> : <PedirElEnlace />}
+      </EntradaDePantalla>
     </ThemeProvider>
   );
 }

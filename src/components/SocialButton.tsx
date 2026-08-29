@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 
+import { usePresion, useTransicionDeControl } from '../hooks';
 import { ANCHO_BORDE_FOCO, useTheme } from '../theme';
+
+const PressableAnimado = Animated.createAnimatedComponent(Pressable);
 
 /**
  * Port a React Native de `design-system/components/core/SocialButton.jsx`.
@@ -78,17 +82,22 @@ export function SocialButton({
 }: SocialButtonProps) {
   const { px, texto } = useTheme();
   const [enfocado, setEnfocado] = useState(false);
+  const presion = usePresion();
+  // El anillo de foco tampoco se tiñe con el tema: sobre una superficie ajena,
+  // el borde de la propia guía es el que mantiene el contraste.
+  const colores = useTransicionDeControl({ borderColor: enfocado ? GOOGLE.texto : GOOGLE.borde });
 
   const etiqueta = label ?? (mode === 'signup' ? 'Registrarme con Google' : 'Continuar con Google');
 
   return (
-    <Pressable
+    <PressableAnimado
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
       onFocus={() => setEnfocado(true)}
       onBlur={() => setEnfocado(false)}
+      {...presion.gestos}
       style={[
         estilos.base,
         {
@@ -97,12 +106,13 @@ export function SocialButton({
           height: ALTURAS[size],
           borderRadius: px('--radius-md'),
           backgroundColor: GOOGLE.fondo,
-          // El anillo de foco tampoco se tiñe con el tema: sobre una superficie
-          // ajena, el borde de la propia guía es el que mantiene el contraste.
           borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
-          borderColor: enfocado ? GOOGLE.texto : GOOGLE.borde,
+          // La opacidad de acá es el estado deshabilitado, no un feedback de
+          // toque: el press del sistema es escala y nunca opacidad.
           opacity: disabled ? 0.5 : 1,
         },
+        colores,
+        presion.estilo,
         style,
       ]}
     >
@@ -110,7 +120,7 @@ export function SocialButton({
       <Text numberOfLines={1} style={[texto('body'), estilos.etiqueta, { color: GOOGLE.texto }]}>
         {etiqueta}
       </Text>
-    </Pressable>
+    </PressableAnimado>
   );
 }
 

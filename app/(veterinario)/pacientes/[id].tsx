@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 
 import { FichaDePaciente } from '../../../src/features/paciente';
+import { EntradaDePantalla } from '../../../src/components';
 
 /**
  * Ficha de paciente: datos básicos, historial clínico, medicación, calendario y
@@ -8,5 +9,9 @@ import { FichaDePaciente } from '../../../src/features/paciente';
  */
 export default function FichaDePacienteRuta() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <FichaDePaciente pacienteId={id} />;
+  return (
+    <EntradaDePantalla>
+      <FichaDePaciente pacienteId={id} />
+    </EntradaDePantalla>
+  );
 }

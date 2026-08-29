@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, InlineError, SkeletonText } from '../../src/components';
+import { Button, InlineError, SkeletonText, EntradaDePantalla } from '../../src/components';
 import { BotonCerrarSesion } from '../../src/features/auth';
 import { FormularioDeContrasena } from '../../src/features/cuenta';
 import { useMiFichaDeVeterinario } from '../../src/features/paciente/queries';
@@ -38,7 +38,7 @@ export default function MiCuenta() {
   };
 
   return (
-    <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
+    <EntradaDePantalla style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
       <ScrollView>
         <View
           style={[estilos.contenido, { maxWidth: 640, paddingHorizontal: px('--gutter-page') }]}
@@ -105,7 +105,7 @@ export default function MiCuenta() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </EntradaDePantalla>
   );
 }
 

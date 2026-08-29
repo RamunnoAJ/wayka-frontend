@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Tutor } from '../../api/tutor';
 import {
@@ -9,6 +9,7 @@ import {
   EmptyState,
   InlineError,
   Input,
+  Presionable,
   SkeletonText,
 } from '../../components';
 import { mensajeDeError } from '../../lib/errores';
@@ -135,19 +136,16 @@ export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
               </View>
 
               {resultados.data?.map((tutor) => (
-                <Pressable
+                <Presionable
                   key={tutor.id}
-                  accessibilityRole="button"
                   onPress={() => onElegir(tutor)}
-                  style={({ hovered, pressed }) => [
+                  fondo={t['--surface-card']}
+                  fondoDestacado={t['--surface-hover']}
+                  borde={t['--border-default']}
+                  style={[
                     estilos.tarjeta,
                     sombra('--shadow-sm'),
-                    {
-                      borderRadius: px('--radius-card'),
-                      borderColor: t['--border-default'],
-                      backgroundColor:
-                        hovered || pressed ? t['--surface-hover'] : t['--surface-card'],
-                    },
+                    { borderRadius: px('--radius-card') },
                   ]}
                 >
                   <Avatar name={tutor.nombre} size="md" tone="brand" />
@@ -166,7 +164,7 @@ export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
                   ) : (
                     <Badge tone="warning">Sin documento</Badge>
                   )}
-                </Pressable>
+                </Presionable>
               ))}
             </View>
           )}

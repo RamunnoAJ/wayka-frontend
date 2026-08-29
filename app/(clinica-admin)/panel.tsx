@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useState } from 'react';
 
-import { Button } from '../../src/components';
+import { Button, EntradaDePantalla } from '../../src/components';
 import { BotonCerrarSesion } from '../../src/features/auth';
 import { FormularioDeClinica } from '../../src/features/clinica';
 import { FormularioDeContrasena } from '../../src/features/cuenta';
@@ -26,7 +26,7 @@ export default function Panel() {
   const [cambiandoContrasena, setCambiandoContrasena] = useState(false);
 
   return (
-    <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
+    <EntradaDePantalla style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
       <ScrollView>
         <View
           style={[
@@ -108,7 +108,7 @@ export default function Panel() {
           ) : null}
         </View>
       </ScrollView>
-    </View>
+    </EntradaDePantalla>
   );
 }
 

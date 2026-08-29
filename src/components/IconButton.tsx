@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { Pressable, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { usePresion, useTransicionDeControl } from '../hooks';
 import { ANCHO_BORDE_FOCO, colorDeFoco, useTheme } from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
+
+const PressableAnimado = Animated.createAnimatedComponent(Pressable);
 
 /**
  * Port a React Native de `design-system/components/core/IconButton.jsx`.
@@ -38,6 +42,7 @@ export function IconButton({
   const { t, px } = useTheme();
   const [sobrevolado, setSobrevolado] = useState(false);
   const [enfocado, setEnfocado] = useState(false);
+  const presion = usePresion();
   const d = MEDIDAS[size];
   const sobreOscuro = variant === 'on-dark';
 
@@ -55,8 +60,17 @@ export function IconButton({
     return disabled ? t['--text-subtle'] : t['--text-muted'];
   })();
 
+  const colores = useTransicionDeControl({
+    backgroundColor: fondo,
+    borderColor: enfocado
+      ? colorDeFoco(t['--border-focus'], sobreOscuro)
+      : variant === 'outline'
+        ? t['--border-default']
+        : 'transparent',
+  });
+
   return (
-    <Pressable
+    <PressableAnimado
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: Boolean(disabled) }}
@@ -66,6 +80,7 @@ export function IconButton({
       onHoverOut={() => setSobrevolado(false)}
       onFocus={() => setEnfocado(true)}
       onBlur={() => setEnfocado(false)}
+      {...presion.gestos}
       style={[
         {
           width: d,
@@ -73,18 +88,14 @@ export function IconButton({
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: px('--radius-control'),
-          backgroundColor: fondo,
           borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
-          borderColor: enfocado
-            ? colorDeFoco(t['--border-focus'], sobreOscuro)
-            : variant === 'outline'
-              ? t['--border-default']
-              : 'transparent',
         },
+        colores,
+        presion.estilo,
         style,
       ]}
     >
       <Icon name={icon} size={size === 'sm' ? 16 : 20} color={color} />
-    </Pressable>
+    </PressableAnimado>
   );
 }
