@@ -10,6 +10,23 @@ Regla para el pipeline: **regenerar el espejo de tokens cuando cambie `version` 
 
 ---
 
+## 1.5.0 — 2026-08-28
+
+### Cambiado
+
+**`#F6A56C` es el naranja del tutor, confirmado por marca.** `--wayka-naranja-claro` pasa de `#E9A76F` (derivado, tentativo) a `#F6A56C`, y **deja de oscurecerse**: donde antes el tema tutor pintaba `#A34F1D` / `#864016`, ahora pinta el naranja de marca, con **blanco encima** por decision de marca. Queda registrado que blanco sobre `#F6A56C` da **2.0:1**, por debajo del minimo AA (4.5:1 en cuerpo de texto, 3:1 en titulos grandes): donde haya texto chico sobre naranja conviene subir cuerpo y peso, o pasarlo a fondo oscuro.
+
+- **Nuevo `--color-primary-fill-fg`** — el contenido sobre el relleno solido. Blanco en los dos temas hoy, pero ya deja de estar escrito a mano: si en algun momento se decide invertirlo en tutor, es un solo token. `Button primary`, `IconButton solid`, `Tabs segmented`, el dia elegido de `DatePicker` y el "hoy" de `CalendarWeek` tenian `#fff` escrito a mano; ahora usan el token. **Sin cambios visibles en clinica.**
+- **Tema tutor:** `--color-primary-fill` y `--surface-nav` = `#F6A56C`; `--color-primary-fill-hover` y `--surface-nav-deep` = `#EE9757`. La nav del tutor es ahora una superficie **clara** con contenido blanco: `--surface-nav-item` y `--border-on-nav` subieron de opacidad para verse sobre el naranja, y `--nav-accent` pasa a violeta.
+- **Nuevo `--nav-accent-fg`** (oscuro en clinica, blanco en tutor): el badge de `SidebarNav` leia `--surface-nav-deep` como color de texto, que ya no sirve cuando el acento cambia de claridad.
+- **Nueva familia `--surface-immersive`** (`--surface-immersive`, `-item`, `-item-hover`, `--text-on-immersive`, `--text-on-immersive-muted`, `--border-on-immersive`, `--immersive-accent`): superficie **oscura en los dos temas**, para lo que tiene que ser oscuro por su funcion y no por el tema. `CameraCapture` y `Toast` se movieron ahi: colgados de los tokens de nav, el visor de la camara se habria vuelto naranja claro. Marcan `data-surface="immersive"`.
+- **Nuevo `--ring-focus-on-brand`** y **nuevo scope `data-surface="brand"`**: la nav clara del tutor se declara como superficie de marca, no como oscura, y ahi el anillo de foco es oscuro. Las pantallas del tutor pasaron de `data-surface="dark"` a `data-surface="brand"`. Quedan tres scopes: `dark` (nav oscura), `brand` (nav clara de marca) e `immersive` (camara, Toast).
+- **Nuevo `--logo-on-nav-filter`** (EXCEPCION: cadena `filter`, no un color). El logo monocromo se recolorea segun la nav: blanco en clinica, oscuro en tutor. Reemplaza los `brightness(0) invert(1)` escritos a mano en `SidebarNav` y en las pantallas del tutor.
+
+**Lo que NO cambio:** `--color-primary-strong` del tutor sigue siendo el naranja oscuro (`#B85F2E`). Es el color de **texto, iconos y enlaces sobre blanco** — el naranja de marca ahi da 2.0:1 y es ilegible. Nunca se usa como fondo.
+
+---
+
 ## 1.4.0 — 2026-08-28
 
 ### Agregado

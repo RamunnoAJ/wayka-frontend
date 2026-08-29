@@ -17,7 +17,7 @@ export function Tabs({ items=[], value, onChange, variant='underline' }) {
             borderBottom: pill?'none':`2px solid ${on?'var(--color-primary-strong)':'transparent'}`,
             marginBottom: pill?0:-1,
             font:`var(--fw-semibold) var(--fs-body)/1.4 var(--font-sans)`,
-            color: seg&&on ? '#fff' : on?'var(--text-strong)':'var(--text-muted)',
+            color: seg&&on ? 'var(--color-primary-fill-fg)' : on?'var(--text-strong)':'var(--text-muted)',
             transition:'var(--transition-control)', display:'flex', gap:8, alignItems:'center' }}>
           {it.label}
           {it.count!=null && <span style={{ font:'var(--fw-semibold) var(--fs-overline) var(--font-sans)',

@@ -5,12 +5,12 @@ const TUTOR_TABS=[{value:'mascotas',label:'Mis mascotas',icon:'paw-print'},{valu
 
 function TutorLogin({ onLogin }) {
   return (
-    <div style={{ height:'100%', display:'grid', gridTemplateRows:'1fr auto', background:'var(--surface-nav)' }} data-surface="dark">
+    <div style={{ height:'100%', display:'grid', gridTemplateRows:'1fr auto', background:'var(--surface-nav)' }} data-surface="brand">
       <div style={{ display:'grid', placeItems:'center', padding:'32px', position:'relative', overflow:'hidden' }}>
-        <img src="../../assets/wayka-isotipo.svg" alt="" style={{ position:'absolute', width:420, opacity:.14, bottom:-60, right:-120, filter:'brightness(0) invert(1)' }} />
+        <img src="../../assets/wayka-isotipo.svg" alt="" style={{ position:'absolute', width:420, opacity:.12, bottom:-60, right:-120, filter:'var(--logo-on-nav-filter)' }} />
         <div style={{ display:'grid', gap:14, justifyItems:'center', textAlign:'center', zIndex:1 }}>
-          <img src="../../assets/wayka-logo.svg" alt="Wayka" style={{ width:150, filter:'brightness(0) invert(1)' }} />
-          <p style={{ font:'var(--fw-medium) var(--fs-body-lg)/1.5 var(--font-sans)', color:'rgba(255,255,255,.85)', maxWidth:250 }}>
+          <img src="../../assets/wayka-logo.svg" alt="Wayka" style={{ width:150, filter:'var(--logo-on-nav-filter)' }} />
+          <p style={{ font:'var(--fw-medium) var(--fs-body-lg)/1.5 var(--font-sans)', color:'var(--text-on-nav-muted)', maxWidth:250 }}>
             La salud de tus mascotas, siempre a mano.
           </p>
         </div>
@@ -69,7 +69,7 @@ function TutorPetDetail({ patient }) {
   const activos = patient.meds.filter(m=>m.status==='activo');
   return (
     <div style={{ paddingBottom:24 }}>
-      <div data-surface="dark" style={{ background:'var(--surface-nav)', padding:'8px var(--gutter-mobile) 24px', color:'var(--text-on-nav)' }}>
+      <div data-surface="brand" style={{ background:'var(--surface-nav)', padding:'8px var(--gutter-mobile) 24px', color:'var(--text-on-nav)' }}>
         <div style={{ display:'flex', gap:14, alignItems:'center' }}>
           <span style={{ width:64, height:64, borderRadius:'var(--radius-lg)', background:'var(--surface-nav-item)', display:'grid', placeItems:'center' }}>
             <Icon name={patient.species==='felino'?'cat':'dog'} size={32} />

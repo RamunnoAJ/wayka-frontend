@@ -12,10 +12,19 @@
 /* Anillo para controles sobre --surface-nav u otra superficie oscura:
    el anillo de marca desaparece sobre su propio color, asi que ahi se usa blanco. */
 --ring-focus-on-dark:0 0 0 3px rgba(255,255,255,.55);
+/* Anillo sobre una superficie CLARA de marca (la nav del tutor): el blanco se pierde. */
+--ring-focus-on-brand:0 0 0 3px rgba(32,26,43,.34);
 }
 
 /* Anillo de foco del tema tutor. Vive aca, no en colors.css, para que cada
    archivo de tokens sea autocontenido: todos los --ring-* estan en este archivo. */
 [data-theme="tutor"]{
---ring-focus:0 0 0 3px rgba(217,123,71,.24);
+--ring-focus:0 0 0 3px rgba(246,165,108,.55);
+/* El contenido sobre el naranja de marca es blanco, asi que el anillo tambien. */
+--ring-focus-on-brand:var(--ring-focus-on-dark);
+}
+/* Superficie CLARA de marca (la nav del tutor): el anillo blanco desaparece. */
+[data-surface="brand"]{
+--ring-focus:var(--ring-focus-on-brand);
+--ring-danger:var(--ring-focus-on-brand);
 }

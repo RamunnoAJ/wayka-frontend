@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '../core/Icon.jsx';
-const LOGO_FILTER = 'brightness(0) invert(1)';
+const LOGO_FILTER = 'var(--logo-on-nav-filter)';
 export function SidebarNav({ items=[], value, onChange, clinic, user, logoSrc='../../assets/wayka-logo.svg' }) {
   return (
     <nav style={{ width:'var(--sidebar-w)', flex:'0 0 var(--sidebar-w)', height:'100%',
@@ -23,7 +23,7 @@ export function SidebarNav({ items=[], value, onChange, clinic, user, logoSrc='.
                 transition:'var(--transition-control)' }}>
               <Icon name={it.icon} size={18} />
               {it.label}
-              {it.badge != null && <span style={{ marginLeft:'auto', background:'var(--nav-accent)', color:'var(--surface-nav-deep)',
+              {it.badge != null && <span style={{ marginLeft:'auto', background:'var(--nav-accent)', color:'var(--nav-accent-fg)',
                 borderRadius:'var(--radius-pill)', padding:'1px 7px', font:'var(--fw-bold) var(--fs-overline) var(--font-sans)' }}>{it.badge}</span>}
             </button>
           );
@@ -33,7 +33,7 @@ export function SidebarNav({ items=[], value, onChange, clinic, user, logoSrc='.
         <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 10px', marginTop:12,
           borderTop:'1px solid var(--border-on-nav)' }}>
           <span style={{ width:32, height:32, borderRadius:'50%', background:'var(--surface-nav-item)', display:'grid', placeItems:'center',
-            font:'var(--fw-bold) 12px var(--font-sans)', color:'#fff' }}>
+            font:'var(--fw-bold) 12px var(--font-sans)', color:'var(--text-on-nav)' }}>
             {user.name.split(' ').slice(0,2).map(w=>w[0]).join('')}
           </span>
           <div style={{ minWidth:0 }}>

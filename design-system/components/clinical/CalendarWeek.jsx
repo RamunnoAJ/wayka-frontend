@@ -46,7 +46,7 @@ export function CalendarWeek({ days=[], onEventClick, minHeight=260 }) {
               padding:'0 6px', borderRadius:'var(--radius-pill)',
               background: d.today ? 'var(--color-primary-fill)' : 'transparent',
               font:'var(--fw-semibold) var(--fs-body) var(--font-sans)', fontVariantNumeric:'tabular-nums',
-              color: d.today ? '#fff' : 'var(--text-strong)' }}>{d.date}</span>
+              color: d.today ? 'var(--color-primary-fill-fg)' : 'var(--text-strong)' }}>{d.date}</span>
             {(d.events || []).map((e,j) => (
               <CalendarEvent key={j} {...e} onClick={onEventClick ? () => onEventClick(e, d) : undefined} />
             ))}

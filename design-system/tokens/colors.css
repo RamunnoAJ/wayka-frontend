@@ -1,6 +1,6 @@
 :root{
 /* --- Marca (hex derivados de los nombres de los logos: VALORES A CONFIRMAR) --- */
---wayka-naranja-claro:#F6A56C;
+--wayka-naranja-claro:#F6A56C; /* CONFIRMADO por marca: es el naranja del tutor */
 --wayka-naranja:#D97B47;
 --wayka-naranja-oscuro:#B85F2E;
 --wayka-lila:#B4A3D6;
@@ -20,6 +20,9 @@
    asi que todo lo que se pinta lleno usa este tono, no --color-primary. */
 --color-primary-fill:var(--wayka-violeta);
 --color-primary-fill-hover:var(--wayka-violeta-oscuro);
+/* Contenido sobre el relleno solido. En clinica el relleno es oscuro y va blanco;
+   en tutor el relleno ES el naranja de marca y va texto oscuro. */
+--color-primary-fill-fg:#FFFFFF;
 --color-primary-strong:var(--wayka-violeta);
 --color-primary-soft:var(--wayka-lila-claro);
 --color-accent:var(--wayka-naranja-claro);
@@ -68,6 +71,21 @@
 --text-on-nav-muted:rgba(255,255,255,.62);
 --border-on-nav:rgba(255,255,255,.10);
 --nav-accent:var(--wayka-lila);
+--nav-accent-fg:var(--wayka-oscuro);
+/* EXCEPCION: no es un color sino una cadena filter. El logo es monocromo y se
+   recolorea; sobre la nav clara del tutor tiene que ir oscuro, no blanco. */
+--logo-on-nav-filter:brightness(0) invert(1); /* @kind other */
+
+/* --- Superficie inmersiva: SIEMPRE oscura, no la invierte el tema. Camara y Toast.
+   La nav si cambia con el tema (en tutor es el naranja claro), asi que estos
+   componentes no pueden colgarse de los tokens de nav. --- */
+--surface-immersive:var(--wayka-oscuro);
+--surface-immersive-item:rgba(255,255,255,.10);
+--surface-immersive-item-hover:rgba(255,255,255,.06);
+--text-on-immersive:#FFFFFF;
+--text-on-immersive-muted:rgba(255,255,255,.62);
+--border-on-immersive:rgba(255,255,255,.10);
+--immersive-accent:var(--wayka-lila);
 
 /* --- Alias semanticos: superficie --- */
 --surface-page:var(--neutral-25);
@@ -129,20 +147,34 @@
 --alert-medication-text:var(--color-primary-strong);
 }
 
-/* --- Tema TUTOR: naranja claro como primario, lila/violeta de acento --- */
+/* --- Tema TUTOR: #F6A56C es EL color de la app y se pinta lleno con BLANCO encima,
+   por decision de marca (Agus, 28/08). Da 2.0:1, por debajo del minimo AA: en textos
+   chicos sobre naranja conviene subir cuerpo y peso, o usar fondo oscuro. --- */
 [data-theme="tutor"]{
 --color-primary:var(--wayka-naranja-claro);
---color-primary-hover:#DE8A55; /* congelado: era color-mix(in oklab,naranja-claro 62%,naranja-oscuro) */
+--color-primary-hover:#EE9757;
 --color-primary-fg:#FFFFFF;
---color-primary-fill:#A34F1D;
---color-primary-fill-hover:#864016;
+--color-primary-fill:var(--wayka-naranja-claro);
+--color-primary-fill-hover:#EE9757;
+--color-primary-fill-fg:#FFFFFF;
+/* Solo para TEXTO e iconos sobre blanco: el naranja de marca da 2.0:1 y es ilegible
+   en cuerpo de texto. No se usa como fondo en ningun lado. */
 --color-primary-strong:var(--wayka-naranja-oscuro);
---color-primary-soft:#F9EEE4;
+--color-primary-soft:#FDEEE1;
 --color-accent:var(--wayka-lila);
 --color-accent-hover:var(--wayka-violeta);
 --color-accent-strong:var(--wayka-violeta);
 --color-accent-soft:var(--wayka-lila-claro);
---surface-nav:#A34F1D;
---surface-nav-deep:#864016;
---nav-accent:var(--wayka-naranja-claro);
+/* Nav del tutor: superficie CLARA de marca con contenido oscuro. */
+--surface-nav:var(--wayka-naranja-claro);
+--surface-nav-deep:#EE9757;
+--surface-nav-item:rgba(255,255,255,.20);
+--surface-nav-item-hover:rgba(255,255,255,.13);
+--text-on-nav:#FFFFFF;
+--text-on-nav-muted:rgba(255,255,255,.86);
+--border-on-nav:rgba(255,255,255,.26);
+--nav-accent:var(--wayka-violeta);
+--nav-accent-fg:#FFFFFF;
+--immersive-accent:var(--wayka-naranja-claro);
+--logo-on-nav-filter:brightness(0) invert(1); /* @kind other */
 }

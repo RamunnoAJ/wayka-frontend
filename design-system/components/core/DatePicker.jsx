@@ -37,7 +37,7 @@ export function Calendar({ value, onChange, min }) {
               style={{ height:34, border:0, cursor: off ? 'not-allowed' : 'pointer',
                 borderRadius:'var(--radius-sm)',
                 background: on ? 'var(--color-primary-fill)' : 'transparent',
-                color: off ? 'var(--text-subtle)' : on ? '#fff' : 'var(--text-body)',
+                color: off ? 'var(--text-subtle)' : on ? 'var(--color-primary-fill-fg)' : 'var(--text-body)',
                 font:`${on || isToday ? 'var(--fw-semibold)' : 'var(--fw-regular)'} var(--fs-body-sm) var(--font-sans)`,
                 boxShadow: !on && isToday ? 'inset 0 0 0 1px var(--border-default)' : 'none',
                 transition:'var(--transition-control)' }}>{i + 1}</button>

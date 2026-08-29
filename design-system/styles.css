@@ -15,3 +15,5 @@
 :where(button,[role="tab"],[role="button"],a,summary):focus-visible{outline:2px solid transparent;outline-offset:2px;box-shadow:var(--ring-focus)}
 /* Sobre --surface-nav el anillo de marca se pierde contra su propio color: los descendientes heredan el blanco. */
 [data-surface="dark"]{--ring-focus:var(--ring-focus-on-dark);--ring-danger:var(--ring-focus-on-dark)}
+/* Superficie inmersiva: oscura en los dos temas, anillo blanco siempre. */
+[data-surface="immersive"]{--ring-focus:var(--ring-focus-on-dark);--ring-danger:var(--ring-focus-on-dark)}

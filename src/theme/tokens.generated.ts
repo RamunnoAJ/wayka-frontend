@@ -1,6 +1,6 @@
 /**
  * ARCHIVO GENERADO — no editar a mano.
- * Fuente: design-system v1.4.0 (2026-08-28).
+ * Fuente: design-system v1.5.0 (2026-08-28).
  * Regenerar: npm run tokens:generar
  *
  * Espejo en JS/TS de las custom properties de `/design-system/tokens/*.css`,
@@ -13,7 +13,7 @@
  * doc 09, sección 3.2.
  */
 
-export const VERSION_DESIGN_SYSTEM = '1.4.0';
+export const VERSION_DESIGN_SYSTEM = '1.5.0';
 
 /** Tema default: clínica y veterinario (lila primario, naranjas de acento). */
 export const tokensDefault = {
@@ -33,6 +33,7 @@ export const tokensDefault = {
   '--border-danger': '#B04438',
   '--border-default': '#DFDBE5',
   '--border-focus': '#493B6B',
+  '--border-on-immersive': 'rgba(255,255,255,.10)',
   '--border-on-nav': 'rgba(255,255,255,.10)',
   '--border-strong': '#C6C0CE',
   '--border-subtle': '#EDEAF1',
@@ -46,6 +47,7 @@ export const tokensDefault = {
   '--color-primary': '#B4A3D6',
   '--color-primary-fg': '#FFFFFF',
   '--color-primary-fill': '#493B6B',
+  '--color-primary-fill-fg': '#FFFFFF',
   '--color-primary-fill-hover': '#332850',
   '--color-primary-hover': '#897AAC',
   '--color-primary-soft': '#EBE6F4',
@@ -60,7 +62,7 @@ export const tokensDefault = {
   '--danger-500': '#B04438',
   '--danger-600': '#8F3229',
   '--ds-released': '"2026-08-27"',
-  '--ds-version': '"1.4.0"',
+  '--ds-version': '"1.5.0"',
   '--dur-fast': '140ms',
   '--dur-instant': '80ms',
   '--dur-normal': '220ms',
@@ -95,6 +97,7 @@ export const tokensDefault = {
   '--gutter-mobile': '20px',
   '--gutter-page': '32px',
   '--gutter-section': '40px',
+  '--immersive-accent': '#B4A3D6',
   '--info-100': '#D5E0EE',
   '--info-50': '#EBF0F7',
   '--info-500': '#4A6FA5',
@@ -103,11 +106,13 @@ export const tokensDefault = {
   '--lh-relaxed': '1.6',
   '--lh-snug': '1.25',
   '--lh-tight': '1.1',
+  '--logo-on-nav-filter': 'brightness(0) invert(1)',
   '--ls-body': '0',
   '--ls-display': '-0.02em',
   '--ls-heading': '-0.01em',
   '--ls-overline': '0.08em',
   '--nav-accent': '#B4A3D6',
+  '--nav-accent-fg': '#201A2B',
   '--neutral-0': '#FFFFFF',
   '--neutral-100': '#EDEAF1',
   '--neutral-200': '#DFDBE5',
@@ -156,6 +161,9 @@ export const tokensDefault = {
   '--surface-card': '#FFFFFF',
   '--surface-disabled': '#EDEAF1',
   '--surface-hover': '#F6F4F8',
+  '--surface-immersive': '#201A2B',
+  '--surface-immersive-item': 'rgba(255,255,255,.10)',
+  '--surface-immersive-item-hover': 'rgba(255,255,255,.06)',
   '--surface-inverse': '#332850',
   '--surface-nav': '#332850',
   '--surface-nav-deep': '#201A2B',
@@ -173,6 +181,8 @@ export const tokensDefault = {
   '--text-link': '#493B6B',
   '--text-link-hover': '#332850',
   '--text-muted': '#5D5568',
+  '--text-on-immersive': '#FFFFFF',
+  '--text-on-immersive-muted': 'rgba(255,255,255,.62)',
   '--text-on-nav': '#FFFFFF',
   '--text-on-nav-muted': 'rgba(255,255,255,.62)',
   '--text-strong': '#201A2B',
@@ -201,30 +211,36 @@ export const tokensDefault = {
 export const tokensTutor = {
   '--alert-medication-text': '#B85F2E',
   '--appt-pending': '#B85F2E',
-  '--appt-pending-surface': '#F9EEE4',
+  '--appt-pending-surface': '#FDEEE1',
   '--border-brand': '#F6A56C',
   '--border-focus': '#B85F2E',
+  '--border-on-nav': 'rgba(255,255,255,.26)',
   '--color-accent': '#B4A3D6',
   '--color-accent-hover': '#493B6B',
   '--color-accent-soft': '#EBE6F4',
   '--color-accent-strong': '#493B6B',
   '--color-primary': '#F6A56C',
-  '--color-primary-fill': '#A34F1D',
-  '--color-primary-fill-hover': '#864016',
-  '--color-primary-hover': '#DE8A55',
-  '--color-primary-soft': '#F9EEE4',
+  '--color-primary-fill': '#F6A56C',
+  '--color-primary-fill-hover': '#EE9757',
+  '--color-primary-hover': '#EE9757',
+  '--color-primary-soft': '#FDEEE1',
   '--color-primary-strong': '#B85F2E',
-  '--nav-accent': '#F6A56C',
-  '--surface-accent-soft': '#F9EEE4',
+  '--immersive-accent': '#F6A56C',
+  '--nav-accent': '#493B6B',
+  '--nav-accent-fg': '#FFFFFF',
+  '--surface-accent-soft': '#FDEEE1',
   '--surface-brand': '#F6A56C',
-  '--surface-brand-soft': '#F9EEE4',
-  '--surface-nav': '#A34F1D',
-  '--surface-nav-deep': '#864016',
-  '--surface-selected': '#F9EEE4',
+  '--surface-brand-soft': '#FDEEE1',
+  '--surface-nav': '#F6A56C',
+  '--surface-nav-deep': '#EE9757',
+  '--surface-nav-item': 'rgba(255,255,255,.20)',
+  '--surface-nav-item-hover': 'rgba(255,255,255,.13)',
+  '--surface-selected': '#FDEEE1',
   '--text-accent': '#B85F2E',
   '--text-brand': '#B85F2E',
   '--text-link': '#B85F2E',
-  '--text-link-hover': '#864016',
+  '--text-link-hover': '#EE9757',
+  '--text-on-nav-muted': 'rgba(255,255,255,.86)',
 } as const;
 
 /**

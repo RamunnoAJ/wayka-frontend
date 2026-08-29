@@ -12,7 +12,7 @@ export function IconButton({ icon, label, size='md', variant='ghost', disabled, 
         border:'1px solid '+(variant==='outline'?'var(--border-default)':'transparent'),
         background: solid ? (h?'var(--color-primary-fill-hover)':'var(--color-primary-fill)')
           : onDark ? (h?'var(--surface-nav-item)':'transparent') : (h?'var(--surface-hover)':'transparent'),
-        color: solid ? '#fff' : onDark ? 'var(--text-on-nav)' : (disabled?'var(--text-subtle)':'var(--text-muted)'),
+        color: solid ? 'var(--color-primary-fill-fg)' : onDark ? 'var(--text-on-nav)' : (disabled?'var(--text-subtle)':'var(--text-muted)'),
         cursor:disabled?'not-allowed':'pointer', transition:'var(--transition-control)', ...rest.style }}>
       <Icon name={icon} size={size==='sm'?16:20} />
     </button>

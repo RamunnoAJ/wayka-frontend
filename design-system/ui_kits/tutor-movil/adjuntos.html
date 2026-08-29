@@ -28,9 +28,9 @@ function Phone({ title, onBack, children, cap, tabs }) {
 
 function LoginConGoogle() {
   return (
-    <div style={{ height:'100%', display:'grid', gridTemplateRows:'1fr auto', background:'var(--surface-nav)' }} data-surface="dark">
+    <div style={{ height:'100%', display:'grid', gridTemplateRows:'1fr auto', background:'var(--surface-nav)' }} data-surface="brand">
       <div style={{ display:'grid', placeItems:'center', padding:24 }}>
-        <img src="../../assets/wayka-logo.svg" alt="Wayka" style={{ width:132, filter:'brightness(0) invert(1)' }} />
+        <img src="../../assets/wayka-logo.svg" alt="Wayka" style={{ width:132, filter:'var(--logo-on-nav-filter)' }} />
       </div>
       <div style={{ background:'var(--surface-card)', borderRadius:'26px 26px 0 0', padding:'24px var(--gutter-mobile) 28px', display:'grid', gap:'var(--space-5)' }}>
         <h1 style={{ font:'var(--text-h3)', color:'var(--text-strong)' }}>Ingresá a tu cuenta</h1>

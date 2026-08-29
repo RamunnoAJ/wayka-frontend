@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"WaykaDesignSystem_51ee47","components":[{"name":"AllergyChip","sourcePath":"components/clinical/AllergyChip.jsx"},{"name":"AppointmentCard","sourcePath":"components/clinical/AppointmentCard.jsx"},{"name":"CalendarEvent","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CalendarWeek","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CriticalPanel","sourcePath":"components/clinical/CriticalPanel.jsx"},{"name":"DataField","sourcePath":"components/clinical/DataField.jsx"},{"name":"MedicationItem","sourcePath":"components/clinical/MedicationItem.jsx"},{"name":"PatientRow","sourcePath":"components/clinical/PatientRow.jsx"},{"name":"PetHeader","sourcePath":"components/clinical/PetHeader.jsx"},{"name":"StatusDot","sourcePath":"components/clinical/StatusDot.jsx"},{"name":"TimelineEvent","sourcePath":"components/clinical/TimelineEvent.jsx"},{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"CAMERA_MODES","sourcePath":"components/core/CameraCapture.jsx"},{"name":"CameraCapture","sourcePath":"components/core/CameraCapture.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Checkbox","sourcePath":"components/core/Checkbox.jsx"},{"name":"DataTable","sourcePath":"components/core/DataTable.jsx"},{"name":"Calendar","sourcePath":"components/core/DatePicker.jsx"},{"name":"DatePicker","sourcePath":"components/core/DatePicker.jsx"},{"name":"Dialog","sourcePath":"components/core/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/core/EmptyState.jsx"},{"name":"FileDropzone","sourcePath":"components/core/FileDropzone.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"InlineError","sourcePath":"components/core/InlineError.jsx"},{"name":"Input","sourcePath":"components/core/Input.jsx"},{"name":"PermissionCard","sourcePath":"components/core/PermissionCard.jsx"},{"name":"ProgressBar","sourcePath":"components/core/ProgressBar.jsx"},{"name":"Radio","sourcePath":"components/core/Radio.jsx"},{"name":"SearchField","sourcePath":"components/core/SearchField.jsx"},{"name":"Select","sourcePath":"components/core/Select.jsx"},{"name":"Sheet","sourcePath":"components/core/Sheet.jsx"},{"name":"Skeleton","sourcePath":"components/core/Skeleton.jsx"},{"name":"SkeletonText","sourcePath":"components/core/Skeleton.jsx"},{"name":"SocialButton","sourcePath":"components/core/SocialButton.jsx"},{"name":"Switch","sourcePath":"components/core/Switch.jsx"},{"name":"Tabs","sourcePath":"components/core/Tabs.jsx"},{"name":"Tag","sourcePath":"components/core/Tag.jsx"},{"name":"Textarea","sourcePath":"components/core/Textarea.jsx"},{"name":"Toast","sourcePath":"components/core/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/core/Tooltip.jsx"},{"name":"FILE_TYPES","sourcePath":"components/core/UploadItem.jsx"},{"name":"UploadItem","sourcePath":"components/core/UploadItem.jsx"},{"name":"MobileHeader","sourcePath":"components/navigation/MobileHeader.jsx"},{"name":"MobileTabBar","sourcePath":"components/navigation/MobileTabBar.jsx"},{"name":"PageHeader","sourcePath":"components/navigation/PageHeader.jsx"},{"name":"SidebarNav","sourcePath":"components/navigation/SidebarNav.jsx"}],"sourceHashes":{"components/clinical/AllergyChip.jsx":"5a4b0de2185c","components/clinical/AppointmentCard.jsx":"b2c180f21e06","components/clinical/CalendarWeek.jsx":"a76ef3341b50","components/clinical/CriticalPanel.jsx":"c16950d8dc0f","components/clinical/DataField.jsx":"f709562cb2ae","components/clinical/MedicationItem.jsx":"3fb539f86308","components/clinical/PatientRow.jsx":"6d7f10c272d3","components/clinical/PetHeader.jsx":"c88383b35cef","components/clinical/StatusDot.jsx":"7e0d716dc835","components/clinical/TimelineEvent.jsx":"434832d60a76","components/core/Avatar.jsx":"4e8103cb8973","components/core/Badge.jsx":"1611bd6a6615","components/core/Button.jsx":"abb046f5f8a5","components/core/CameraCapture.jsx":"3cfe5efca16d","components/core/Card.jsx":"2e18d1688e38","components/core/Checkbox.jsx":"36211f2e87cc","components/core/DataTable.jsx":"a6a31f760a98","components/core/DatePicker.jsx":"0deaf8679b54","components/core/Dialog.jsx":"61778ebb7492","components/core/EmptyState.jsx":"fd49ef7229b5","components/core/FileDropzone.jsx":"454e96ca3c61","components/core/Icon.jsx":"cbf04e8d5b80","components/core/IconButton.jsx":"bf84841dbe9c","components/core/InlineError.jsx":"1d167ba4a293","components/core/Input.jsx":"20c12d1dcbb0","components/core/PermissionCard.jsx":"0861c7e402d0","components/core/ProgressBar.jsx":"17d3c8b3c5cd","components/core/Radio.jsx":"d1376b04822c","components/core/SearchField.jsx":"17722c1fed02","components/core/Select.jsx":"ba94fa3daeb4","components/core/Sheet.jsx":"47b9a7d8803c","components/core/Skeleton.jsx":"90a9bbd00dde","components/core/SocialButton.jsx":"ecee3bcff8e3","components/core/Switch.jsx":"175c6ecc9811","components/core/Tabs.jsx":"f28482b5e63f","components/core/Tag.jsx":"00ff5c526570","components/core/Textarea.jsx":"121325142f93","components/core/Toast.jsx":"d6ac24de2050","components/core/Tooltip.jsx":"be67584253c3","components/core/UploadItem.jsx":"542ce0e947e4","components/navigation/MobileHeader.jsx":"06cf54ef9a3e","components/navigation/MobileTabBar.jsx":"053bb63c6685","components/navigation/PageHeader.jsx":"df7c57134cb5","components/navigation/SidebarNav.jsx":"cb438219082f","ui_kits/clinica-web/Agenda.jsx":"eac4f9e2c7d8","ui_kits/clinica-web/ClinicPanel.jsx":"615f515b2055","ui_kits/clinica-web/EventForm.jsx":"5f44feb811bd","ui_kits/clinica-web/Login.jsx":"eddb34f90253","ui_kits/clinica-web/PatientDetail.jsx":"fc5f58ab7c91","ui_kits/clinica-web/Patients.jsx":"144d146f100d","ui_kits/clinica-web/data.js":"430377ccfb73","ui_kits/tutor-movil/TutorScreens.jsx":"07c6face22a9","ui_kits/tutor-movil/TutorUploadScreens.jsx":"0354cc2f1df8","ui_kits/vet-movil/VetScreens.jsx":"84dfddc0224d"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"WaykaDesignSystem_51ee47","components":[{"name":"AllergyChip","sourcePath":"components/clinical/AllergyChip.jsx"},{"name":"AppointmentCard","sourcePath":"components/clinical/AppointmentCard.jsx"},{"name":"CalendarEvent","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CalendarWeek","sourcePath":"components/clinical/CalendarWeek.jsx"},{"name":"CriticalPanel","sourcePath":"components/clinical/CriticalPanel.jsx"},{"name":"DataField","sourcePath":"components/clinical/DataField.jsx"},{"name":"MedicationItem","sourcePath":"components/clinical/MedicationItem.jsx"},{"name":"PatientRow","sourcePath":"components/clinical/PatientRow.jsx"},{"name":"PetHeader","sourcePath":"components/clinical/PetHeader.jsx"},{"name":"StatusDot","sourcePath":"components/clinical/StatusDot.jsx"},{"name":"TimelineEvent","sourcePath":"components/clinical/TimelineEvent.jsx"},{"name":"Avatar","sourcePath":"components/core/Avatar.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"CAMERA_MODES","sourcePath":"components/core/CameraCapture.jsx"},{"name":"CameraCapture","sourcePath":"components/core/CameraCapture.jsx"},{"name":"Card","sourcePath":"components/core/Card.jsx"},{"name":"Checkbox","sourcePath":"components/core/Checkbox.jsx"},{"name":"DataTable","sourcePath":"components/core/DataTable.jsx"},{"name":"Calendar","sourcePath":"components/core/DatePicker.jsx"},{"name":"DatePicker","sourcePath":"components/core/DatePicker.jsx"},{"name":"Dialog","sourcePath":"components/core/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/core/EmptyState.jsx"},{"name":"FileDropzone","sourcePath":"components/core/FileDropzone.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"InlineError","sourcePath":"components/core/InlineError.jsx"},{"name":"Input","sourcePath":"components/core/Input.jsx"},{"name":"PermissionCard","sourcePath":"components/core/PermissionCard.jsx"},{"name":"ProgressBar","sourcePath":"components/core/ProgressBar.jsx"},{"name":"Radio","sourcePath":"components/core/Radio.jsx"},{"name":"SearchField","sourcePath":"components/core/SearchField.jsx"},{"name":"Select","sourcePath":"components/core/Select.jsx"},{"name":"Sheet","sourcePath":"components/core/Sheet.jsx"},{"name":"Skeleton","sourcePath":"components/core/Skeleton.jsx"},{"name":"SkeletonText","sourcePath":"components/core/Skeleton.jsx"},{"name":"SocialButton","sourcePath":"components/core/SocialButton.jsx"},{"name":"Switch","sourcePath":"components/core/Switch.jsx"},{"name":"Tabs","sourcePath":"components/core/Tabs.jsx"},{"name":"Tag","sourcePath":"components/core/Tag.jsx"},{"name":"Textarea","sourcePath":"components/core/Textarea.jsx"},{"name":"Toast","sourcePath":"components/core/Toast.jsx"},{"name":"Tooltip","sourcePath":"components/core/Tooltip.jsx"},{"name":"FILE_TYPES","sourcePath":"components/core/UploadItem.jsx"},{"name":"UploadItem","sourcePath":"components/core/UploadItem.jsx"},{"name":"MobileHeader","sourcePath":"components/navigation/MobileHeader.jsx"},{"name":"MobileTabBar","sourcePath":"components/navigation/MobileTabBar.jsx"},{"name":"PageHeader","sourcePath":"components/navigation/PageHeader.jsx"},{"name":"SidebarNav","sourcePath":"components/navigation/SidebarNav.jsx"}],"sourceHashes":{"components/clinical/AllergyChip.jsx":"5a4b0de2185c","components/clinical/AppointmentCard.jsx":"b2c180f21e06","components/clinical/CalendarWeek.jsx":"da2ba4f1e67b","components/clinical/CriticalPanel.jsx":"c16950d8dc0f","components/clinical/DataField.jsx":"f709562cb2ae","components/clinical/MedicationItem.jsx":"3fb539f86308","components/clinical/PatientRow.jsx":"6d7f10c272d3","components/clinical/PetHeader.jsx":"c88383b35cef","components/clinical/StatusDot.jsx":"7e0d716dc835","components/clinical/TimelineEvent.jsx":"434832d60a76","components/core/Avatar.jsx":"4e8103cb8973","components/core/Badge.jsx":"1611bd6a6615","components/core/Button.jsx":"5312e0f4a4bf","components/core/CameraCapture.jsx":"aca385245f21","components/core/Card.jsx":"2e18d1688e38","components/core/Checkbox.jsx":"36211f2e87cc","components/core/DataTable.jsx":"a6a31f760a98","components/core/DatePicker.jsx":"4d308492025f","components/core/Dialog.jsx":"61778ebb7492","components/core/EmptyState.jsx":"fd49ef7229b5","components/core/FileDropzone.jsx":"454e96ca3c61","components/core/Icon.jsx":"cbf04e8d5b80","components/core/IconButton.jsx":"1f0c873e63a1","components/core/InlineError.jsx":"1d167ba4a293","components/core/Input.jsx":"20c12d1dcbb0","components/core/PermissionCard.jsx":"0861c7e402d0","components/core/ProgressBar.jsx":"17d3c8b3c5cd","components/core/Radio.jsx":"d1376b04822c","components/core/SearchField.jsx":"17722c1fed02","components/core/Select.jsx":"ba94fa3daeb4","components/core/Sheet.jsx":"47b9a7d8803c","components/core/Skeleton.jsx":"90a9bbd00dde","components/core/SocialButton.jsx":"ecee3bcff8e3","components/core/Switch.jsx":"175c6ecc9811","components/core/Tabs.jsx":"662fe8c6f5c8","components/core/Tag.jsx":"00ff5c526570","components/core/Textarea.jsx":"121325142f93","components/core/Toast.jsx":"9e3878a7c809","components/core/Tooltip.jsx":"be67584253c3","components/core/UploadItem.jsx":"542ce0e947e4","components/navigation/MobileHeader.jsx":"06cf54ef9a3e","components/navigation/MobileTabBar.jsx":"053bb63c6685","components/navigation/PageHeader.jsx":"df7c57134cb5","components/navigation/SidebarNav.jsx":"6fd67d30ed5a","ui_kits/clinica-web/Agenda.jsx":"eac4f9e2c7d8","ui_kits/clinica-web/ClinicPanel.jsx":"615f515b2055","ui_kits/clinica-web/EventForm.jsx":"5f44feb811bd","ui_kits/clinica-web/Login.jsx":"eddb34f90253","ui_kits/clinica-web/PatientDetail.jsx":"fc5f58ab7c91","ui_kits/clinica-web/Patients.jsx":"144d146f100d","ui_kits/clinica-web/data.js":"430377ccfb73","ui_kits/tutor-movil/TutorScreens.jsx":"d7637aa9378c","ui_kits/tutor-movil/TutorUploadScreens.jsx":"0354cc2f1df8","ui_kits/vet-movil/VetScreens.jsx":"84dfddc0224d"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -228,7 +228,7 @@ function CalendarWeek({
       background: d.today ? 'var(--color-primary-fill)' : 'transparent',
       font: 'var(--fw-semibold) var(--fs-body) var(--font-sans)',
       fontVariantNumeric: 'tabular-nums',
-      color: d.today ? '#fff' : 'var(--text-strong)'
+      color: d.today ? 'var(--color-primary-fill-fg)' : 'var(--text-strong)'
     }
   }, d.date), (d.events || []).map((e, j) => /*#__PURE__*/React.createElement(CalendarEvent, _extends({
     key: j
@@ -1027,7 +1027,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 const TONE = {
   primary: {
     bg: 'var(--color-primary-fill)',
-    fg: '#fff',
+    fg: 'var(--color-primary-fill-fg)',
     border: 'transparent',
     hover: 'var(--color-primary-fill-hover)',
     active: 'var(--color-primary-fill-hover)'
@@ -1198,9 +1198,9 @@ function Chip({
       display: 'grid',
       placeItems: 'center',
       borderRadius: 'var(--radius-pill)',
-      border: '1px solid ' + (active ? 'var(--nav-accent)' : 'var(--border-on-nav)'),
-      background: active ? 'var(--nav-accent)' : h ? 'var(--surface-nav-item)' : 'var(--surface-nav-item-hover)',
-      color: active ? 'var(--wayka-oscuro)' : 'var(--text-on-nav)',
+      border: '1px solid ' + (active ? 'var(--immersive-accent)' : 'var(--border-on-immersive)'),
+      background: active ? 'var(--immersive-accent)' : h ? 'var(--surface-immersive-item)' : 'var(--surface-immersive-item-hover)',
+      color: active ? 'var(--wayka-oscuro)' : 'var(--text-on-immersive)',
       cursor: 'pointer',
       backdropFilter: 'blur(8px)',
       transition: 'var(--transition-control)'
@@ -1219,7 +1219,7 @@ function FrameGuide({
     position: 'absolute',
     width: 26,
     height: 26,
-    borderColor: 'var(--nav-accent)',
+    borderColor: 'var(--immersive-accent)',
     borderStyle: 'solid',
     borderWidth: 0
   };
@@ -1316,11 +1316,11 @@ function CameraCapture({
     [dir]: 0,
     height: 148,
     pointerEvents: 'none',
-    background: `linear-gradient(to ${dir === 'top' ? 'bottom' : 'top'}, var(--surface-nav-deep), transparent)`,
+    background: `linear-gradient(to ${dir === 'top' ? 'bottom' : 'top'}, var(--surface-immersive), transparent)`,
     opacity: .9
   });
   return /*#__PURE__*/React.createElement("div", _extends({
-    "data-surface": "dark"
+    "data-surface": "immersive"
   }, rest, {
     style: {
       position: 'relative',
@@ -1329,8 +1329,8 @@ function CameraCapture({
       minHeight: 520,
       overflow: 'hidden',
       borderRadius: framed ? 'var(--radius-card)' : 0,
-      background: 'var(--surface-nav-deep)',
-      color: 'var(--text-on-nav)',
+      background: 'var(--surface-immersive)',
+      color: 'var(--text-on-immersive)',
       font: 'var(--text-body)',
       ...rest.style
     }
@@ -1355,7 +1355,7 @@ function CameraCapture({
       inset: 0,
       display: 'grid',
       placeItems: 'center',
-      color: 'var(--text-on-nav-muted)',
+      color: 'var(--text-on-immersive-muted)',
       font: 'var(--fw-medium) var(--fs-caption)/1 var(--font-sans)',
       letterSpacing: 'var(--ls-overline)',
       textTransform: 'uppercase'
@@ -1389,7 +1389,7 @@ function CameraCapture({
   }), title && /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--fw-semibold) var(--fs-body-sm)/1 var(--font-sans)',
-      color: 'var(--text-on-nav)',
+      color: 'var(--text-on-immersive)',
       textAlign: 'center',
       flex: 1
     }
@@ -1413,15 +1413,15 @@ function CameraCapture({
       textAlign: 'center',
       padding: 'var(--space-7)',
       borderRadius: 'var(--radius-card)',
-      background: 'var(--surface-nav-item)',
-      border: '1px solid var(--border-on-nav)',
+      background: 'var(--surface-immersive-item)',
+      border: '1px solid var(--border-on-immersive)',
       backdropFilter: 'blur(10px)'
     }
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: "camera-off",
     size: 24,
     style: {
-      color: 'var(--text-on-nav-muted)'
+      color: 'var(--text-on-immersive-muted)'
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1430,7 +1430,7 @@ function CameraCapture({
   }, deniedTitle), /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--text-body-sm)',
-      color: 'var(--text-on-nav-muted)',
+      color: 'var(--text-on-immersive-muted)',
       textWrap: 'pretty'
     }
   }, deniedBody), onOpenSettings && /*#__PURE__*/React.createElement("button", {
@@ -1442,7 +1442,7 @@ function CameraCapture({
       padding: 'var(--space-2) 0',
       cursor: 'pointer',
       font: 'var(--fw-semibold) var(--fs-body)/1 var(--font-sans)',
-      color: 'var(--nav-accent)',
+      color: 'var(--immersive-accent)',
       textDecoration: 'underline',
       textUnderlineOffset: 3
     }
@@ -1455,7 +1455,7 @@ function CameraCapture({
   }, (hint || !reviewing && m.hint) && /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--text-body-sm)',
-      color: 'var(--text-on-nav-muted)',
+      color: 'var(--text-on-immersive-muted)',
       textAlign: 'center',
       textWrap: 'pretty'
     }
@@ -1466,8 +1466,8 @@ function CameraCapture({
       gap: 'var(--space-1)',
       padding: 3,
       borderRadius: 'var(--radius-pill)',
-      background: 'var(--surface-nav-item-hover)',
-      border: '1px solid var(--border-on-nav)',
+      background: 'var(--surface-immersive-item-hover)',
+      border: '1px solid var(--border-on-immersive)',
       backdropFilter: 'blur(8px)'
     }
   }, modes.map(k => {
@@ -1485,8 +1485,8 @@ function CameraCapture({
         padding: '0 var(--space-5)',
         height: 32,
         borderRadius: 'var(--radius-pill)',
-        background: on ? 'var(--nav-accent)' : 'transparent',
-        color: on ? 'var(--wayka-oscuro)' : 'var(--text-on-nav-muted)',
+        background: on ? 'var(--immersive-accent)' : 'transparent',
+        color: on ? 'var(--wayka-oscuro)' : 'var(--text-on-immersive-muted)',
         font: 'var(--fw-semibold) var(--fs-body-sm)/1 var(--font-sans)',
         transition: 'var(--transition-control)'
       }
@@ -1506,9 +1506,9 @@ function CameraCapture({
       height: 'var(--control-h-touch)',
       borderRadius: 'var(--radius-control)',
       cursor: busy ? 'not-allowed' : 'pointer',
-      background: 'var(--surface-nav-item)',
-      border: '1px solid var(--border-on-nav)',
-      color: 'var(--text-on-nav)',
+      background: 'var(--surface-immersive-item)',
+      border: '1px solid var(--border-on-immersive)',
+      color: 'var(--text-on-immersive)',
       font: 'var(--fw-semibold) var(--fs-body-lg)/1 var(--font-sans)',
       backdropFilter: 'blur(8px)'
     }
@@ -1524,8 +1524,8 @@ function CameraCapture({
       alignItems: 'center',
       justifyContent: 'center',
       gap: 'var(--space-3)',
-      background: 'var(--nav-accent)',
-      border: '1px solid var(--nav-accent)',
+      background: 'var(--immersive-accent)',
+      border: '1px solid var(--immersive-accent)',
       color: 'var(--wayka-oscuro)',
       font: 'var(--fw-semibold) var(--fs-body-lg)/1 var(--font-sans)'
     }
@@ -1552,9 +1552,9 @@ function CameraCapture({
       padding: 0,
       borderRadius: 'var(--radius-md)',
       cursor: 'pointer',
-      border: '1px solid var(--border-on-nav)',
-      background: 'var(--surface-nav-item)',
-      color: 'var(--text-on-nav)',
+      border: '1px solid var(--border-on-immersive)',
+      background: 'var(--surface-immersive-item)',
+      color: 'var(--text-on-immersive)',
       display: 'grid',
       placeItems: 'center',
       position: 'relative'
@@ -1588,7 +1588,7 @@ function CameraCapture({
       height: 18,
       padding: '0 5px',
       borderRadius: 'var(--radius-pill)',
-      background: 'var(--nav-accent)',
+      background: 'var(--immersive-accent)',
       color: 'var(--wayka-oscuro)',
       font: 'var(--fw-bold) var(--fs-overline)/18px var(--font-sans)'
     }
@@ -1607,7 +1607,7 @@ function CameraCapture({
       cursor: 'pointer',
       padding: 5,
       background: 'transparent',
-      border: '2px solid var(--border-on-nav)',
+      border: '2px solid var(--border-on-immersive)',
       display: 'grid',
       placeItems: 'center'
     }
@@ -1778,7 +1778,7 @@ function IconButton({
       borderRadius: 'var(--radius-control)',
       border: '1px solid ' + (variant === 'outline' ? 'var(--border-default)' : 'transparent'),
       background: solid ? h ? 'var(--color-primary-fill-hover)' : 'var(--color-primary-fill)' : onDark ? h ? 'var(--surface-nav-item)' : 'transparent' : h ? 'var(--surface-hover)' : 'transparent',
-      color: solid ? '#fff' : onDark ? 'var(--text-on-nav)' : disabled ? 'var(--text-subtle)' : 'var(--text-muted)',
+      color: solid ? 'var(--color-primary-fill-fg)' : onDark ? 'var(--text-on-nav)' : disabled ? 'var(--text-subtle)' : 'var(--text-muted)',
       cursor: disabled ? 'not-allowed' : 'pointer',
       transition: 'var(--transition-control)',
       ...rest.style
@@ -1879,7 +1879,7 @@ function Calendar({
         cursor: off ? 'not-allowed' : 'pointer',
         borderRadius: 'var(--radius-sm)',
         background: on ? 'var(--color-primary-fill)' : 'transparent',
-        color: off ? 'var(--text-subtle)' : on ? '#fff' : 'var(--text-body)',
+        color: off ? 'var(--text-subtle)' : on ? 'var(--color-primary-fill-fg)' : 'var(--text-body)',
         font: `${on || isToday ? 'var(--fw-semibold)' : 'var(--fw-regular)'} var(--fs-body-sm) var(--font-sans)`,
         boxShadow: !on && isToday ? 'inset 0 0 0 1px var(--border-default)' : 'none',
         transition: 'var(--transition-control)'
@@ -2957,7 +2957,7 @@ function Tabs({
         borderBottom: pill ? 'none' : `2px solid ${on ? 'var(--color-primary-strong)' : 'transparent'}`,
         marginBottom: pill ? 0 : -1,
         font: `var(--fw-semibold) var(--fs-body)/1.4 var(--font-sans)`,
-        color: seg && on ? '#fff' : on ? 'var(--text-strong)' : 'var(--text-muted)',
+        color: seg && on ? 'var(--color-primary-fill-fg)' : on ? 'var(--text-strong)' : 'var(--text-muted)',
         transition: 'var(--transition-control)',
         display: 'flex',
         gap: 8,
@@ -3078,7 +3078,7 @@ try { (() => {
 const T = {
   success: 'var(--success-100)',
   danger: '#E8A79E',
-  info: 'var(--nav-accent)',
+  info: 'var(--immersive-accent)',
   warning: 'var(--warning-100)'
 };
 function Toast({
@@ -3091,14 +3091,14 @@ function Toast({
   const dot = T[tone] || T.info;
   return /*#__PURE__*/React.createElement("div", {
     role: "status",
-    "data-surface": "dark",
+    "data-surface": "immersive",
     style: {
       display: 'flex',
       gap: 14,
       alignItems: 'flex-start',
       width: '100%',
       maxWidth: 420,
-      background: 'var(--surface-inverse)',
+      background: 'var(--surface-immersive)',
       borderRadius: 'var(--radius-md)',
       padding: '13px 14px 13px 16px'
     }
@@ -3121,12 +3121,12 @@ function Toast({
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--text-body-strong)',
-      color: 'var(--text-on-nav)'
+      color: 'var(--text-on-immersive)'
     }
   }, title), description && /*#__PURE__*/React.createElement("div", {
     style: {
       font: 'var(--fs-body-sm)/1.5 var(--font-sans)',
-      color: 'var(--text-on-nav-muted)'
+      color: 'var(--text-on-immersive-muted)'
     }
   }, description)), action && /*#__PURE__*/React.createElement("button", {
     onClick: action.onClick,
@@ -3135,7 +3135,7 @@ function Toast({
       background: 'transparent',
       cursor: 'pointer',
       padding: '2px 4px',
-      color: 'var(--text-on-nav)',
+      color: 'var(--text-on-immersive)',
       font: 'var(--fw-semibold) var(--fs-body-sm) var(--font-sans)',
       textDecoration: 'underline',
       textUnderlineOffset: 3,
@@ -3148,7 +3148,7 @@ function Toast({
       border: 0,
       background: 'transparent',
       cursor: 'pointer',
-      color: 'var(--text-on-nav-muted)',
+      color: 'var(--text-on-immersive-muted)',
       display: 'grid',
       marginTop: 1
     }
@@ -3591,7 +3591,7 @@ Object.assign(__ds_scope, { PageHeader });
 
 // components/navigation/SidebarNav.jsx
 try { (() => {
-const LOGO_FILTER = 'brightness(0) invert(1)';
+const LOGO_FILTER = 'var(--logo-on-nav-filter)';
 function SidebarNav({
   items = [],
   value,
@@ -3662,7 +3662,7 @@ function SidebarNav({
       style: {
         marginLeft: 'auto',
         background: 'var(--nav-accent)',
-        color: 'var(--surface-nav-deep)',
+        color: 'var(--nav-accent-fg)',
         borderRadius: 'var(--radius-pill)',
         padding: '1px 7px',
         font: 'var(--fw-bold) var(--fs-overline) var(--font-sans)'
@@ -3686,7 +3686,7 @@ function SidebarNav({
       display: 'grid',
       placeItems: 'center',
       font: 'var(--fw-bold) 12px var(--font-sans)',
-      color: '#fff'
+      color: 'var(--text-on-nav)'
     }
   }, user.name.split(' ').slice(0, 2).map(w => w[0]).join('')), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -5053,7 +5053,7 @@ function TutorLogin({
       gridTemplateRows: '1fr auto',
       background: 'var(--surface-nav)'
     },
-    "data-surface": "dark"
+    "data-surface": "brand"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
@@ -5068,10 +5068,10 @@ function TutorLogin({
     style: {
       position: 'absolute',
       width: 420,
-      opacity: .14,
+      opacity: .12,
       bottom: -60,
       right: -120,
-      filter: 'brightness(0) invert(1)'
+      filter: 'var(--logo-on-nav-filter)'
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -5086,12 +5086,12 @@ function TutorLogin({
     alt: "Wayka",
     style: {
       width: 150,
-      filter: 'brightness(0) invert(1)'
+      filter: 'var(--logo-on-nav-filter)'
     }
   }), /*#__PURE__*/React.createElement("p", {
     style: {
       font: 'var(--fw-medium) var(--fs-body-lg)/1.5 var(--font-sans)',
-      color: 'rgba(255,255,255,.85)',
+      color: 'var(--text-on-nav-muted)',
       maxWidth: 250
     }
   }, "La salud de tus mascotas, siempre a mano."))), /*#__PURE__*/React.createElement("div", {
@@ -5245,7 +5245,7 @@ function TutorPetDetail({
       paddingBottom: 24
     }
   }, /*#__PURE__*/React.createElement("div", {
-    "data-surface": "dark",
+    "data-surface": "brand",
     style: {
       background: 'var(--surface-nav)',
       padding: '8px var(--gutter-mobile) 24px',

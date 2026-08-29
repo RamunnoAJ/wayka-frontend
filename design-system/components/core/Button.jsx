@@ -2,7 +2,7 @@ import React from 'react';
 import { Icon } from './Icon.jsx';
 
 const TONE = {
-  primary:{ bg:'var(--color-primary-fill)', fg:'#fff', border:'transparent', hover:'var(--color-primary-fill-hover)', active:'var(--color-primary-fill-hover)' },
+  primary:{ bg:'var(--color-primary-fill)', fg:'var(--color-primary-fill-fg)', border:'transparent', hover:'var(--color-primary-fill-hover)', active:'var(--color-primary-fill-hover)' },
   secondary:{ bg:'var(--surface-card)', fg:'var(--text-strong)', border:'var(--border-default)', hover:'var(--surface-hover)', active:'var(--neutral-100)' },
   ghost:{ bg:'transparent', fg:'var(--color-primary-strong)', border:'transparent', hover:'var(--color-primary-soft)', active:'var(--color-primary-soft)' },
   danger:{ bg:'var(--danger-500)', fg:'#fff', border:'transparent', hover:'var(--danger-600)', active:'var(--danger-600)' },
