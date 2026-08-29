@@ -107,7 +107,9 @@ Los hexadecimales de marca son **derivados de los nombres de archivo de los logo
 
 **Estados.** Hover: cambio de fondo, no de opacidad — el botón primario oscurece hacia `--color-primary-hover` (mezcla del claro con su oscuro); las filas y botones fantasma pasan a `--surface-hover`. Press: mismo color que hover, sin escala ni desplazamiento (es software clínico; nada rebota). Foco: borde violeta + anillo `--ring-focus` de 3px al 22%. Seleccionado: `--surface-selected` (lila claro). Deshabilitado: fondo `--surface-disabled` y texto `--text-subtle`, cursor `not-allowed`.
 
-**Animación.** Un solo easing: `cubic-bezier(.2,.7,.3,1)`. 140ms controles, 220ms paneles, 340ms transición de pantalla móvil. Solo fades y desplazamientos cortos; sin spring, sin bounce, sin animación de entrada en listas. `prefers-reduced-motion` lleva todas las duraciones a 0.
+**Animación (web).** Un solo easing: `cubic-bezier(.2,.7,.3,1)`. 140ms controles, 220ms paneles, 340ms transición de pantalla móvil. Solo fades y desplazamientos cortos; sin bounce, sin animación de entrada en listas. `prefers-reduced-motion` lleva todas las duraciones a 0.
+
+**Animación (nativo, Reanimated).** Tres resortes críticamente amortiguados — `snap` (~140ms, press), `default` (~260ms, tabs y toast), `gentle` (~380ms, pantallas y sheets): llegan y se detienen, nunca rebotan. Resorte para `transform`, timing para `opacity` y color. Un solo desplazamiento de entrada: 6px. Press = escala .97 (.99 en cards grandes), nunca opacidad. `useReducedMotion()` en todo hook de animación. Sistema completo y código por patrón en las guías **Resortes** y **Recetas**.
 
 **Transparencia y blur.** Casi ausente. Solo el backdrop del modal (rgba(30,20,40,.42) + blur 2px) y las capas de blanco al 12-14% sobre el violeta de la sidebar.
 

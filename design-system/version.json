@@ -1,7 +1,7 @@
 {
   "name": "wayka-design-system",
-  "version": "1.5.0",
-  "released": "2026-08-28",
+  "version": "1.6.0",
+  "released": "2026-08-29",
   "tokenFiles": [
     "tokens/meta.css",
     "tokens/fonts.css",
@@ -41,6 +41,16 @@
       "token": "--dur-fast|normal|slow",
       "file": "tokens/motion.css",
       "reason": "redeclarados dentro de @media (prefers-reduced-motion) — segundo juego de valores"
+    },
+    {
+      "token": "--motion-offset|--motion-press-scale|--motion-press-scale-lg",
+      "file": "tokens/motion.css",
+      "reason": "redeclarados dentro de @media (prefers-reduced-motion) — segundo juego de valores"
+    },
+    {
+      "token": "--spring-*",
+      "file": "tokens/motion.css",
+      "reason": "parametros de withSpring (Reanimated) — escalares sin unidad, sin efecto en CSS. El espejo debe agruparlos en tres objetos: snap, default, gentle"
     }
   ],
   "unconfirmed": [

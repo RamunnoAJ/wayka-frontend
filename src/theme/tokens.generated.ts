@@ -1,6 +1,6 @@
 /**
  * ARCHIVO GENERADO — no editar a mano.
- * Fuente: design-system v1.5.0 (2026-08-28).
+ * Fuente: design-system v1.6.0 (2026-08-29).
  * Regenerar: npm run tokens:generar
  *
  * Espejo en JS/TS de las custom properties de `/design-system/tokens/*.css`,
@@ -13,7 +13,7 @@
  * doc 09, sección 3.2.
  */
 
-export const VERSION_DESIGN_SYSTEM = '1.5.0';
+export const VERSION_DESIGN_SYSTEM = '1.6.0';
 
 /** Tema default: clínica y veterinario (lila primario, naranjas de acento). */
 export const tokensDefault = {
@@ -111,6 +111,9 @@ export const tokensDefault = {
   '--ls-display': '-0.02em',
   '--ls-heading': '-0.01em',
   '--ls-overline': '0.08em',
+  '--motion-offset': '6px',
+  '--motion-press-scale': '.97',
+  '--motion-press-scale-lg': '.99',
   '--nav-accent': '#B4A3D6',
   '--nav-accent-fg': '#201A2B',
   '--neutral-0': '#FFFFFF',
@@ -151,6 +154,17 @@ export const tokensDefault = {
   '--space-7': '24px',
   '--space-8': '32px',
   '--space-9': '40px',
+  '--spring-default-damping': '30',
+  '--spring-default-mass': '.9',
+  '--spring-default-stiffness': '240',
+  '--spring-gentle-damping': '26',
+  '--spring-gentle-mass': '1',
+  '--spring-gentle-stiffness': '160',
+  '--spring-rest-displacement': '.01',
+  '--spring-rest-speed': '2',
+  '--spring-snap-damping': '34',
+  '--spring-snap-mass': '.7',
+  '--spring-snap-stiffness': '420',
   '--success-100': '#CFE5D9',
   '--success-50': '#EAF3EE',
   '--success-500': '#31795A',
@@ -251,6 +265,9 @@ export const tokensReducedMotion = {
   '--dur-fast': '0ms',
   '--dur-normal': '0ms',
   '--dur-slow': '0ms',
+  '--motion-offset': '0px',
+  '--motion-press-scale': '1',
+  '--motion-press-scale-lg': '1',
 } as const;
 
 export type NombreToken = keyof typeof tokensDefault;

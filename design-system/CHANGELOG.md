@@ -10,6 +10,20 @@ Regla para el pipeline: **regenerar el espejo de tokens cuando cambie `version` 
 
 ---
 
+## 1.6.0 — 2026-08-29
+
+### Agregado
+
+**Capa de movimiento para nativo (Reanimated).** El sistema tenia duraciones y curvas pensadas para CSS; faltaba el vocabulario que usa la app. Se agregan tres resortes, la escala de desplazamiento y la escala de press, mas dos guias nuevas. Nada de lo existente cambia de valor.
+
+- **Tres resortes criticamente amortiguados** (`--spring-snap-*`, `--spring-default-*`, `--spring-gentle-*`, con `damping`, `stiffness` y `mass` cada uno). Damping ratio ~1.0 en los tres: llegan y se detienen, no rebotan. `snap` (~140 ms) para press, `default` (~260 ms) para tabs y toast, `gentle` (~380 ms) para pantallas y sheets. Mas `--spring-rest-displacement` y `--spring-rest-speed`, obligatorios en los tres.
+- **`--motion-offset` (6px)** — desplazamiento unico de entrada para todo el sistema. **`--motion-press-scale` (.97)** y **`--motion-press-scale-lg` (.99)** — feedback de press en controles y en cards grandes.
+- **Regla de reparto:** resorte para `transform`, timing para `opacity` y color. Las duraciones existentes no cambian de rol, se acota a que aplican.
+- Los tres tokens nuevos de escala se redeclaran en `@media (prefers-reduced-motion)` junto a las duraciones. Los `--spring-*` no: en nativo el hook decide con `useReducedMotion()` y salta al valor final.
+- **Guias nuevas:** `guidelines/motion-reanimated.card.html` (el sistema) y `guidelines/motion-recetas.card.html` (codigo por patron: pantalla, press, toast, tabs, camara, pull to refresh, sheet con arrastre, movimiento reducido). `guidelines/motion.card.html` pasa al grupo Movimiento y se renombra a "Duraciones".
+
+---
+
 ## 1.5.0 — 2026-08-28
 
 ### Cambiado

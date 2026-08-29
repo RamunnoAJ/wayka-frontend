@@ -9,6 +9,33 @@
 /* EXCEPCION: lista de transiciones CSS, no un valor escalar. En nativo usar
    --dur-fast + --ease-standard y animar las propiedades a mano. */
 --transition-control:background-color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard); /* @kind other */
+
+/* EXCEPCION: parametros de resorte para Reanimated (withSpring). No tienen
+   efecto en CSS; viven aca para que el espejo en JS los exporte junto al resto
+   del sistema de movimiento. Los tres estan criticamente amortiguados
+   (damping ratio ~1.0): llegan y se detienen, nunca rebotan.
+   ratio = damping / (2 * sqrt(stiffness * mass)) */
+--spring-snap-damping:34; /* @kind other */
+--spring-snap-stiffness:420; /* @kind other */
+--spring-snap-mass:.7; /* @kind other */
+--spring-default-damping:30; /* @kind other */
+--spring-default-stiffness:240; /* @kind other */
+--spring-default-mass:.9; /* @kind other */
+--spring-gentle-damping:26; /* @kind other */
+--spring-gentle-stiffness:160; /* @kind other */
+--spring-gentle-mass:1; /* @kind other */
+/* Umbrales de reposo comunes a los tres: sin esto el resorte sigue calculando
+   fracciones de pixel y el gesto se siente pegajoso al final. */
+--spring-rest-displacement:.01; /* @kind other */
+--spring-rest-speed:2; /* @kind other */
+
+/* Desplazamiento de entrada. Un solo valor para todo el sistema: la escala del
+   movimiento no es una decision por pantalla. */
+--motion-offset:6px; /* @kind other */
+/* Escala del press. 0.97 en controles chicos, 0.99 en cards grandes: el mismo
+   factor se lee mas fuerte cuanto mas grande es el elemento. */
+--motion-press-scale:.97; /* @kind other */
+--motion-press-scale-lg:.99; /* @kind other */
 }
 /* EXCEPCION: override dentro de @media. El espejo en JS debe leerlo como un
    segundo juego de duraciones, no sobreescribir el bloque :root. */
@@ -16,4 +43,7 @@
 --dur-fast:0ms; /* @kind other */
 --dur-normal:0ms; /* @kind other */
 --dur-slow:0ms; /* @kind other */
+--motion-offset:0px; /* @kind other */
+--motion-press-scale:1; /* @kind other */
+--motion-press-scale-lg:1; /* @kind other */
 }}
