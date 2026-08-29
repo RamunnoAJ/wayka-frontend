@@ -78,12 +78,25 @@ export function edadCompacta(fechaNacimientoIso: string, hoy = desdeIso(hoyEnLaC
 }
 
 /**
- * El peso se muestra al gramo: el contrato lo persiste como NUMERIC justamente
- * para que no se redondee (Modelo de Datos, 4.2). Coma decimal, como se escribe
- * en una historia clínica en castellano.
+ * Peso con un decimal y sin el cero final: `2,6 kg`, `12 kg`. Coma decimal,
+ * como se escribe en una historia clínica en castellano.
+ *
+ * Se muestra redondeado aunque el contrato lo persista al gramo (Modelo de
+ * Datos, 4.2). Los tres decimales son la precisión con la que se **guarda** y
+ * se compara —un `double` redondearía de formas que en una historia clínica se
+ * notan—, pero no la que hace falta leer: en un perro de 31 kg, el gramo es
+ * ruido en una tarjeta.
+ *
+ * Por debajo del kilo se mantiene el gramo, y esa es la excepción que justifica
+ * el NUMERIC: en una calopsita de 95 gramos, un decimal es `0,1 kg` y el
+ * redondeo se come el dato entero.
  */
 export function peso(kilos: number): string {
-  return `${kilos.toFixed(3).replace('.', ',')} kg`;
+  const texto = kilos.toFixed(kilos < 1 ? 3 : 1);
+  // `toFixed` siempre deja punto acá (nunca se pide 0 decimales), así que
+  // recortar los ceros no puede comerse un dígito entero.
+  const sinCeros = texto.replace(/0+$/, '').replace(/\.$/, '');
+  return `${sinCeros.replace('.', ',')} kg`;
 }
 
 /** Agrupa el chip en tríos para que un número de 15 dígitos se pueda leer. */

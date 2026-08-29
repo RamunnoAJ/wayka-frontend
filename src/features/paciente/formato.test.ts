@@ -99,9 +99,26 @@ describe('edad', () => {
 });
 
 describe('peso', () => {
-  it('se muestra al gramo y con coma', () => {
-    expect(peso(8.432)).toBe('8,432 kg');
-    expect(peso(12)).toBe('12,000 kg');
+  it('redondea a un decimal, con coma', () => {
+    expect(peso(8.432)).toBe('8,4 kg');
+    expect(peso(2.6)).toBe('2,6 kg');
+    expect(peso(31.55)).toBe('31,6 kg');
+  });
+
+  // `12,0 kg` no dice nada que `12 kg` no diga, y llena la tarjeta de ceros.
+  it('no arrastra el decimal cuando es cero', () => {
+    expect(peso(12)).toBe('12 kg');
+    expect(peso(4.0)).toBe('4 kg');
+  });
+
+  /**
+   * La excepción, y el motivo por el que el contrato persiste NUMERIC: en una
+   * calopsita de 95 gramos, un decimal es `0,1 kg` y ahí el redondeo se come el
+   * dato entero. Por debajo del kilo se mantiene el gramo.
+   */
+  it('mantiene el gramo por debajo del kilo', () => {
+    expect(peso(0.095)).toBe('0,095 kg');
+    expect(peso(0.32)).toBe('0,32 kg');
   });
 });
 
