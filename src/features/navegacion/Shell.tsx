@@ -11,7 +11,7 @@ import { useCerrarSesion } from '../auth';
 import { useMiClinica } from '../clinica';
 import { useMiFichaDeVeterinario } from '../paciente/queries';
 
-import { itemActivo, NAVEGACION_POR_ROL } from './items';
+import { destinoAlTocar, itemActivo, NAVEGACION_POR_ROL } from './items';
 
 /**
  * Marco de navegación de una sesión iniciada.
@@ -62,6 +62,15 @@ export function Shell({ children }: { children: ReactNode }) {
   const items = rol ? NAVEGACION_POR_ROL[rol] : [];
   const activo = itemActivo(items, ruta);
 
+  // El menú manda el `href` del ítem; a dónde lleva —o si no lleva a ningún
+  // lado— lo decide `destinoAlTocar`, que es lo que evita remontar la pantalla
+  // en la que ya estamos parados.
+  const ir = (href: string) => {
+    const item = items.find((candidato) => candidato.href === href);
+    const destino = item ? destinoAlTocar(item, ruta) : href;
+    if (destino) router.push(destino);
+  };
+
   // Antes de medir la ventana, `ancho` es 0 (la exportación web es estática y
   // el primer render tiene que coincidir con el del servidor). Se asume ancho
   // para no dibujar la barra inferior y sacarla en el segundo render.
@@ -79,7 +88,7 @@ export function Shell({ children }: { children: ReactNode }) {
             icon: item.icono,
           }))}
           value={activo?.href}
-          onChange={(href) => router.push(href)}
+          onChange={ir}
           clinic={clinica.data?.nombre}
           user={
             sesion
@@ -107,7 +116,7 @@ export function Shell({ children }: { children: ReactNode }) {
           icon: item.icono,
         }))}
         value={activo?.href}
-        onChange={(href) => router.push(href)}
+        onChange={ir}
       />
     </View>
   );

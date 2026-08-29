@@ -97,3 +97,19 @@ export const NAVEGACION_POR_ROL: Record<TipoUsuario, ItemDeNavegacion[]> = {
 export function itemActivo(items: ItemDeNavegacion[], ruta: string): ItemDeNavegacion | undefined {
   return items.find((item) => ruta === item.prefijo || ruta.startsWith(`${item.prefijo}/`));
 }
+
+/**
+ * A dónde lleva tocar una sección del menú, o `null` si no lleva a ningún lado
+ * porque ya estamos ahí.
+ *
+ * Navegar a la ruta en la que uno está monta la pantalla de nuevo y le dispara
+ * la animación de entrada: la app se mueve para decir que llegó a un lugar
+ * nuevo, y no llegó a ninguno.
+ *
+ * El corte es por **ruta exacta y no por sección activa**. Desde la ficha de un
+ * paciente la sección iluminada sigue siendo Pacientes, pero ahí tocarla tiene
+ * que volver al listado — que es justamente para lo que se la toca.
+ */
+export function destinoAlTocar(item: ItemDeNavegacion, ruta: string): string | null {
+  return ruta === item.prefijo ? null : item.href;
+}
