@@ -19,6 +19,7 @@
     "test:watch": "jest --watch",
     "dev": "expo start --dev-client",
     "dev:limpio": "expo start --dev-client --clear",
+    "dev:ip": "REACT_NATIVE_PACKAGER_HOSTNAME=$(ip -4 route get 1.1.1.1 | awk '{for (i=1; i<=NF; i++) if ($i == \"src\") print $(i+1)}') expo start --dev-client",
     "go": "EXPO_USAR_GO=1 expo start --go",
     "go:tunel": "EXPO_USAR_GO=1 expo start --go --tunnel"
   },

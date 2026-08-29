@@ -47,6 +47,19 @@ Para iOS en un iPhone físico hace falta Apple Developer Program: la firma no
 depende de tener una Mac (EAS compila en la nube), pero sí de un provisioning
 profile, que una cuenta gratuita no puede emitir.
 
+En iOS 16 o superior el teléfono no abre una build de desarrollo hasta activar
+Ajustes → Privacidad y seguridad → Modo de desarrollador, que pide reiniciar. Es
+una vez por dispositivo. Y el UDID va horneado en el provisioning profile: cada
+iPhone nuevo se registra con `eas device:create` **antes** de compilar, porque
+registrarlo después no alcanza y hay que volver a buildear.
+
+Si el dev client no encuentra el servidor, el problema suele ser cuál IP anuncia
+Expo: elige entre todas las interfaces, y acá hay dos docenas de bridges de
+Docker, flannel y libvirt donde el teléfono no tiene ruta. `npm run dev:ip`
+fuerza `REACT_NATIVE_PACKAGER_HOSTNAME` a la IP de la interfaz que realmente sale
+a la red, resolviéndola con `ip route get`. Es solo Linux, y con un exit node de
+Tailscale activo tomaría la IP del tailnet.
+
 **Expo Go** (`npm run go`) — sin compilar nada, escaneando el QR. Alcanza para
 UI, navegación, cámara, sesión y notificaciones locales. No sirve para push
 remoto ni para los deep links del scheme propio.
