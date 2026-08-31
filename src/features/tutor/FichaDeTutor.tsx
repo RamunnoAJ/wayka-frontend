@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ActualizarTutorEntrada, TipoDocumento } from '../../api/tutor';
 import { Badge, Button, InlineError, Input, Select, Skeleton } from '../../components';
+import { CampoDeDireccion, cambioDeDireccion, direccionDeFicha } from '../direccion';
+import type { Direccion } from '../direccion';
 import { mensajeDeError } from '../../lib/errores';
 import { TIPOS_DE_DOCUMENTO } from '../veterinario/FormularioDeVeterinario';
 import { sombra, useTheme } from '../../theme';
@@ -24,6 +26,7 @@ export function FichaDeTutor({ tutorId }: { tutorId: string }) {
   const darDeBaja = useDarDeBajaTutor();
 
   const [tocado, setTocado] = useState<ActualizarTutorEntrada>({});
+  const [direccionTocada, setDireccionTocada] = useState<Direccion | null>(null);
   const [confirmando, setConfirmando] = useState(false);
 
   if (consulta.isPending) {
@@ -54,9 +57,9 @@ export function FichaDeTutor({ tutorId }: { tutorId: string }) {
     contacto: tutor.contacto,
     tipo_documento: tutor.tipo_documento ?? 'dni',
     numero_documento: tutor.numero_documento ?? '',
-    direccion: tutor.direccion ?? '',
     ...tocado,
   };
+  const direccion = direccionTocada ?? direccionDeFicha(tutor);
 
   function cambiar(campos: ActualizarTutorEntrada) {
     setTocado((previo) => ({ ...previo, ...campos }));
@@ -124,12 +127,7 @@ export function FichaDeTutor({ tutorId }: { tutorId: string }) {
                 />
               </View>
             </View>
-            <Input
-              label="Dirección"
-              value={valores.direccion ?? ''}
-              onChangeText={(valor) => cambiar({ direccion: valor })}
-              autoCapitalize="sentences"
-            />
+            <CampoDeDireccion value={direccion} onChange={setDireccionTocada} />
           </View>
 
           {guardar.isError ? (
@@ -145,7 +143,17 @@ export function FichaDeTutor({ tutorId }: { tutorId: string }) {
               size="lg"
               disabled={Object.keys(tocado).length === 0}
               loading={guardar.isPending}
-              onPress={() => guardar.mutate(tocado, { onSuccess: () => setTocado({}) })}
+              onPress={() =>
+                guardar.mutate(
+                  { ...tocado, ...(direccionTocada ? cambioDeDireccion(direccionTocada) : {}) },
+                  {
+                    onSuccess: () => {
+                      setTocado({});
+                      setDireccionTocada(null);
+                    },
+                  },
+                )
+              }
             >
               Guardar cambios
             </Button>

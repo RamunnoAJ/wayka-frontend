@@ -16,6 +16,8 @@ import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { BotonCerrarSesion } from '../auth';
 import { FormularioDeContrasena } from '../cuenta';
+import { CampoDeDireccion, cambioDeDireccion, direccionDeFicha } from '../direccion';
+import type { Direccion } from '../direccion';
 import { useGuardarFichaDelTutor } from '../sincronizacion';
 import { TIPOS_DE_DOCUMENTO } from '../veterinario/FormularioDeVeterinario';
 
@@ -40,6 +42,10 @@ export function MisDatos() {
   const [cambiandoContrasena, setCambiandoContrasena] = useState(false);
 
   const [tocado, setTocado] = useState<ActualizarTutorEntrada>({});
+  // La dirección se lleva aparte del resto de los campos tocados porque son
+  // cuatro valores que viajan como un bloque: mezclarlos en el mismo objeto
+  // haría que borrar el texto dejara el punto suelto (regla 2.6).
+  const [direccionTocada, setDireccionTocada] = useState<Direccion | null>(null);
   const [guardado, setGuardado] = useState(false);
 
   // Una cuenta de tutor sin ficha vinculada no se arregla esperando ni
@@ -102,9 +108,9 @@ export function MisDatos() {
     contacto: tutor.contacto,
     tipo_documento: tutor.tipo_documento ?? 'dni',
     numero_documento: tutor.numero_documento ?? '',
-    direccion: tutor.direccion ?? '',
     ...tocado,
   };
+  const direccion = direccionTocada ?? direccionDeFicha(tutor);
 
   function cambiar(campos: ActualizarTutorEntrada) {
     setTocado((previo) => ({ ...previo, ...campos }));
@@ -159,11 +165,12 @@ export function MisDatos() {
                 />
               </View>
             </View>
-            <Input
-              label="Dirección"
-              value={valores.direccion ?? ''}
-              onChangeText={(valor) => cambiar({ direccion: valor })}
-              autoCapitalize="sentences"
+            <CampoDeDireccion
+              value={direccion}
+              onChange={(nueva) => {
+                setDireccionTocada(nueva);
+                setGuardado(false);
+              }}
             />
           </View>
 
@@ -181,15 +188,19 @@ export function MisDatos() {
           <Button
             size="touch"
             block
-            disabled={Object.keys(tocado).length === 0}
+            disabled={Object.keys(tocado).length === 0 && direccionTocada === null}
             loading={guardar.isPending}
             onPress={() =>
-              guardar.mutate(tocado, {
-                onSuccess: () => {
-                  setTocado({});
-                  setGuardado(true);
+              guardar.mutate(
+                { ...tocado, ...(direccionTocada ? cambioDeDireccion(direccionTocada) : {}) },
+                {
+                  onSuccess: () => {
+                    setTocado({});
+                    setDireccionTocada(null);
+                    setGuardado(true);
+                  },
                 },
-              })
+              )
             }
           >
             Guardar

@@ -30,6 +30,7 @@ import {
   Images,
   LoaderCircle,
   LogOut,
+  MapPin,
   Lock,
   Mail,
   Microscope,
@@ -137,6 +138,7 @@ const REGISTRO = {
   'external-link': ExternalLink,
   'building-2': Building2,
   'log-out': LogOut,
+  'map-pin': MapPin,
 } as const satisfies Record<string, ComponentType<LucideProps>>;
 
 export type NombreDeIcono = keyof typeof REGISTRO;

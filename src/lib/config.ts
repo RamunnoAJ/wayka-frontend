@@ -53,3 +53,30 @@ export const API_URL = desdeEntorno ?? urlDeDesarrollo();
 
 /** Prefijo versionado de la API: todas las rutas del contrato cuelgan de acá. */
 export const API_PREFIJO = '/api/v1';
+
+/**
+ * Proveedor de mapas para el autocompletado de direcciones y la confirmación
+ * del punto (Arquitectura, 3.6).
+ *
+ * El proveedor nulo es el default a propósito: sin la variable, el campo de
+ * dirección es texto libre y el proyecto levanta igual. Nadie tiene que dar de
+ * alta una clave facturable solo para clonar el repo y arrancar, y un
+ * despliegue mal configurado degrada a texto libre en vez de romper el
+ * formulario.
+ *
+ * La clave se inlinea en el bundle y eso está bien: una clave de cliente es
+ * pública por definición y lo que la protege son las restricciones de la
+ * consola de Google (por dominio, por bundle id, y limitada a las APIs que
+ * usamos), no esconderla.
+ */
+export const MAPAS_API_KEY = process.env.EXPO_PUBLIC_MAPAS_API_KEY ?? '';
+
+export const HAY_MAPAS =
+  process.env.EXPO_PUBLIC_MAPAS_PROVEEDOR === 'google' && MAPAS_API_KEY !== '';
+
+/**
+ * Sesga el autocompletado a Argentina, que es el alcance del MVP. No lo
+ * restringe: una dirección de otro país se puede escribir a mano igual, porque
+ * confirmar en el mapa nunca es obligatorio.
+ */
+export const MAPAS_REGION = 'ar';

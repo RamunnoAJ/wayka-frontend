@@ -37,12 +37,32 @@ export function encolarPeso(paciente: Paciente, pesoActual: number): Promise<voi
   return encolar(mutacion, 'paciente', (registro) => ({ ...registro, peso_actual: pesoActual }));
 }
 
+/**
+ * Aplica el cambio sobre la copia local igual que lo va a aplicar el servidor.
+ *
+ * La parte que no es un merge plano es la dirección: un cambio que trae el texto
+ * **sin** los tres campos del punto lo limpia (regla 2.6). Fundirlo con `...`
+ * dejaría el place_id y las coordenadas viejas al lado del texto nuevo, y la
+ * pantalla mostraría el mapa de la casa anterior hasta la próxima sincronización
+ * —momento en el que el pin desaparecería solo, sin que nada lo explique.
+ */
+export function copiaLocalDeTutor<T extends object>(
+  registro: T,
+  cambios: ActualizarTutorEntrada,
+): T {
+  const fundido = { ...registro, ...cambios };
+  if (cambios.direccion === undefined || cambios.direccion_place_id !== undefined) {
+    return fundido;
+  }
+  return { ...fundido, direccion_place_id: null, direccion_lat: null, direccion_lng: null };
+}
+
 export function encolarFichaDeTutor(tutor: Tutor, cambios: ActualizarTutorEntrada): Promise<void> {
   const mutacion: Mutacion = {
     ...nueva('actualizar_ficha_de_tutor', tutor.id, tutor.updated_at),
     tutor: cambios,
   };
-  return encolar(mutacion, 'tutor', (registro) => ({ ...registro, ...cambios }));
+  return encolar(mutacion, 'tutor', (registro) => copiaLocalDeTutor(registro, cambios));
 }
 
 export interface CambioDeCitaDelTutor {

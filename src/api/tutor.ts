@@ -24,6 +24,14 @@ export interface Tutor {
   numero_documento?: string | null;
   contacto: string;
   direccion?: string | null;
+  /**
+   * El punto confirmado en el mapa. Los tres van juntos o no va ninguno: una
+   * dirección escrita a mano —o editada sin conexión— se guarda con los tres
+   * en null (Reglas de Negocio, 2.6).
+   */
+  direccion_place_id?: string | null;
+  direccion_lat?: number | null;
+  direccion_lng?: number | null;
   consentimiento_datos: boolean;
   /**
    * Momento del otorgamiento. La API no expone `clinica_de_origen_id` aunque el
@@ -49,6 +57,9 @@ export interface CrearTutorEntrada {
   tipo_documento?: TipoDocumento;
   numero_documento?: string;
   direccion?: string;
+  direccion_place_id?: string;
+  direccion_lat?: number;
+  direccion_lng?: number;
   /**
    * Ley 25.326. Sin consentimiento no se puede dar de alta un Paciente para esta
    * persona (regla 2.2), así que el alta lo exige desde el principio.
@@ -66,7 +77,15 @@ export interface ActualizarTutorEntrada {
   /** Cadena vacía limpia el documento; el tipo y el número se cargan juntos. */
   tipo_documento?: TipoDocumento | '';
   numero_documento?: string;
+  /**
+   * Cadena vacía limpia la dirección y su punto. Mandar la dirección **sin** los
+   * tres campos del punto también lo limpia: el texto nuevo describe otro lugar
+   * y conservar las coordenadas dejaría el pin en la casa anterior (regla 2.6).
+   */
   direccion?: string;
+  direccion_place_id?: string;
+  direccion_lat?: number;
+  direccion_lng?: number;
 }
 
 export function listarTutores(filtros: FiltrosDeTutores = {}): Promise<Tutor[]> {

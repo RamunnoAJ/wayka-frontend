@@ -12,6 +12,8 @@ import {
   Skeleton,
   type OpcionDeSelect,
 } from '../../components';
+import { CampoDeDireccion, cambioDeDireccion, direccionDeFicha } from '../direccion';
+import type { Direccion } from '../direccion';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
 
@@ -56,6 +58,10 @@ export function FormularioDeClinica({
   // servidor. Sembrarlo entero en un efecto obligaría a sincronizar dos fuentes
   // de verdad y a pisar lo que el usuario está escribiendo en cada refetch.
   const [tocado, setTocado] = useState<ActualizarClinicaEntrada>({});
+  // La dirección va aparte: son cuatro campos que se mandan como un bloque, y
+  // mezclarlos con el resto del borrador haría que editar el texto arrastrara
+  // el punto viejo (regla 2.6).
+  const [direccionTocada, setDireccionTocada] = useState<Direccion | null>(null);
 
   if (consulta.isPending) {
     return (
@@ -79,7 +85,6 @@ export function FormularioDeClinica({
 
   const borrador: ActualizarClinicaEntrada = {
     nombre: consulta.data.nombre,
-    direccion: consulta.data.direccion,
     contacto: consulta.data.contacto,
     hora_apertura: consulta.data.hora_apertura,
     hora_cierre: consulta.data.hora_cierre,
@@ -103,8 +108,10 @@ export function FormularioDeClinica({
     return undefined;
   })();
 
-  const completo =
-    borrador.nombre?.trim() && borrador.direccion?.trim() && borrador.contacto?.trim();
+  const direccion = direccionTocada ?? direccionDeFicha(consulta.data);
+  // Una clínica sin domicilio no se puede visitar: a diferencia de la ficha de
+  // tutor, acá la dirección no se puede dejar vacía (regla 2.6).
+  const completo = borrador.nombre?.trim() && direccion.texto.trim() && borrador.contacto?.trim();
 
   const turnosPorDia = errorDeHorario ? 0 : Math.floor(intervalo / duracion);
 
@@ -134,11 +141,9 @@ export function FormularioDeClinica({
         />
         <View style={estilos.fila}>
           <View style={estilos.campoAncho}>
-            <Input
-              label="Dirección"
-              value={borrador.direccion ?? ''}
-              onChangeText={(valor) => cambiar({ direccion: valor })}
-              autoCapitalize="sentences"
+            <CampoDeDireccion
+              value={direccionTocada ?? direccionDeFicha(consulta.data)}
+              onChange={setDireccionTocada}
             />
           </View>
           <View style={estilos.campo}>
@@ -208,7 +213,12 @@ export function FormularioDeClinica({
         size="lg"
         disabled={Boolean(errorDeHorario) || !completo}
         loading={guardar.isPending}
-        onPress={() => guardar.mutate(borrador, { onSuccess: (clinica) => onGuardado?.(clinica) })}
+        onPress={() =>
+          guardar.mutate(
+            { ...borrador, ...(direccionTocada ? cambioDeDireccion(direccionTocada) : {}) },
+            { onSuccess: (clinica) => onGuardado?.(clinica) },
+          )
+        }
       >
         {etiquetaGuardar}
       </Button>

@@ -3,6 +3,8 @@ import { StyleSheet, View } from 'react-native';
 
 import type { CrearTutorEntrada, TipoDocumento } from '../../api/tutor';
 import { Button, Checkbox, InlineError, Input, Select } from '../../components';
+import { CampoDeDireccion, cambioDeDireccion } from '../direccion';
+import type { Direccion } from '../direccion';
 import { TIPOS_DE_DOCUMENTO } from '../veterinario/FormularioDeVeterinario';
 import { useTheme } from '../../theme';
 
@@ -37,7 +39,7 @@ export function FormularioDeTutor({
   const [contacto, setContacto] = useState('');
   const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento>('dni');
   const [numeroDocumento, setNumeroDocumento] = useState('');
-  const [direccion, setDireccion] = useState('');
+  const [direccion, setDireccion] = useState<Direccion>({ texto: '' });
   const [consentimiento, setConsentimiento] = useState(false);
 
   const completo = nombre.trim() && contacto.trim() && consentimiento;
@@ -93,13 +95,7 @@ export function FormularioDeTutor({
           />
         </View>
         <View style={estilos.campo}>
-          <Input
-            label="Dirección"
-            hint="Opcional."
-            value={direccion}
-            onChangeText={setDireccion}
-            autoCapitalize="sentences"
-          />
+          <CampoDeDireccion value={direccion} onChange={setDireccion} />
         </View>
       </View>
 
@@ -127,7 +123,7 @@ export function FormularioDeTutor({
               ...(numeroDocumento.trim()
                 ? { tipo_documento: tipoDocumento, numero_documento: numeroDocumento.trim() }
                 : {}),
-              ...(direccion.trim() ? { direccion: direccion.trim() } : {}),
+              ...(direccion.texto.trim() ? cambioDeDireccion(direccion) : {}),
             })
           }
         >

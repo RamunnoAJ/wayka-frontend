@@ -76,6 +76,9 @@ export interface Mutacion {
     tipo_documento?: string;
     numero_documento?: string;
     direccion?: string;
+    direccion_place_id?: string;
+    direccion_lat?: number;
+    direccion_lng?: number;
   };
   cita?: { fecha_programada?: string; notificar_tutor?: boolean };
 }

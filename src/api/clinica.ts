@@ -14,6 +14,10 @@ export interface Clinica {
   id: string;
   nombre: string;
   direccion: string;
+  /** El punto confirmado en el mapa; los tres juntos o ninguno (regla 2.6). */
+  direccion_place_id?: string | null;
+  direccion_lat?: number | null;
+  direccion_lng?: number | null;
   contacto: string;
   hora_apertura: HoraDelDia;
   hora_cierre: HoraDelDia;
@@ -39,7 +43,15 @@ export interface Clinica {
  */
 export interface ActualizarClinicaEntrada {
   nombre?: string;
+  /**
+   * A diferencia de la ficha de tutor, la clínica no puede quedarse sin
+   * dirección: una clínica sin domicilio no se puede visitar. Mandarla sin los
+   * tres campos del punto lo limpia igual (regla 2.6).
+   */
   direccion?: string;
+  direccion_place_id?: string;
+  direccion_lat?: number;
+  direccion_lng?: number;
   contacto?: string;
   hora_apertura?: HoraDelDia;
   hora_cierre?: HoraDelDia;
