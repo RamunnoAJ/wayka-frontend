@@ -7,7 +7,8 @@
     "base": {
       "node": "24.12.0",
       "env": {
-        "EXPO_PUBLIC_USE_RN_FETCH": "1"
+        "EXPO_PUBLIC_USE_RN_FETCH": "1",
+        "EXPO_PUBLIC_MAPAS_PROVEEDOR": "google"
       }
     },
     "development": {
