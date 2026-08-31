@@ -87,10 +87,24 @@ export function subirAdjunto(
 ): Promise<Adjunto> {
   const formulario = new FormData();
 
+  // **El orden importa y no es cosmético**: el backend recorre las partes en
+  // streaming y corta en cuanto encuentra el archivo, así que `tipo` (y
+  // `evento_id`) tienen que llegar antes. Al revés rechaza el pedido con un 400
+  // sin haber leído el cuerpo entero, y el cliente —que todavía está subiendo—
+  // se come el cierre de la conexión y lo ve como una caída de red.
+  formulario.append('tipo', tipo);
+  if (evento_id) formulario.append('evento_id', evento_id);
+
   // En web el picker ya entregó un `File`, que es lo que la plataforma sabe
   // serializar. En nativo no existe: el `FormData` de React Native acepta
   // `{ uri, name, type }` y resuelve la lectura del archivo él mismo — pasarle
   // un Blob leído a mano cargaría los 10 MB en memoria sin ninguna necesidad.
+  //
+  // **Esta rama depende de `EXPO_PUBLIC_USE_RN_FETCH=1`** (`.env`, y `eas.json`
+  // para los builds). Expo instala su propio `fetch` como global, y ese no
+  // entiende la parte `{ uri, ... }`: falla con "Unsupported FormDataPart
+  // implementation" antes de abrir la conexión, que en pantalla se lee como una
+  // caída de red. Sin la variable no hay subida de adjuntos en el teléfono.
   if (archivo.archivoWeb) {
     formulario.append('archivo', archivo.archivoWeb, archivo.nombre);
   } else {
@@ -101,10 +115,19 @@ export function subirAdjunto(
     } as unknown as Blob);
   }
 
-  formulario.append('tipo', tipo);
-  if (evento_id) formulario.append('evento_id', evento_id);
-
   return http.subirArchivo<Adjunto>(rutaDePaciente(pacienteId), formulario, { signal });
+}
+
+/**
+ * Un adjunto con su URL de descarga recién firmada.
+ *
+ * Existe por la vida corta de esa URL (regla 4.14.4): la del listado sirve
+ * mientras la pantalla esté fresca, pero una ficha abierta hace media hora ya
+ * la tiene vencida. Quien va a **abrir** el archivo lo pide de nuevo; quien
+ * solo lo lista, no.
+ */
+export function obtenerAdjunto(adjuntoId: string): Promise<Adjunto> {
+  return http.get<Adjunto>(`/adjuntos/${adjuntoId}`);
 }
 
 /** Baja lógica: **no borra el objeto del bucket** (regla 2.4). */

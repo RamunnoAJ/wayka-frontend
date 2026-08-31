@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { Adjunto } from '../../api/adjunto';
-import { Button, EmptyState, Icon, InlineError } from '../../components';
+import {
+  Button,
+  EmptyState,
+  Icon,
+  InlineError,
+  MiniaturaDeArchivo,
+  type RectanguloEnPantalla,
+} from '../../components';
 import { useTheme } from '../../theme';
 
 import { fechaCorta, tamanoDeArchivo } from './formato';
 import { iconoDeArchivo } from './HistorialClinico';
 import { Seccion } from './Seccion';
+import { VisorDeAdjunto } from './VisorDeAdjunto';
 import { SubidaDeAdjunto } from './SubidaDeAdjunto';
 
 /**
@@ -44,6 +53,14 @@ export function SeccionAdjuntos({
   onRetirar,
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
+
+  // Cuál se está mirando, y desde qué tarjeta se abrió. Se guarda el adjunto
+  // entero y no solo su id: el visor muestra nombre y peso desde el primer
+  // cuadro, mientras la URL fresca viaja. El rectángulo es de dónde sale.
+  const [mirando, setMirando] = useState<{
+    adjunto: Adjunto;
+    origen?: RectanguloEnPantalla;
+  } | null>(null);
 
   return (
     <Seccion titulo="Adjuntos generales" nota="No se editan: se retiran y se sube otro">
@@ -91,9 +108,14 @@ export function SeccionAdjuntos({
                   { borderRadius: px('--radius-md'), borderColor: t['--border-default'] },
                 ]}
               >
-                <View style={[estilos.miniatura, { backgroundColor: t['--surface-sunken'] }]}>
-                  <Icon name={iconoDeArchivo(adjunto)} size={26} color={t['--text-subtle']} />
-                </View>
+                <MiniaturaDeArchivo
+                  contentType={adjunto.content_type}
+                  url={adjunto.archivo_url}
+                  icono={iconoDeArchivo(adjunto)}
+                  alto={ALTO_DE_MINIATURA}
+                  onAbrir={(origen) => setMirando({ adjunto, origen })}
+                  accessibilityLabel={`Ver ${adjunto.nombre_archivo}`}
+                />
                 <View style={estilos.cuerpo}>
                   <Text
                     style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}
@@ -133,14 +155,24 @@ export function SeccionAdjuntos({
           })}
         </View>
       )}
+
+      {mirando ? (
+        <VisorDeAdjunto
+          adjunto={mirando.adjunto}
+          origen={mirando.origen}
+          onCerrar={() => setMirando(null)}
+        />
+      ) : null}
     </Seccion>
   );
 }
 
+/** Alto de la banda de la miniatura dentro de la tarjeta. */
+const ALTO_DE_MINIATURA = 88;
+
 const estilos = StyleSheet.create({
   grilla: { flexWrap: 'wrap', gap: 14 },
   tarjeta: { flexGrow: 1, flexBasis: 220, minWidth: 220, borderWidth: 1, overflow: 'hidden' },
-  miniatura: { height: 88, alignItems: 'center', justifyContent: 'center' },
   cuerpo: { padding: 14, gap: 6 },
   ajeno: { flexDirection: 'row', alignItems: 'center', gap: 5 },
 });

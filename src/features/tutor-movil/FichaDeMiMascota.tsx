@@ -16,9 +16,9 @@ import { mensajeDeError } from '../../lib/errores';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { capitalizar, edad, fechaCorta, peso } from '../paciente/formato';
+import { useGuardarPesoDelTutor } from '../sincronizacion';
 import {
   derivarAdjuntos,
-  useActualizarPeso,
   useAdjuntos,
   useEventosClinicos,
   useMedicaciones,
@@ -40,7 +40,7 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
   const eventos = useEventosClinicos(pacienteId);
   const medicaciones = useMedicaciones(pacienteId);
   const adjuntos = useAdjuntos(pacienteId);
-  const guardarPeso = useActualizarPeso(pacienteId);
+  const guardarPeso = useGuardarPesoDelTutor(paciente.data);
   const retirar = useRetirarAdjunto(pacienteId);
   const { sesion } = useSesion();
 

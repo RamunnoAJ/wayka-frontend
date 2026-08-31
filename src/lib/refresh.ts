@@ -6,6 +6,7 @@ import {
   guardarTokenRefresco,
   leerTokenRefresco,
 } from './almacenamiento-refresh';
+import { destruirBaseLocal } from './base-local';
 import { registrarRefrescador } from './http';
 
 /**
@@ -59,6 +60,12 @@ async function canjear(): Promise<string | null> {
   } catch {
     // Token inválido, reuso detectado o Usuario.activo = false: no hay sesión
     // que salvar.
+    //
+    // La copia local se va con ella. Es lo que acota cuánto tiempo un
+    // dispositivo puede seguir mostrando datos clínicos sin volver a demostrar
+    // que la sesión sigue viva: el vencimiento del token de acceso no bloquea la
+    // lectura offline —sería inutilizable—, pero el del refresco sí (doc 11, 8).
+    await destruirBaseLocal();
     await borrarTokenRefresco();
     limpiarSesion();
     return null;

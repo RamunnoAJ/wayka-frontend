@@ -1,4 +1,11 @@
-export { darDeBajaEsteDispositivo, olvidarRegistro, registrarEsteDispositivo } from './registro';
+export {
+  activarAvisos,
+  avisosActivados,
+  darDeBajaEsteDispositivo,
+  desactivarAvisos,
+  olvidarRegistro,
+  registrarEsteDispositivo,
+} from './registro';
 export {
   configurarPresentacionDeAvisos,
   HAY_PUSH,

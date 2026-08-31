@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { cerrarSesion } from '../../api/auth';
 import { RUTA_LOGIN } from '../../constants/roles';
 import { borrarTokenRefresco, leerTokenRefresco } from '../../lib/almacenamiento-refresh';
+import { destruirBaseLocal } from '../../lib/base-local';
 import { limpiarSesion } from '../../stores/sesion';
 import { darDeBajaEsteDispositivo } from '../notificaciones';
 
@@ -18,6 +19,11 @@ import { darDeBajaEsteDispositivo } from '../notificaciones';
  * Si la llamada falla igual se limpia el estado local: dejar al usuario
  * "adentro" porque el servidor no contestó es peor que una cadena que queda
  * viva hasta vencer.
+ *
+ * **Destruye la copia local**, con lo que puede quedar sin enviar adentro. Es
+ * deliberado y no un descuido: el estado que sobrevive a un cierre de sesión es
+ * estado que la persona siguiente puede leer, y acá ese estado es el historial
+ * clínico de mascotas ajenas (doc 11, sección 8).
  */
 export function useCerrarSesion() {
   const queryClient = useQueryClient();
@@ -34,6 +40,7 @@ export function useCerrarSesion() {
       if (tokenRefresco) await cerrarSesion(tokenRefresco);
     },
     onSettled: async () => {
+      await destruirBaseLocal();
       await borrarTokenRefresco();
       limpiarSesion();
       queryClient.clear();

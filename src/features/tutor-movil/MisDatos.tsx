@@ -16,10 +16,10 @@ import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { BotonCerrarSesion } from '../auth';
 import { FormularioDeContrasena } from '../cuenta';
-import { useActualizarTutor, useTutor } from '../tutor/queries';
+import { useGuardarFichaDelTutor } from '../sincronizacion';
 import { TIPOS_DE_DOCUMENTO } from '../veterinario/FormularioDeVeterinario';
 
-import { useMiTutorID } from './queries';
+import { useMiFicha, useMiTutorID } from './queries';
 
 /**
  * Mis datos (Alcance de Plataformas, 5.8).
@@ -32,8 +32,10 @@ import { useMiTutorID } from './queries';
 export function MisDatos() {
   const { t, px, texto } = useTheme();
   const tutorId = useMiTutorID();
-  const consulta = useTutor(tutorId);
-  const guardar = useActualizarTutor(tutorId ?? '');
+  const consulta = useMiFicha(tutorId);
+  // La escritura entra a la cola en el dispositivo y va directo en web: es la
+  // misma llamada desde la pantalla, y por eso el formulario no cambia.
+  const guardar = useGuardarFichaDelTutor(consulta.data);
   const { sesion } = useSesion();
   const [cambiandoContrasena, setCambiandoContrasena] = useState(false);
 
@@ -76,7 +78,25 @@ export function MisDatos() {
     );
   }
 
+  // En el dispositivo la ficha sale de la copia local, que está vacía hasta la
+  // primera sincronización. No es un error —no hay nada que reintentar contra el
+  // servidor— pero tampoco hay datos que mostrar, así que se dice tal cual.
   const tutor = consulta.data;
+  if (!tutor) {
+    return (
+      <View style={[estilos.raiz, estilos.cargando, { backgroundColor: t['--surface-page'] }]}>
+        <EmptyState
+          icon="refresh-cw"
+          title="Todavía no descargamos tus datos"
+          description="Conectate a internet un momento y tus datos van a aparecer acá."
+        />
+        <View style={estilos.salida}>
+          <BotonCerrarSesion />
+        </View>
+      </View>
+    );
+  }
+
   const valores: ActualizarTutorEntrada = {
     nombre: tutor.nombre,
     contacto: tutor.contacto,

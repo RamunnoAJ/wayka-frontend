@@ -5,7 +5,10 @@
   },
   "build": {
     "base": {
-      "node": "24.12.0"
+      "node": "24.12.0",
+      "env": {
+        "EXPO_PUBLIC_USE_RN_FETCH": "1"
+      }
     },
     "development": {
       "extends": "base",
@@ -35,7 +38,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api-staging.wayka.app"
+        "EXPO_PUBLIC_API_URL": "https://api-staging.wayka.app",
+        "EXPO_PUBLIC_USE_RN_FETCH": "1"
       }
     },
     "production": {
@@ -47,7 +51,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.wayka.app"
+        "EXPO_PUBLIC_API_URL": "https://api.wayka.app",
+        "EXPO_PUBLIC_USE_RN_FETCH": "1"
       }
     }
   },

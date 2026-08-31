@@ -1,0 +1,3 @@
+/* Stub que reemplaza a design-system/tokens/fonts.css en el bundle — ver metro.config.js.
+   Vacío a propósito: el @font-face real de Satoshi se sirve desde
+   /public/fonts/satoshi.generated.css y lo enlaza app/+html.tsx. */

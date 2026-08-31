@@ -29,5 +29,13 @@ export { SidebarNav, type ItemDeSidebar } from './SidebarNav';
 export { Skeleton, SkeletonText } from './Skeleton';
 export { SocialButton } from './SocialButton';
 export { StatusDot } from './StatusDot';
+export { Switch } from './Switch';
 export { Tabs, type ItemDeTab } from './Tabs';
 export { UploadItem, TIPOS_DE_ARCHIVO, type TipoDeArchivo } from './UploadItem';
+export {
+  VisorDeArchivo,
+  MiniaturaDeArchivo,
+  esImagenMostrable,
+  iconoDeContentType,
+  type RectanguloEnPantalla,
+} from './VisorDeArchivo';

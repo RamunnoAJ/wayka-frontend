@@ -10,6 +10,7 @@ import {
   SkeletonText,
 } from '../../components';
 import { sombra, useTheme } from '../../theme';
+import { IndicadorDeSincronizacion } from '../sincronizacion';
 import { capitalizar, edad, peso } from '../paciente/formato';
 
 import { useMisMascotas } from './queries';
@@ -22,7 +23,13 @@ import { useMisMascotas } from './queries';
  * (proceso 4.1). El vacío tiene que explicar eso, no ofrecer un botón que no
  * existe.
  */
-export function MisMascotas({ onAbrir }: { onAbrir: (mascota: Paciente) => void }) {
+export function MisMascotas({
+  onAbrir,
+  onVerRechazos,
+}: {
+  onAbrir: (mascota: Paciente) => void;
+  onVerRechazos: () => void;
+}) {
   const { t, px, texto } = useTheme();
   const mascotas = useMisMascotas();
 
@@ -31,6 +38,8 @@ export function MisMascotas({ onAbrir }: { onAbrir: (mascota: Paciente) => void 
       <ScrollView>
         <View style={[estilos.contenido, { paddingHorizontal: px('--gutter-mobile') }]}>
           <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Mis mascotas</Text>
+
+          <IndicadorDeSincronizacion onVerRechazos={onVerRechazos} />
 
           {mascotas.isPending ? (
             <SkeletonText lines={4} />

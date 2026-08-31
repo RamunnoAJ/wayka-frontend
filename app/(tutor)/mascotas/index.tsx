@@ -7,7 +7,10 @@ import { EntradaDePantalla } from '../../../src/components';
 export default function MascotasDelTutor() {
   return (
     <EntradaDePantalla>
-      <MisMascotas onAbrir={(mascota) => router.push(`/(tutor)/mascotas/${mascota.id}`)} />
+      <MisMascotas
+        onAbrir={(mascota) => router.push(`/(tutor)/mascotas/${mascota.id}`)}
+        onVerRechazos={() => router.push('/(tutor)/sincronizacion')}
+      />
     </EntradaDePantalla>
   );
 }

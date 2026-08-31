@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tan
 
 import {
   listarAdjuntos,
+  obtenerAdjunto,
   partirPorPertenencia,
   retirarAdjunto,
   subirAdjunto,
@@ -71,6 +72,7 @@ export const CLAVES = {
   medicaciones: (id: string) => ['paciente', id, 'medicaciones'] as const,
   citas: (id: string) => ['paciente', id, 'citas'] as const,
   adjuntos: (id: string) => ['paciente', id, 'adjuntos'] as const,
+  adjunto: (id: string) => ['adjunto', id] as const,
   plantel: () => ['veterinarios'] as const,
   veterinario: (id: string) => ['veterinario', id] as const,
 };
@@ -225,6 +227,25 @@ export function derivarDatosCriticos(
     ultimaVacuna,
     proximaDosis,
   };
+}
+
+/**
+ * Un adjunto solo, para abrirlo.
+ *
+ * `archivo_url` es una URL prefirmada que vence en minutos y se recalcula en
+ * cada lectura (regla 4.14.4), así que **no se cachea**: `staleTime: 0` y
+ * `gcTime: 0` hacen que abrir el visor dos veces pida dos URLs en vez de
+ * reusar una muerta. Es el único lugar de la ficha que necesita esa garantía;
+ * el listado se conforma con la que trajo.
+ */
+export function useAdjunto(adjuntoId: string | undefined): UseQueryResult<Adjunto> {
+  return useQuery({
+    queryKey: CLAVES.adjunto(adjuntoId ?? ''),
+    queryFn: () => obtenerAdjunto(adjuntoId as string),
+    enabled: Boolean(adjuntoId),
+    staleTime: 0,
+    gcTime: 0,
+  });
 }
 
 /** Adjuntos partidos como los consume la pantalla. */

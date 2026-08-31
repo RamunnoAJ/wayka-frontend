@@ -3,10 +3,12 @@ import { render } from '../../pruebas/render';
 import { MisDatos } from './MisDatos';
 import { useMiTutorID } from './queries';
 
-jest.mock('./queries', () => ({ useMiTutorID: jest.fn() }));
-jest.mock('../tutor/queries', () => ({
-  useTutor: () => ({ isPending: false, isError: false, data: undefined }),
-  useActualizarTutor: () => ({ mutate: jest.fn(), isPending: false }),
+jest.mock('./queries', () => ({
+  useMiTutorID: jest.fn(),
+  useMiFicha: () => ({ isPending: false, isError: false, data: undefined }),
+}));
+jest.mock('../sincronizacion', () => ({
+  useGuardarFichaDelTutor: () => ({ mutate: jest.fn(), isPending: false }),
 }));
 
 const useMiTutorIDMock = useMiTutorID as jest.MockedFunction<typeof useMiTutorID>;

@@ -133,7 +133,7 @@ Definido en [10-estandares-desarrollo-frontend.md](10-estandares-desarrollo-fron
 - **Adaptación de los 39 componentes entregados a primitivas de React Native** — ver `09-design-system-integracion.md`, sección 6, marcado ahí como pendiente de planificación aparte.
 - **Almacenamiento seguro del token de refresco en web** — marcado como decisión abierta en la sección 6, no resuelto acá.
 - **CI/CD y pipelines de EAS Build / EAS Submit** — ya marcado como pendiente en Arquitectura del Sistema, sección 6.
-- **Offline-first / sincronización sin conexión** — no contemplado para el MVP.
+- **Offline-first / sincronización sin conexión** — el contrato está en `11-sincronizacion-offline.md` (documento compartido, en `/docs` de la raíz): entra al MVP solo para el tutor en móvil. Lo que este documento sigue sin definir es su implementación en el cliente — esquema de la base local, detección de conectividad y política de reintento —, que va en `10-estandares-desarrollo-frontend.md`.
 
 ## 12. Resumen de encaje con decisiones previas
 

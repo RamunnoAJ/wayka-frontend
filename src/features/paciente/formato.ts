@@ -31,9 +31,39 @@ export function fechaCorta(iso: string): string {
   return `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+/** `2026-08-27` → `27 ago`, sin el año: el extremo de un rango que ya lo dice. */
+export function diaYMes(iso: string): string {
+  const d = desdeIso(iso);
+  return `${d.getDate()} ${MESES[d.getMonth()]}`;
+}
+
 /** `2026-08-31` → `lun`. */
 export function diaDeSemanaCorto(iso: string): string {
   return DIAS_DE_SEMANA[desdeIso(iso).getDay()] ?? '';
+}
+
+const MESES_LARGOS = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+];
+
+/**
+ * `2026-09-05` → `septiembre 2026`. El encabezado de un mes de calendario, donde
+ * la abreviatura de tres letras se lee como un dato y no como un título.
+ */
+export function mesYAnio(iso: string): string {
+  const d = desdeIso(iso);
+  return `${MESES_LARGOS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 /**

@@ -1,7 +1,18 @@
 import { eliminarDispositivo, registrarDispositivo } from '../../api/dispositivo';
+import {
+  guardarPreferenciaDeAvisos,
+  leerPreferenciaDeAvisos,
+} from '../../lib/almacenamiento-avisos';
 
-import { darDeBajaEsteDispositivo, olvidarRegistro, registrarEsteDispositivo } from './registro';
 import { leerEstadoDelPermiso, obtenerTokenDePush } from './push';
+import {
+  activarAvisos,
+  avisosActivados,
+  darDeBajaEsteDispositivo,
+  desactivarAvisos,
+  olvidarRegistro,
+  registrarEsteDispositivo,
+} from './registro';
 
 jest.mock('../../api/dispositivo', () => ({
   registrarDispositivo: jest.fn(),
@@ -15,6 +26,32 @@ jest.mock('./push', () => ({
   obtenerTokenDePush: jest.fn(),
   plataformaDelDispositivo: () => 'android',
 }));
+
+// El almacenamiento se simula en memoria y no se mockea con `jest.fn()` sueltos:
+// lo que hay que probar es que la preferencia **sobreviva**, y para eso el doble
+// tiene que recordar lo que le guardaron.
+jest.mock('../../lib/almacenamiento-avisos', () => {
+  let preferencia: boolean | null = null;
+  let dispositivo: string | null = null;
+  return {
+    leerPreferenciaDeAvisos: jest.fn(async () => preferencia ?? true),
+    guardarPreferenciaDeAvisos: jest.fn(async (valor: boolean) => {
+      preferencia = valor;
+    }),
+    leerDispositivoRegistrado: jest.fn(async () => dispositivo),
+    guardarDispositivoRegistrado: jest.fn(async (id: string | null) => {
+      dispositivo = id;
+    }),
+    __reiniciar: () => {
+      preferencia = null;
+      dispositivo = null;
+    },
+  };
+});
+
+const almacen = jest.requireMock('../../lib/almacenamiento-avisos') as {
+  __reiniciar: () => void;
+};
 
 const registrar = registrarDispositivo as jest.Mock;
 const eliminar = eliminarDispositivo as jest.Mock;
@@ -34,6 +71,7 @@ describe('registro del dispositivo', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     olvidarRegistro();
+    almacen.__reiniciar();
     permiso.mockResolvedValue('concedido');
     token.mockResolvedValue('ExponentPushToken[abc]');
     registrar.mockResolvedValue({ id: 'disp-1' });
@@ -103,5 +141,87 @@ describe('registro del dispositivo', () => {
     await darDeBajaEsteDispositivo();
 
     expect(eliminar).toHaveBeenCalledTimes(1);
+  });
+
+  it('cerrar sesión no apaga los avisos: al volver a entrar se registra igual', async () => {
+    await registrarEsteDispositivo();
+    await darDeBajaEsteDispositivo();
+    registrar.mockClear();
+
+    await registrarEsteDispositivo();
+
+    expect(registrar).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * El interruptor de la pantalla de avisos.
+ *
+ * Lo que se cuida acá es que **apagarlos siga apagado**: el registro corre en
+ * cada login, y sin la preferencia persistida el próximo ingreso volvería a dar
+ * de alta el teléfono y el control no serviría para nada.
+ *
+ * Y que el fallo **sí** se propague, al revés que en el login: acá el tutor está
+ * mirando el interruptor que movió, y darlo por hecho cuando el backend no lo
+ * aplicó le promete un cambio que no pasó.
+ */
+describe('interruptor de avisos', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    olvidarRegistro();
+    almacen.__reiniciar();
+    permiso.mockResolvedValue('concedido');
+    token.mockResolvedValue('ExponentPushToken[abc]');
+    registrar.mockResolvedValue({ id: 'disp-1' });
+    eliminar.mockResolvedValue(null);
+  });
+
+  it('arranca prendido: el permiso del sistema ya fue una decisión del tutor', async () => {
+    await expect(avisosActivados()).resolves.toBe(true);
+  });
+
+  it('apagarlos da de baja este teléfono', async () => {
+    await registrarEsteDispositivo();
+
+    await desactivarAvisos();
+
+    expect(eliminar).toHaveBeenCalledWith('disp-1');
+    await expect(avisosActivados()).resolves.toBe(false);
+  });
+
+  it('apagados no se vuelven a registrar en el próximo login', async () => {
+    await desactivarAvisos();
+    registrar.mockClear();
+
+    await registrarEsteDispositivo();
+
+    expect(registrar).not.toHaveBeenCalled();
+  });
+
+  it('prenderlos vuelve a dar de alta el teléfono', async () => {
+    await desactivarAvisos();
+
+    await activarAvisos();
+
+    expect(registrar).toHaveBeenCalled();
+    await expect(avisosActivados()).resolves.toBe(true);
+  });
+
+  it('si el alta falla, el error llega a la pantalla', async () => {
+    registrar.mockRejectedValue(new Error('sin red'));
+
+    await expect(activarAvisos()).rejects.toThrow('sin red');
+  });
+
+  it('si la baja falla, la preferencia igual queda apagada', async () => {
+    await registrarEsteDispositivo();
+    eliminar.mockRejectedValue(new Error('sin red'));
+
+    await expect(desactivarAvisos()).rejects.toThrow('sin red');
+
+    // Lo que el tutor pidió se respeta aunque el backend no haya contestado: el
+    // próximo login no vuelve a dar de alta el aparato.
+    await expect(leerPreferenciaDeAvisos()).resolves.toBe(false);
+    expect(guardarPreferenciaDeAvisos).toHaveBeenCalledWith(false);
   });
 });

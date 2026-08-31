@@ -1,3 +1,8 @@
+// react-native-gesture-handler necesita su propio setup: sin él,
+// `GestureHandlerRootView` intenta instalar el módulo nativo y falla al montar
+// cualquier cosa que use gestos (el visor de adjuntos).
+import 'react-native-gesture-handler/jestSetup';
+
 /**
  * Los matchers de `@testing-library/react-native` vienen incluidos desde su v14
  * y no hace falta importarlos: este archivo existe para los mocks del entorno.

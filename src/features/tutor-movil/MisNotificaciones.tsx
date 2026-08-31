@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Icon, PermissionCard } from '../../components';
+import { Icon, InlineError, PermissionCard, Switch } from '../../components';
 import { sombra, useTheme } from '../../theme';
 import {
+  activarAvisos,
+  avisosActivados,
+  desactivarAvisos,
   HAY_PUSH,
   leerEstadoDelPermiso,
   pedirPermiso,
-  registrarEsteDispositivo,
   type EstadoDelPermiso,
 } from '../notificaciones';
 
@@ -27,6 +29,17 @@ import {
  * Y es **el único lugar donde se pide el permiso de notificaciones**: pedirlo al
  * arrancar la app sería pedirlo en el momento en que menos se entiende para qué
  * es. Acá el tutor ya está leyendo qué avisos manda el sistema.
+ *
+ * **El interruptor y el permiso del teléfono son dos cosas distintas.** El
+ * permiso lo da el sistema operativo y solo se puede volver atrás desde sus
+ * ajustes; el interruptor es de la app y da de baja este aparato en el backend
+ * (Alcance de Plataformas, 5.5). Por eso no se muestran los dos a la vez: sin
+ * permiso concedido el interruptor no tendría nada que apagar, y mostrarlo
+ * prometería un control que el sistema ya bloqueó.
+ *
+ * Es **por teléfono y no por cuenta**: el modelo registra Dispositivos, no una
+ * preferencia del Usuario. Apagarlos acá no apaga los del otro aparato del
+ * mismo tutor, que es lo que corresponde — el que molesta es este.
  */
 const AVISOS = [
   {
@@ -44,11 +57,16 @@ const AVISOS = [
 export function MisNotificaciones() {
   const { t, px, texto } = useTheme();
   const [permiso, setPermiso] = useState<EstadoDelPermiso | null>(null);
+  const [activados, setActivados] = useState(false);
+  const [aplicando, setAplicando] = useState(false);
+  const [fallo, setFallo] = useState(false);
 
   useEffect(() => {
     let vigente = true;
-    void leerEstadoDelPermiso().then((estado) => {
-      if (vigente) setPermiso(estado);
+    void Promise.all([leerEstadoDelPermiso(), avisosActivados()]).then(([estado, quiere]) => {
+      if (!vigente) return;
+      setPermiso(estado);
+      setActivados(quiere);
     });
     return () => {
       vigente = false;
@@ -59,8 +77,28 @@ export function MisNotificaciones() {
     const estado = await pedirPermiso();
     setPermiso(estado);
     // Recién con el permiso concedido hay token que registrar: el login lo
-    // intentó y se fue sin nada.
-    if (estado === 'concedido') await registrarEsteDispositivo();
+    // intentó y se fue sin nada. Conceder el permiso es prenderlos.
+    if (estado !== 'concedido') return;
+    await cambiar(true);
+  }
+
+  /**
+   * Aplica el cambio contra el backend y solo entonces lo da por hecho. Un
+   * interruptor que se mueve primero y se arregla después le dice al tutor que
+   * los avisos están apagados cuando siguen llegando.
+   */
+  async function cambiar(destino: boolean) {
+    setAplicando(true);
+    setFallo(false);
+    try {
+      if (destino) await activarAvisos();
+      else await desactivarAvisos();
+      setActivados(destino);
+    } catch {
+      setFallo(true);
+    } finally {
+      setAplicando(false);
+    }
   }
 
   const tarjeta = {
@@ -97,6 +135,23 @@ export function MisNotificaciones() {
                 Desde el navegador podés ver todo lo de tus mascotas, pero los recordatorios de
                 turno se mandan al teléfono. Entrá una vez desde la app para empezar a recibirlos.
               </Text>
+            </View>
+          ) : permiso === 'concedido' ? (
+            <View style={[tarjeta, estilos.bloque]}>
+              <Switch
+                label="Recibir avisos en este teléfono"
+                description={
+                  activados
+                    ? 'Te llegan los recordatorios de los turnos de tus mascotas.'
+                    : 'Están apagados en este aparato. Tus turnos siguen igual.'
+                }
+                checked={activados}
+                disabled={aplicando}
+                onChange={(destino) => void cambiar(destino)}
+              />
+              {fallo ? (
+                <InlineError title="No se pudo cambiar" onRetry={() => void cambiar(!activados)} />
+              ) : null}
             </View>
           ) : permiso ? (
             <PermissionCard
@@ -146,9 +201,9 @@ export function MisNotificaciones() {
               Si no te llegan
             </Text>
             <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-              Revisá que la app tenga permiso de notificaciones en los ajustes del teléfono. Cerrar
-              sesión da de baja este aparato, así que dejamos de mandarle avisos hasta que vuelvas a
-              entrar.
+              Revisá que el interruptor de arriba esté prendido y que la app tenga permiso de
+              notificaciones en los ajustes del teléfono. Cerrar sesión también da de baja este
+              aparato, y vuelve a darlo de alta cuando entrás de nuevo.
             </Text>
           </View>
         </View>

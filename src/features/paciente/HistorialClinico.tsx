@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Adjunto } from '../../api/adjunto';
 import { TIPO_DE_EVENTO, type EventoClinico, type TipoDeEvento } from '../../api/evento-clinico';
@@ -19,6 +19,7 @@ import { useTheme, type Tokens } from '../../theme';
 
 import { fechaCorta, tamanoDeArchivo } from './formato';
 import { Seccion } from './Seccion';
+import { VisorDeAdjunto } from './VisorDeAdjunto';
 
 /**
  * Zona 3.1: el historial, en timeline descendente.
@@ -276,6 +277,9 @@ function FilaDeEvento({
   onDarDeBaja,
 }: FilaProps) {
   const { t, px, texto } = useTheme();
+  // Cuál de los adjuntos de este evento se está mirando. Es estado de la fila y
+  // no del historial: dos eventos no se abren a la vez.
+  const [mirando, setMirando] = useState<Adjunto | null>(null);
   const meta = META[evento.tipo];
   const datos = Object.entries(evento.campo_estructurado ?? {}).filter(
     ([, valor]) => valor != null && valor !== '',
@@ -369,8 +373,16 @@ function FilaDeEvento({
         {adjuntos.length > 0 ? (
           <View style={estilos.adjuntos}>
             {adjuntos.map((adjunto) => (
-              <View
+              // El chip no tiene miniatura —es una línea de texto dentro del
+              // timeline—, así que el visor abre con fundido y no saliendo de
+              // acá: no hay imagen de la que crecer.
+              <Pressable
                 key={adjunto.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Ver ${adjunto.nombre_archivo}`}
+                accessibilityHint="Abre el archivo"
+                onPress={() => setMirando(adjunto)}
+                onLongPress={() => setMirando(adjunto)}
                 style={[
                   estilos.chipAdjunto,
                   {
@@ -384,10 +396,12 @@ function FilaDeEvento({
                 <Text style={[texto('caption'), { color: t['--text-body'] }]}>
                   {`${adjunto.nombre_archivo} · ${tamanoDeArchivo(adjunto.tamano_bytes)}`}
                 </Text>
-              </View>
+              </Pressable>
             ))}
           </View>
         ) : null}
+
+        {mirando ? <VisorDeAdjunto adjunto={mirando} onCerrar={() => setMirando(null)} /> : null}
       </View>
     </View>
   );
