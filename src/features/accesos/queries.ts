@@ -11,16 +11,22 @@ import {
 } from '../../api/acceso-a-paciente';
 import { buscarClinicas, type ClinicaPublica } from '../../api/clinica';
 import {
+  aceptarInvitacion,
   anularInvitacion,
   canjearInvitacion,
   invitarCoTutor,
   listarInvitaciones,
+  listarInvitacionesRecibidas,
+  rechazarInvitacion,
   verInvitacion,
   type Invitacion,
+  type InvitacionRecibida,
   type InvitacionVistaPrevia,
   type InvitarCoTutorEntrada,
   type NivelInvitado,
 } from '../../api/invitacion';
+import { TIPO_USUARIO } from '../../constants/roles';
+import { useSesion } from '../../hooks/useSesion';
 import { sincronizar } from '../sincronizacion/motor';
 
 /**
@@ -35,7 +41,31 @@ export const CLAVES = {
   accesos: (pacienteId: string) => ['accesos', pacienteId] as const,
   invitaciones: (pacienteId: string) => ['invitaciones', pacienteId] as const,
   directorio: (busqueda: string) => ['clinicas', 'directorio', busqueda] as const,
+  recibidas: ['invitaciones', 'recibidas'] as const,
 };
+
+/**
+ * Las invitaciones que le llegaron al tutor. No pasa por la copia local: una
+ * invitación no es de una mascota que ya alcance —justamente, todavía no la
+ * alcanza—, así que no hay nada que replicar. Sin conexión no se ven, y aceptar
+ * necesita red igual.
+ *
+ * Solo corre para el tutor: a un veterinario no lo invita nadie, y pedirlo
+ * devolvería 403 en cada montaje de la barra de navegación.
+ */
+export function useInvitacionesRecibidas(): UseQueryResult<InvitacionRecibida[]> {
+  const { sesion } = useSesion();
+  return useQuery({
+    queryKey: CLAVES.recibidas,
+    queryFn: () => listarInvitacionesRecibidas(),
+    enabled: sesion?.usuario.tipo_usuario === TIPO_USUARIO.TUTOR,
+  });
+}
+
+/** Cuántas esperan una respuesta, para el contador de la barra. */
+export function useCuantasInvitacionesEsperan(): number {
+  return useInvitacionesRecibidas().data?.length ?? 0;
+}
 
 export function useAccesosDeMascota(pacienteId: string): UseQueryResult<AccesosDelPaciente> {
   return useQuery({
@@ -150,9 +180,30 @@ export function useVistaPreviaDeInvitacion(token: string): UseQueryResult<Invita
  * ciclo automático para ver la mascota que acaba de aceptar.
  */
 export function useAceptarInvitacion() {
+  return useMutacionQueIncorporaLaMascota((token: string) => canjearInvitacion(token));
+}
+
+/** Aceptar desde la bandeja, por identificador y no por el token del correo. */
+export function useAceptarInvitacionRecibida() {
+  return useMutacionQueIncorporaLaMascota((invitacionId: string) =>
+    aceptarInvitacion(invitacionId),
+  );
+}
+
+export function useRechazarInvitacion() {
   const cliente = useQueryClient();
   return useMutation({
-    mutationFn: (token: string) => canjearInvitacion(token),
+    mutationFn: (invitacionId: string) => rechazarInvitacion(invitacionId),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: CLAVES.recibidas });
+    },
+  });
+}
+
+function useMutacionQueIncorporaLaMascota(aceptar: (valor: string) => Promise<null>) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: aceptar,
     onSuccess: async () => {
       await sincronizar().catch(() => undefined);
       await cliente.invalidateQueries();

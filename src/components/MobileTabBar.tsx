@@ -17,6 +17,12 @@ export interface ItemDeTabBar {
   value: string;
   label: string;
   icon: NombreDeIcono;
+  /**
+   * Cuántas cosas esperan en ese destino. Un punto sin número diría que hay
+   * algo sin decir cuánto, y el número es justamente lo que decide si vale la
+   * pena entrar ahora. Cero o ausente no dibuja nada.
+   */
+  pendientes?: number;
 }
 
 interface MobileTabBarProps {
@@ -86,7 +92,21 @@ function ItemDeBarra({ item, activo, onPress }: ItemDeBarraProps) {
       style={estilos.item}
     >
       <Animated.View style={[estilos.contenido, presion.estilo]}>
-        <Icon name={item.icon} size={21} color={color} />
+        <View>
+          <Icon name={item.icon} size={21} color={color} />
+          {item.pendientes ? (
+            <View
+              style={[
+                estilos.pendientes,
+                { backgroundColor: t['--danger-500'], borderColor: t['--surface-card'] },
+              ]}
+            >
+              <Text style={[texto('caption'), estilos.numero]}>
+                {item.pendientes > 9 ? '9+' : String(item.pendientes)}
+              </Text>
+            </View>
+          ) : null}
+        </View>
         <Text
           numberOfLines={1}
           style={[texto('overline'), { fontWeight: activo ? '600' : '500', color }]}
@@ -102,4 +122,19 @@ const estilos = StyleSheet.create({
   base: { flexDirection: 'row', borderTopWidth: 1, paddingTop: 8, paddingHorizontal: 6 },
   item: { flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center' },
   contenido: { alignItems: 'center', justifyContent: 'center', gap: 3 },
+  // Encima del ícono y no al lado de la etiqueta: al lado empujaría el texto y
+  // movería la pestaña entera cada vez que aparece o se va.
+  pendientes: {
+    position: 'absolute',
+    top: -5,
+    left: 12,
+    minWidth: 17,
+    height: 17,
+    borderRadius: 9,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  numero: { color: '#fff', fontWeight: '700', lineHeight: 13 },
 });

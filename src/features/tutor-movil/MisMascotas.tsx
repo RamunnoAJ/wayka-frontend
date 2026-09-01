@@ -16,6 +16,7 @@ import { sombra, useTheme } from '../../theme';
 import { IndicadorDeSincronizacion } from '../sincronizacion';
 import { capitalizar, edad, peso } from '../paciente/formato';
 
+import { InvitacionesPendientes } from './InvitacionesPendientes';
 import { useAjenasPurgadas, useMisMascotas } from './queries';
 
 /**
@@ -52,6 +53,8 @@ export function MisMascotas({
           <IndicadorDeSincronizacion onVerRechazos={onVerRechazos} />
 
           {ajenasPurgadas ? <AvisoDeCopiaVencida /> : null}
+
+          <InvitacionesPendientes />
 
           {mascotas.isPending ? (
             <SkeletonText lines={4} />

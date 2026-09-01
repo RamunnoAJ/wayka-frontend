@@ -50,6 +50,31 @@ export function invitarCoTutor(pacienteId: string, entrada: InvitarCoTutorEntrad
   return http.post<null>(`${RUTA_PACIENTES}/${pacienteId}/invitaciones`, { body: entrada });
 }
 
+/**
+ * Lo mismo que la vista previa del enlace: qué mascota es, quién invita y con
+ * qué nivel. Nada del historial — aceptar es lo que da acceso a él.
+ */
+export interface InvitacionRecibida {
+  id: string;
+  nombre_del_paciente: string;
+  invitado_por: string;
+  nivel: NivelInvitado;
+  expira_at: string;
+  created_at: string;
+}
+
+/**
+ * Las invitaciones que le llegaron a la cuenta autenticada, y que todavía se
+ * pueden aceptar. Es cómo el invitado se entera desde la app, sin depender de
+ * que abra el correo.
+ *
+ * Se resuelven por el correo de la cuenta y no por su tutor: una invitación se
+ * dirige a una dirección, porque quien la recibe puede no tener cuenta todavía.
+ */
+export function listarInvitacionesRecibidas(): Promise<InvitacionRecibida[]> {
+  return http.get<InvitacionRecibida[]>(RUTA);
+}
+
 export function listarInvitaciones(pacienteId: string): Promise<Invitacion[]> {
   return http.get<Invitacion[]>(`${RUTA_PACIENTES}/${pacienteId}/invitaciones`);
 }
@@ -73,4 +98,19 @@ export function verInvitacion(token: string): Promise<InvitacionVistaPrevia> {
  */
 export function canjearInvitacion(token: string): Promise<null> {
   return http.post<null>(`${RUTA}/canje`, { body: { token } });
+}
+
+/**
+ * El mismo canje, con la invitación elegida de la bandeja en vez del enlace del
+ * correo. El token no viaja en el listado —es la credencial— así que acá alcanza
+ * el identificador: lo que autoriza en los dos casos es que la cuenta tenga el
+ * correo al que se dirigió.
+ */
+export function aceptarInvitacion(invitacionId: string): Promise<null> {
+  return http.post<null>(`${RUTA}/${invitacionId}/aceptar`);
+}
+
+/** La anula sin dar acceso, y el enlace del correo deja de servir. */
+export function rechazarInvitacion(invitacionId: string): Promise<null> {
+  return http.post<null>(`${RUTA}/${invitacionId}/rechazar`);
 }

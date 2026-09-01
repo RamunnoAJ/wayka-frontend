@@ -11,6 +11,8 @@ import { useCerrarSesion } from '../auth';
 import { useMiClinica } from '../clinica';
 import { useMiFichaDeVeterinario } from '../paciente/queries';
 
+import { useCuantasInvitacionesEsperan } from '../accesos/queries';
+
 import { destinoAlTocar, itemActivo, NAVEGACION_POR_ROL } from './items';
 
 /**
@@ -60,6 +62,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const rol = sesion?.usuario.tipo_usuario;
   const items = rol ? NAVEGACION_POR_ROL[rol] : [];
+  const invitaciones = useCuantasInvitacionesEsperan();
   const activo = itemActivo(items, ruta);
 
   // El menú manda el `href` del ítem; a dónde lleva —o si no lleva a ningún
@@ -114,6 +117,10 @@ export function Shell({ children }: { children: ReactNode }) {
           value: item.href,
           label: item.labelCorta ?? item.label,
           icon: item.icono,
+          // El contador va en Mascotas y no en Avisos: la tarjeta para aceptar
+          // vive ahí, y un badge que lleva a una pantalla sin nada que hacer es
+          // peor que ninguno. Avisos es el interruptor del push del teléfono.
+          pendientes: item.prefijo === '/mascotas' ? invitaciones : undefined,
         }))}
         value={activo?.href}
         onChange={ir}
