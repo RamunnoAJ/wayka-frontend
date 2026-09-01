@@ -302,6 +302,10 @@ export function FichaDeMiMascota({
             subió (regla 2.4), y el listado ya distingue al dueño por la cuenta
             autenticada.
 
+            El co-tutor de solo lectura no ve la zona de carga: lista y mira
+            (regla 3.2), y una zona que el backend va a rechazar es un viaje
+            perdido. El backend sigue siendo quien decide.
+
             No se le pasa `bloqueado`: los motivos de bloqueo de la ficha del
             veterinario son la matrícula vencida y el paciente dado de baja, y
             ninguno de los dos es una decisión que el tutor pueda ver ni
@@ -318,6 +322,7 @@ export function FichaDeMiMascota({
             bloqueado={false}
             motivoBloqueo=""
             soloMetadatos={adjuntos.data?.soloMetadatos ?? false}
+            puedeEscribir={puedeEscribir}
             onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
           />
         </View>

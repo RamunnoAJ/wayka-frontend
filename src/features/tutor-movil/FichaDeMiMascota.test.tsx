@@ -87,4 +87,27 @@ describe('FichaDeMiMascota', () => {
     expect(getByText('12,5 kg')).toBeTruthy();
     expect(queryByText('Actualizar')).toBeNull();
   });
+
+  // Los adjuntos son el mismo gateo: el de solo lectura lista y mira (regla
+  // 3.2). La zona de carga no se muestra deshabilitada, no se muestra.
+  it('el co-tutor de solo lectura ve los adjuntos y no la zona de carga', async () => {
+    conNivel('lectura');
+    const { getByText, queryByText } = await render(
+      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+    );
+
+    await waitFor(() => expect(getByText('Luna')).toBeTruthy());
+    expect(getByText('Adjuntos generales')).toBeTruthy();
+    expect(queryByText('Tipo de archivo')).toBeNull();
+  });
+
+  it('el co-tutor con edición sí ve la zona de carga de adjuntos', async () => {
+    conNivel('edicion');
+    const { getByText } = await render(
+      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+    );
+
+    await waitFor(() => expect(getByText('Luna')).toBeTruthy());
+    expect(getByText('Tipo de archivo')).toBeTruthy();
+  });
 });

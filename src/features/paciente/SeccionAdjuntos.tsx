@@ -44,6 +44,14 @@ interface AdjuntosProps {
    * están en la superficie de escritura sin conexión del tutor.
    */
   soloMetadatos?: boolean;
+  /**
+   * Quien mira puede subir y retirar. Falso para el co-tutor de solo lectura,
+   * que lista y mira y no escribe nada (Reglas de Negocio, 3.2): ofrecerle una
+   * zona de carga —o un "Retirar" sobre un archivo que subió antes de que le
+   * bajaran el nivel— que el backend va a rechazar es un error que la interfaz
+   * puede evitar. El backend sigue siendo el que decide.
+   */
+  puedeEscribir?: boolean;
   onRetirar: (adjunto: Adjunto) => void;
 }
 
@@ -58,6 +66,7 @@ export function SeccionAdjuntos({
   bloqueado,
   motivoBloqueo,
   soloMetadatos = false,
+  puedeEscribir = true,
   onRetirar,
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
@@ -71,27 +80,38 @@ export function SeccionAdjuntos({
   } | null>(null);
 
   return (
-    <Seccion titulo="Adjuntos generales" nota="No se editan: se retiran y se sube otro">
-      <View
-        style={{
-          padding: px('--gutter-card'),
-          borderBottomWidth: 1,
-          borderBottomColor: t['--border-subtle'],
-        }}
-      >
-        {soloMetadatos ? (
-          <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-            Necesitás conexión para ver estos archivos o subir uno nuevo.
-          </Text>
-        ) : (
-          <SubidaDeAdjunto
-            pacienteId={pacienteId}
-            tituloDeCamara={nombreDePaciente}
-            bloqueado={bloqueado}
-            motivoBloqueo={motivoBloqueo}
-          />
-        )}
-      </View>
+    <Seccion
+      titulo="Adjuntos generales"
+      nota={
+        puedeEscribir
+          ? 'No se editan: se retiran y se sube otro'
+          : 'Solo lectura: los mirás, no subís'
+      }
+    >
+      {puedeEscribir || soloMetadatos ? (
+        <View
+          style={{
+            padding: px('--gutter-card'),
+            borderBottomWidth: 1,
+            borderBottomColor: t['--border-subtle'],
+          }}
+        >
+          {soloMetadatos ? (
+            <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+              {puedeEscribir
+                ? 'Necesitás conexión para ver estos archivos o subir uno nuevo.'
+                : 'Necesitás conexión para ver estos archivos.'}
+            </Text>
+          ) : (
+            <SubidaDeAdjunto
+              pacienteId={pacienteId}
+              tituloDeCamara={nombreDePaciente}
+              bloqueado={bloqueado}
+              motivoBloqueo={motivoBloqueo}
+            />
+          )}
+        </View>
+      ) : null}
 
       {error ? (
         <View style={{ padding: px('--gutter-card') }}>
@@ -102,7 +122,11 @@ export function SeccionAdjuntos({
           <EmptyState
             icon="paperclip"
             title="Sin adjuntos generales"
-            description="Acá va lo que no cuelga de un evento: la ficha histórica en papel, el carnet de vacunación."
+            description={
+              puedeEscribir
+                ? 'Acá va lo que no cuelga de un evento: la ficha histórica en papel, el carnet de vacunación.'
+                : 'Todavía nadie subió la ficha histórica en papel ni el carnet de vacunación.'
+            }
           />
         </View>
       ) : (
@@ -146,7 +170,7 @@ export function SeccionAdjuntos({
                   <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
                     {`${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(adjunto.created_at.slice(0, 10))}`}
                   </Text>
-                  {propio && !soloMetadatos ? (
+                  {propio && puedeEscribir && !soloMetadatos ? (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -163,7 +187,7 @@ export function SeccionAdjuntos({
                       <Text
                         style={[texto('caption'), { fontWeight: '500', color: t['--text-subtle'] }]}
                       >
-                        Solo lo retira quien lo subió
+                        {puedeEscribir ? 'Solo lo retira quien lo subió' : 'Solo lectura'}
                       </Text>
                     </View>
                   )}
