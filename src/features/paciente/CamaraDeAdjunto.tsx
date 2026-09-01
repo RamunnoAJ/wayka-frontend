@@ -52,6 +52,11 @@ export function CamaraDeAdjunto({
   const [frontal, setFrontal] = useState(false);
   const [toma, setToma] = useState<CameraCapturedPicture | null>(null);
   const [sacando, setSacando] = useState(false);
+  // El sensor tarda en abrirse y `takePictureAsync` antes de eso tira
+  // `CameraOutputNotReadyException`. El obturador se dibuja apenas monta la
+  // vista, así que el primer toque suele llegar antes que la cámara.
+  const [lista, setLista] = useState(false);
+  const [fallo, setFallo] = useState<string | null>(null);
 
   // El permiso se pide al abrir la cámara y no al montar la pantalla que la
   // contiene: el prompt del sistema aparece cuando el usuario ya dijo que quiere
@@ -68,13 +73,19 @@ export function CamaraDeAdjunto({
   })();
 
   async function capturar() {
-    if (!camara.current || sacando) return;
+    if (!camara.current || sacando || !lista) return;
     setSacando(true);
+    setFallo(null);
     try {
       // exif en false: la foto de una herida no necesita llevar la ubicación de
       // la casa del tutor a un bucket. El backend guarda lo que le llega.
       const sacada = await camara.current.takePictureAsync({ quality: 0.85, exif: false });
       if (sacada) setToma(sacada);
+    } catch {
+      // La toma puede fallar por el sensor, no solo por llegar temprano: sin
+      // catch la promesa queda rechazada y el error sale por consola en vez de
+      // por la pantalla.
+      setFallo('No se pudo sacar la foto. Probá de nuevo.');
     } finally {
       setSacando(false);
     }
@@ -113,6 +124,7 @@ export function CamaraDeAdjunto({
           flash={flash}
           title={titulo}
           previewSrc={toma?.uri}
+          hint={fallo ?? (lista ? undefined : 'Preparando la cámara…')}
           visor={
             estado === 'sin-permiso' ? undefined : (
               <CameraView
@@ -120,11 +132,16 @@ export function CamaraDeAdjunto({
                 style={estilos.visor}
                 facing={frontal ? 'front' : 'back'}
                 flash={flash}
+                onCameraReady={() => setLista(true)}
+                onMountError={() => setFallo('No se pudo abrir la cámara.')}
               />
             )
           }
           onCapture={() => void capturar()}
-          onRetake={() => setToma(null)}
+          onRetake={() => {
+            setToma(null);
+            setFallo(null);
+          }}
           onConfirm={confirmar}
           onClose={onCerrar}
           onFlip={() => setFrontal((valor) => !valor)}
