@@ -8,13 +8,12 @@ import {
   Avatar,
   Badge,
   Button,
-  Icon,
   InlineError,
   Input,
   MedicationItem,
-  Presionable,
   SkeletonText,
 } from '../../components';
+import { EntradaDeAccesos } from '../accesos/EntradaDeAccesos';
 import { EtiquetaDeNivel } from '../accesos/EtiquetaDeNivel';
 import { mensajeDeError } from '../../lib/errores';
 import { useSesion } from '../../hooks/useSesion';
@@ -42,9 +41,11 @@ import { SeccionAdjuntos } from '../paciente/SeccionAdjuntos';
 export function FichaDeMiMascota({
   pacienteId,
   onVerAccesos,
+  onCompartir,
 }: {
   pacienteId: string;
   onVerAccesos: () => void;
+  onCompartir: () => void;
 }) {
   const { t, px, texto } = useTheme();
   const paciente = usePaciente(pacienteId);
@@ -111,24 +112,12 @@ export function FichaDeMiMascota({
             </View>
           </View>
 
-          <Presionable
-            onPress={onVerAccesos}
-            fondo={t['--surface-card']}
-            fondoDestacado={t['--surface-hover']}
-            borde={t['--border-default']}
-            accessibilityLabel="Quién la ve"
-            style={[estilos.entrada, { borderRadius: px('--radius-card') }]}
-          >
-            <View style={estilos.flexible}>
-              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>Quién la ve</Text>
-              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                {puedeAdministrar(mascota)
-                  ? 'Las veterinarias y las personas con acceso'
-                  : 'Con quién más se comparte'}
-              </Text>
-            </View>
-            <Icon name="chevron-right" size={18} color={t['--text-subtle']} />
-          </Presionable>
+          <EntradaDeAccesos
+            pacienteId={pacienteId}
+            administra={puedeAdministrar(mascota)}
+            onVerAccesos={onVerAccesos}
+            onCompartir={onCompartir}
+          />
 
           <View style={[tarjeta, estilos.bloque]}>
             <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
@@ -338,7 +327,6 @@ const estilos = StyleSheet.create({
   cargando: { padding: 24, gap: 12 },
   contenido: { paddingVertical: 24, gap: 16 },
   identidad: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  entrada: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, padding: 14 },
   flexible: { flex: 1, minWidth: 120, gap: 4 },
   bloque: { gap: 10 },
   pesoFila: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },
