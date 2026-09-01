@@ -7,10 +7,10 @@ import { useTheme } from '../../theme';
  * Confirmación de una revocación.
  *
  * El copy **dice la verdad sobre el efecto** en vez de prometer un corte
- * instantáneo: en el servidor es inmediato, pero un teléfono sin señal puede
- * seguir mostrando lo que ya descargó hasta que se conecte (Sincronización sin
- * Conexión, 8). Ocultarlo sería peor que el problema — quien revoca merece saber
- * qué queda expuesto y por cuánto.
+ * instantáneo: en el servidor es inmediato, pero un teléfono sin señal sigue
+ * mostrando lo que ya descargó hasta que se conecte, con un techo de una semana
+ * (Sincronización sin Conexión, 8). Ocultarlo sería peor que el problema — quien
+ * revoca merece saber qué queda expuesto y por cuánto.
  *
  * Con una veterinaria no hace falta la aclaración: la copia local es del tutor,
  * y el veterinario trabaja siempre contra el servidor.
@@ -51,7 +51,7 @@ export function ConfirmarRevocacion({
 
           <Text style={[texto('body'), { color: t['--text-muted'] }]}>
             {esPersona
-              ? `Va a dejar de ver a ${nombreDeLaMascota} apenas su teléfono se conecte. Si está sin señal, puede seguir viendo lo que ya descargó.`
+              ? `Va a dejar de ver a ${nombreDeLaMascota} apenas su teléfono se conecte. Si está sin señal, puede seguir viendo lo que ya descargó, hasta una semana.`
               : `Va a dejar de ver la ficha y el historial de ${nombreDeLaMascota}. Lo que ya escribió queda donde está, con su firma.`}
           </Text>
 

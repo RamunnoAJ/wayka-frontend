@@ -31,6 +31,7 @@ function cita(cambios: Partial<Cita> = {}): Cita {
   return {
     id: 'cita-1',
     paciente_id: 'p1',
+    clinica_id: 'c1',
     tipo: 'control',
     fecha_programada: '2027-01-04T12:30:00Z',
     estado: ESTADO_DE_CITA.PENDIENTE,

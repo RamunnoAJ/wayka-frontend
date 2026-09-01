@@ -29,6 +29,28 @@ export type EntidadLocal =
 
 const CLAVE_DE_MARCA = 'sincronizacion.hasta';
 
+/** Momento de la última sincronización que terminó bien. */
+const CLAVE_DE_CONFIRMACION = 'sincronizacion.confirmada_en';
+
+/** Queda en `1` cuando la caducidad se llevó alguna mascota ajena. */
+const CLAVE_DE_PURGA = 'sincronizacion.purgo_ajenas';
+
+/**
+ * Cuánto puede sobrevivir en el dispositivo la copia de una mascota **ajena** sin
+ * confirmar que el acceso sigue vigente.
+ *
+ * Es más corto que la vida del refresco (30 días), y la diferencia es el punto:
+ * la copia de una mascota propia son datos de uno, y nadie puede revocarle el
+ * acceso a sí mismo, así que ahí el límite del refresco alcanza. La de una
+ * mascota compartida son datos de un animal de otra persona, y a quien le
+ * revocaron el acceso le quedan en el teléfono hasta que el aparato se conecte
+ * (Sincronización sin Conexión, 8). Esto acota esa ventana de 30 días a 7,
+ * exactamente sobre el conjunto que la produce.
+ */
+export const DIAS_DE_COPIA_AJENA = 7;
+
+const MS_POR_DIA = 24 * 60 * 60 * 1000;
+
 export interface MutacionEnCola extends Mutacion {
   estado: 'pendiente' | 'rechazada';
   motivo?: MotivoDeRechazo;
@@ -86,11 +108,7 @@ export async function aplicarDelta(delta: CambiosDeSincronizacion): Promise<void
       );
     }
 
-    await db.runAsync(
-      'INSERT INTO marca (clave, valor) VALUES (?, ?) ON CONFLICT (clave) DO UPDATE SET valor = excluded.valor',
-      CLAVE_DE_MARCA,
-      String(delta.hasta),
-    );
+    await escribirMarca(db, CLAVE_DE_MARCA, String(delta.hasta));
   });
 }
 
@@ -113,6 +131,98 @@ async function guardar(
     pacienteId,
     registro.updated_at,
     JSON.stringify(registro),
+  );
+}
+
+/**
+ * Deja constancia de que la copia se confirmó contra el servidor recién ahora.
+ * Es lo que reinicia el reloj de la caducidad de las mascotas ajenas.
+ */
+export async function confirmarSincronizacion(momento = new Date()): Promise<void> {
+  const db = await base();
+  await db.withTransactionAsync(async () => {
+    await escribirMarca(db, CLAVE_DE_CONFIRMACION, momento.toISOString());
+    await db.runAsync('DELETE FROM marca WHERE clave = ?', CLAVE_DE_PURGA);
+  });
+}
+
+/**
+ * Caducidad de la copia de las mascotas ajenas.
+ *
+ * Corre en el dispositivo y **sin depender de la red**, que es todo el punto: si
+ * dependiera de sincronizar, no cubriría el caso que existe para cubrir —el
+ * teléfono que no se conecta.
+ *
+ * Borra los registros en vez de esconderlos: dejar el historial de un animal
+ * ajeno en disco y taparlo en la interfaz sería resolver el problema en el único
+ * lugar donde no está.
+ *
+ * Las mascotas **propias** no caducan: nadie puede revocarle a alguien el acceso
+ * a lo suyo, y vaciarle la app al tutor que se fue de vacaciones sin señal sería
+ * romper lo que la copia local vino a resolver.
+ */
+export async function purgarAjenasVencidas(tutorId: string, ahora = new Date()): Promise<number> {
+  const db = await base();
+  const confirmada = await leerConfirmacion();
+
+  // Sin confirmación previa no hay reloj que haya corrido: es una copia recién
+  // hecha, o una app anterior a esta regla. La próxima sincronización la fecha.
+  if (!confirmada) {
+    await confirmarSincronizacion(ahora);
+    return 0;
+  }
+  if (ahora.getTime() - confirmada.getTime() <= DIAS_DE_COPIA_AJENA * MS_POR_DIA) {
+    return 0;
+  }
+
+  const ajenas = (await leerMisMascotas()).filter((mascota) => mascota.tutor_id !== tutorId);
+  if (ajenas.length === 0) return 0;
+
+  await db.withTransactionAsync(async () => {
+    for (const mascota of ajenas) {
+      // Lo que cuelga de la mascota primero, y la ficha al final: al revés, una
+      // interrupción dejaría el historial sin ficha desde donde consultarlo.
+      await db.runAsync('DELETE FROM registro WHERE paciente_id = ?', mascota.id);
+      await db.runAsync("DELETE FROM registro WHERE entidad = 'paciente' AND id = ?", mascota.id);
+    }
+    await escribirMarca(db, CLAVE_DE_PURGA, '1');
+  });
+  return ajenas.length;
+}
+
+export async function leerConfirmacion(): Promise<Date | null> {
+  const db = await base();
+  const fila = await db.getFirstAsync<{ valor: string }>(
+    'SELECT valor FROM marca WHERE clave = ?',
+    CLAVE_DE_CONFIRMACION,
+  );
+  if (!fila) return null;
+  const momento = new Date(fila.valor);
+  return Number.isNaN(momento.getTime()) ? null : momento;
+}
+
+/**
+ * Si la caducidad se llevó alguna. El listado lo usa para avisar, porque una
+ * mascota que desaparece sin explicación se lee como un error de la aplicación.
+ */
+export async function hayAjenasPurgadas(): Promise<boolean> {
+  const db = await base();
+  const fila = await db.getFirstAsync<{ valor: string }>(
+    'SELECT valor FROM marca WHERE clave = ?',
+    CLAVE_DE_PURGA,
+  );
+  return fila?.valor === '1';
+}
+
+async function escribirMarca(
+  db: Awaited<ReturnType<typeof base>>,
+  clave: string,
+  valor: string,
+): Promise<void> {
+  await db.runAsync(
+    'INSERT INTO marca (clave, valor) VALUES (?, ?) ON CONFLICT (clave) DO UPDATE SET valor = excluded.valor',
+    clave,
+    valor,
   );
 }
 

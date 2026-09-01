@@ -6,6 +6,7 @@ import {
   Badge,
   Button,
   EmptyState,
+  Icon,
   InlineError,
   Presionable,
   SkeletonText,
@@ -15,7 +16,7 @@ import { sombra, useTheme } from '../../theme';
 import { IndicadorDeSincronizacion } from '../sincronizacion';
 import { capitalizar, edad, peso } from '../paciente/formato';
 
-import { useMisMascotas } from './queries';
+import { useAjenasPurgadas, useMisMascotas } from './queries';
 
 /**
  * Mis mascotas (Alcance de Plataformas, 5.2).
@@ -35,6 +36,7 @@ export function MisMascotas({
 }) {
   const { t, px, texto } = useTheme();
   const mascotas = useMisMascotas();
+  const ajenasPurgadas = useAjenasPurgadas();
 
   return (
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
@@ -48,6 +50,8 @@ export function MisMascotas({
           </View>
 
           <IndicadorDeSincronizacion onVerRechazos={onVerRechazos} />
+
+          {ajenasPurgadas ? <AvisoDeCopiaVencida /> : null}
 
           {mascotas.isPending ? (
             <SkeletonText lines={4} />
@@ -109,6 +113,33 @@ export function MisMascotas({
   );
 }
 
+/**
+ * Las mascotas compartidas dejan de mostrarse a los 7 días sin confirmar el
+ * acceso (Sincronización sin Conexión, 8). El aviso no las nombra: nombrarlas
+ * sería conservar el dato que se acaba de borrar.
+ */
+function AvisoDeCopiaVencida() {
+  const { t, px, texto } = useTheme();
+  return (
+    <View
+      style={[
+        estilos.aviso,
+        {
+          borderRadius: px('--radius-md'),
+          backgroundColor: t['--surface-accent-soft'],
+          borderColor: t['--border-default'],
+        },
+      ]}
+    >
+      <Icon name="alert-circle" size={18} color={t['--color-primary-strong']} />
+      <Text style={[texto('body-sm'), { color: t['--text-strong'], flex: 1 }]}>
+        Algunas mascotas compartidas dejaron de mostrarse porque hace más de una semana que no
+        pudimos confirmar tu acceso. Conectate para verlas de nuevo.
+      </Text>
+    </View>
+  );
+}
+
 const estilos = StyleSheet.create({
   raiz: { flex: 1 },
   contenido: { paddingVertical: 24, gap: 20 },
@@ -120,6 +151,7 @@ const estilos = StyleSheet.create({
   },
   lista: { gap: 12 },
   marcas: { alignItems: 'flex-end', gap: 6 },
+  aviso: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, borderWidth: 1, padding: 12 },
   tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, padding: 14 },
   flexible: { flex: 1, minWidth: 120, gap: 2 },
 });

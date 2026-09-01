@@ -10,7 +10,13 @@ import {
 import { obtenerTutor, type Tutor } from '../../api/tutor';
 import { useSesion } from '../../hooks/useSesion';
 import { hayCopiaLocal } from '../../lib/base-local';
-import { leerAgendaLocal, leerMiFicha, leerMisMascotas } from '../sincronizacion/almacen';
+import {
+  hayAjenasPurgadas,
+  leerAgendaLocal,
+  leerMiFicha,
+  leerMisMascotas,
+  purgarAjenasVencidas,
+} from '../sincronizacion/almacen';
 
 /**
  * Datos del tutor en la app.
@@ -30,10 +36,32 @@ import { leerAgendaLocal, leerMiFicha, leerMisMascotas } from '../sincronizacion
  * En web no hay copia local y el listado sale del endpoint, como siempre.
  */
 export function useMisMascotas(): UseQueryResult<Paciente[]> {
+  const tutorId = useMiTutorID();
   return useQuery({
     queryKey: hayCopiaLocal ? ['sincronizacion', 'copia', 'pacientes'] : ['pacientes', 'mios'],
-    queryFn: () => (hayCopiaLocal ? leerMisMascotas() : listarPacientes({ limite: 100 })),
+    // La caducidad corre acá y no solo al sincronizar: si dependiera de la red
+    // no cubriría el caso que existe para cubrir, que es el teléfono que no se
+    // conecta. Este es el camino por el que pasa toda apertura del listado.
+    queryFn: async () => {
+      if (!hayCopiaLocal) return listarPacientes({ limite: 100 });
+      if (tutorId) await purgarAjenasVencidas(tutorId);
+      return leerMisMascotas();
+    },
   });
+}
+
+/**
+ * Si la caducidad se llevó alguna mascota compartida. El listado lo dice: una
+ * mascota que desaparece sin explicación se lee como un error de la aplicación,
+ * y no lo es.
+ */
+export function useAjenasPurgadas(): boolean {
+  const { data } = useQuery({
+    queryKey: ['sincronizacion', 'copia', 'purgadas'],
+    queryFn: () => hayAjenasPurgadas(),
+    enabled: hayCopiaLocal,
+  });
+  return data ?? false;
 }
 
 /**

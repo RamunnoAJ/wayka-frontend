@@ -8,6 +8,7 @@ import { hayCopiaLocal } from '../../lib/base-local';
 
 import {
   aplicarDelta,
+  confirmarSincronizacion,
   descartar,
   leerMarca,
   listarPendientes,
@@ -56,6 +57,11 @@ async function correr(): Promise<ResumenDeSincronizacion> {
   const resumen = resumenVacio();
   await subir(resumen);
   await bajar(resumen);
+  // Recién acá: es una corrida que terminó bien, así que la copia quedó
+  // confirmada contra el servidor y el reloj de la caducidad vuelve a cero. Si
+  // la bajada falla, la excepción sale antes y la marca vieja queda en pie —
+  // que es lo correcto, porque no se confirmó nada.
+  await confirmarSincronizacion();
   return resumen;
 }
 

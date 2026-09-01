@@ -18,6 +18,7 @@ jest.mock('../../api/sincronizacion', () => ({
 }));
 jest.mock('./almacen', () => ({
   aplicarDelta: jest.fn(),
+  confirmarSincronizacion: jest.fn(),
   descartar: jest.fn(),
   leerMarca: jest.fn(),
   listarPendientes: jest.fn(),
