@@ -190,6 +190,20 @@ export async function purgarAjenasVencidas(tutorId: string, ahora = new Date()):
   return ajenas.length;
 }
 
+/**
+ * Si la copia guarda mascotas sin nivel de acceso.
+ *
+ * Es una copia anterior a que el delta lo trajera. No alcanza con esperar a la
+ * próxima bajada: una mascota que no cambió no vuelve a viajar, así que el nivel
+ * le faltaría para siempre y la app la trataría como ajena —escondiéndole al
+ * dueño sus propias acciones—. La salida es rehacer la copia una vez, que es el
+ * camino que ya existe para cuando el delta no alcanza.
+ */
+export async function hayPacientesSinNivel(): Promise<boolean> {
+  const mascotas = await leerMisMascotas();
+  return mascotas.some((mascota) => !mascota.nivel_de_acceso);
+}
+
 export async function leerConfirmacion(): Promise<Date | null> {
   const db = await base();
   const fila = await db.getFirstAsync<{ valor: string }>(

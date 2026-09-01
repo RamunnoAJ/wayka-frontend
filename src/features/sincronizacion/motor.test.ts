@@ -3,6 +3,7 @@ import { bajarCambios, subirMutaciones } from '../../api/sincronizacion';
 import {
   aplicarDelta,
   descartar,
+  hayPacientesSinNivel,
   leerMarca,
   listarPendientes,
   marcarRechazada,
@@ -20,6 +21,7 @@ jest.mock('./almacen', () => ({
   aplicarDelta: jest.fn(),
   confirmarSincronizacion: jest.fn(),
   descartar: jest.fn(),
+  hayPacientesSinNivel: jest.fn(),
   leerMarca: jest.fn(),
   listarPendientes: jest.fn(),
   marcarRechazada: jest.fn(),
@@ -30,6 +32,7 @@ const bajar = bajarCambios as jest.MockedFunction<typeof bajarCambios>;
 const subir = subirMutaciones as jest.MockedFunction<typeof subirMutaciones>;
 const pendientes = listarPendientes as jest.MockedFunction<typeof listarPendientes>;
 const marca = leerMarca as jest.MockedFunction<typeof leerMarca>;
+const sinNivel = hayPacientesSinNivel as jest.MockedFunction<typeof hayPacientesSinNivel>;
 
 function delta(sobrescribir: Partial<Awaited<ReturnType<typeof bajarCambios>>> = {}) {
   return { hasta: 10, hay_mas: false, requiere_carga_inicial: false, ...sobrescribir };
@@ -49,10 +52,25 @@ beforeEach(() => {
   jest.clearAllMocks();
   pendientes.mockResolvedValue([]);
   marca.mockResolvedValue(0);
+  sinNivel.mockResolvedValue(false);
   bajar.mockResolvedValue(delta());
 });
 
 describe('motor de sincronización', () => {
+  // Una copia anterior a que el delta trajera el nivel: esperar a la próxima
+  // bajada no sirve, porque una mascota que no cambió no vuelve a viajar.
+  it('rehace la copia si le falta el nivel de acceso de alguna mascota', async () => {
+    sinNivel.mockResolvedValue(true);
+    marca.mockResolvedValue(42);
+
+    const resumen = await sincronizar();
+
+    expect(vaciarCopia).toHaveBeenCalled();
+    expect(resumen.rehizoLaCopia).toBe(true);
+    // Vuelve a pedir desde cero y no desde la marca guardada.
+    expect(bajar).toHaveBeenCalledWith(0);
+  });
+
   it('sube antes de bajar, para que el delta traiga las escrituras propias ya aplicadas', async () => {
     const orden: string[] = [];
     pendientes.mockResolvedValue([enCola('m-1')]);

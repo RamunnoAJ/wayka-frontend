@@ -10,6 +10,7 @@ import {
   aplicarDelta,
   confirmarSincronizacion,
   descartar,
+  hayPacientesSinNivel,
   leerMarca,
   listarPendientes,
   marcarRechazada,
@@ -111,6 +112,15 @@ function comoMutacion(mutacion: Mutacion): Mutacion {
  */
 async function bajar(resumen: ResumenDeSincronizacion): Promise<void> {
   let desde = await leerMarca();
+
+  // Una copia anterior a que el delta trajera el nivel de acceso se rehace una
+  // sola vez: esperar a la próxima bajada no sirve, porque una mascota que no
+  // cambió no vuelve a viajar y el nivel le faltaría para siempre.
+  if (await hayPacientesSinNivel()) {
+    await vaciarCopia();
+    resumen.rehizoLaCopia = true;
+    desde = 0;
+  }
 
   for (;;) {
     const delta = await bajarCambios(desde);
