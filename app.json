@@ -20,6 +20,12 @@
       "expo-font",
       "expo-splash-screen",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Wayka usa tus fotos para que puedas adjuntar una imagen a la ficha de tu mascota."
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Wayka usa la cámara para que puedas adjuntar una foto a la ficha de tu mascota.",

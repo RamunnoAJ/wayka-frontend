@@ -1,5 +1,7 @@
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { ActionSheetIOS } from 'react-native';
 
 import { subirAdjunto } from '../../api/adjunto';
 import { TAMANO_MAXIMO_MB } from '../../lib/archivos';
@@ -8,24 +10,54 @@ import { render } from '../../pruebas/render';
 import { SubidaDeAdjunto } from './SubidaDeAdjunto';
 
 jest.mock('expo-document-picker', () => ({ getDocumentAsync: jest.fn() }));
+jest.mock('expo-image-picker', () => ({ launchImageLibraryAsync: jest.fn() }));
 jest.mock('../../api/adjunto', () => ({ subirAdjunto: jest.fn() }));
 
-const elegirDelSistema = DocumentPicker.getDocumentAsync as jest.Mock;
+const abrirArchivos = DocumentPicker.getDocumentAsync as jest.Mock;
+const abrirCarrete = ImagePicker.launchImageLibraryAsync as jest.Mock;
 const subir = subirAdjunto as jest.Mock;
 
+/**
+ * El tipo por defecto es "foto", y una foto sale del carrete: en iOS el
+ * selector de documentos abre la app Archivos, donde las fotos del teléfono no
+ * están. Por eso el mock que usan casi todas las pruebas es el del carrete.
+ */
 function devuelveArchivo(cambios: Record<string, unknown> = {}) {
-  elegirDelSistema.mockResolvedValue({
+  abrirCarrete.mockResolvedValue({
     canceled: false,
     assets: [
       {
         uri: 'file:///tmp/placa.jpg',
-        name: 'placa.jpg',
+        fileName: 'placa.jpg',
         mimeType: 'image/jpeg',
-        size: 1024 * 1024,
+        fileSize: 1024 * 1024,
         ...cambios,
       },
     ],
   });
+}
+
+/** Lo que devuelve el selector de documentos, con la forma de su propia API. */
+function devuelveDocumento(cambios: Record<string, unknown> = {}) {
+  abrirArchivos.mockResolvedValue({
+    canceled: false,
+    assets: [
+      {
+        uri: 'file:///tmp/informe.pdf',
+        name: 'informe.pdf',
+        mimeType: 'application/pdf',
+        size: 1024,
+        ...cambios,
+      },
+    ],
+  });
+}
+
+/** Responde la hoja de acción de "estudio" eligiendo la opción `indice`. */
+function eligeEnLaHoja(indice: number) {
+  return jest
+    .spyOn(ActionSheetIOS, 'showActionSheetWithOptions')
+    .mockImplementation((_opciones, responder) => responder(indice));
 }
 
 /**
@@ -48,7 +80,7 @@ describe('SubidaDeAdjunto', () => {
   });
 
   it('no sube el archivo que supera el límite, y dice por qué', async () => {
-    devuelveArchivo({ size: (TAMANO_MAXIMO_MB + 1) * 1024 * 1024 });
+    devuelveArchivo({ fileSize: (TAMANO_MAXIMO_MB + 1) * 1024 * 1024 });
     const { getByRole, getByText } = await render(<SubidaDeAdjunto pacienteId="p1" />);
 
     await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
@@ -60,7 +92,7 @@ describe('SubidaDeAdjunto', () => {
   });
 
   it('no sube el archivo cuyo formato no corresponde al tipo declarado', async () => {
-    devuelveArchivo({ name: 'informe.pdf', mimeType: 'application/pdf' });
+    devuelveArchivo({ fileName: 'informe.pdf', mimeType: 'application/pdf' });
     const { getByRole, getByText } = await render(<SubidaDeAdjunto pacienteId="p1" />);
 
     // El tipo declarado por defecto es "foto", y un PDF no es una foto.
@@ -85,7 +117,7 @@ describe('SubidaDeAdjunto', () => {
   });
 
   it('cancelar el selector no es un error: no pasa nada', async () => {
-    elegirDelSistema.mockResolvedValue({ canceled: true, assets: null });
+    abrirCarrete.mockResolvedValue({ canceled: true, assets: null });
     const { getByRole, queryByText } = await render(<SubidaDeAdjunto pacienteId="p1" />);
 
     await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
@@ -123,5 +155,62 @@ describe('SubidaDeAdjunto', () => {
 
     await waitFor(() => expect(getByText('placa.jpg')).toBeVisible());
     expect(getByRole('button', { name: 'Reintentar' })).toBeVisible();
+  });
+  // El bug que motivó esto: "elegir foto" abría la app Archivos en iPhone, que
+  // es justo el lugar donde las fotos del teléfono no están.
+  it('la foto sale del carrete, no de la app Archivos', async () => {
+    devuelveArchivo();
+    subir.mockResolvedValue({ id: 'a1' });
+    const { getByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
+
+    await waitFor(() => expect(abrirCarrete).toHaveBeenCalledTimes(1));
+    expect(abrirArchivos).not.toHaveBeenCalled();
+  });
+
+  // Un PDF no vive en la biblioteca de fotos: preguntar de dónde sacarlo sería
+  // ofrecer un camino que no lleva a ningún archivo.
+  it('el PDF sale de la app Archivos, sin preguntar', async () => {
+    devuelveDocumento();
+    subir.mockResolvedValue({ id: 'a1' });
+    const hoja = eligeEnLaHoja(0);
+    const { getByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    await fireEvent.press(getByRole('button', { name: 'Tipo de archivo' }));
+    await fireEvent.press(getByRole('menuitem', { name: 'PDF' }));
+    await fireEvent.press(getByRole('button', { name: 'Elegir pdf' }));
+
+    await waitFor(() => expect(abrirArchivos).toHaveBeenCalledTimes(1));
+    expect(hoja).not.toHaveBeenCalled();
+    expect(abrirCarrete).not.toHaveBeenCalled();
+  });
+
+  // El estudio vive en los dos lados: la placa en el carrete, el informe
+  // escaneado entre los archivos. Es el único tipo que pregunta.
+  it('el estudio pregunta de dónde sacarlo y respeta la respuesta', async () => {
+    devuelveDocumento();
+    subir.mockResolvedValue({ id: 'a1' });
+    eligeEnLaHoja(1);
+    const { getByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    await fireEvent.press(getByRole('button', { name: 'Tipo de archivo' }));
+    await fireEvent.press(getByRole('menuitem', { name: 'Estudio' }));
+    await fireEvent.press(getByRole('button', { name: 'Elegir estudio' }));
+
+    await waitFor(() => expect(abrirArchivos).toHaveBeenCalledTimes(1));
+    expect(abrirCarrete).not.toHaveBeenCalled();
+  });
+
+  it('cerrar la hoja sin elegir no abre ningún selector', async () => {
+    eligeEnLaHoja(2);
+    const { getByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    await fireEvent.press(getByRole('button', { name: 'Tipo de archivo' }));
+    await fireEvent.press(getByRole('menuitem', { name: 'Estudio' }));
+    await fireEvent.press(getByRole('button', { name: 'Elegir estudio' }));
+
+    await waitFor(() => expect(abrirCarrete).not.toHaveBeenCalled());
+    expect(abrirArchivos).not.toHaveBeenCalled();
   });
 });

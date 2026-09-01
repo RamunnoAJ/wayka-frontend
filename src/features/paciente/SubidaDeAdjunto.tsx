@@ -13,9 +13,11 @@ import {
 import {
   elegirArchivo,
   motivoDeRechazo,
+  preguntarFuente,
   tamanoLegible,
   TAMANO_MAXIMO_MB,
   type ArchivoElegido,
+  type FuenteDeArchivo,
 } from '../../lib/archivos';
 import { mensajeDeError } from '../../lib/errores';
 
@@ -139,13 +141,31 @@ export function SubidaDeAdjunto({
     await despachar(fila);
   }
 
-  async function elegir() {
+  /**
+   * De dónde sale el archivo del tipo declarado. En iOS son dos selectores
+   * distintos y el de documentos **no muestra el carrete**: pedir una foto y
+   * caer en la app Archivos es el camino equivocado.
+   *
+   * En web no hay tal cosa: el `input file` del navegador es uno solo.
+   */
+  async function fuenteDe(tipo: TipoDeAdjunto): Promise<FuenteDeArchivo | null> {
+    if (Platform.OS === 'web' || tipo === 'pdf') return 'archivos';
+    if (tipo === 'foto') return 'carrete';
+    // El estudio vive en los dos lados: la placa en el carrete, el informe
+    // escaneado entre los archivos. Solo acá se pregunta.
+    return preguntarFuente();
+  }
+
+  async function elegir(fuenteFijada?: FuenteDeArchivo) {
     setRechazo(null);
     setErrorAlAbrir(null);
 
+    const fuente = fuenteFijada ?? (await fuenteDe(tipo));
+    if (!fuente) return;
+
     let archivo: ArchivoElegido | null;
     try {
-      archivo = await elegirArchivo(tipo);
+      archivo = await elegirArchivo(tipo, fuente);
     } catch (error) {
       setErrorAlAbrir(mensajeDeError(error));
       return;
@@ -243,7 +263,9 @@ export function SubidaDeAdjunto({
           onTomada={(archivo) => void encolar(archivo)}
           onAbrirCarrete={() => {
             setCamaraAbierta(false);
-            void elegir();
+            // El botón dice "carrete" y va al carrete, sin preguntar: quien
+            // está en la cámara ya dijo que la foto es una foto.
+            void elegir('carrete');
           }}
         />
       ) : null}

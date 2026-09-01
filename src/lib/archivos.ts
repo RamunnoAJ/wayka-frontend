@@ -1,4 +1,6 @@
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { ActionSheetIOS, Alert, Platform } from 'react-native';
 
 import { TIPOS_DE_ARCHIVO, type TipoDeArchivo } from '../components';
 
@@ -34,10 +36,25 @@ export interface ArchivoElegido {
 }
 
 /**
- * Abre el selector del sistema. Devuelve `null` si el usuario canceló, que no
- * es un error y no se le avisa.
+ * De dónde sale el archivo. No es lo mismo en iOS: el selector de documentos
+ * abre la app Archivos, donde las fotos del teléfono **no están** — el carrete
+ * es otro selector distinto.
  */
-export async function elegirArchivo(tipo: TipoDeArchivo): Promise<ArchivoElegido | null> {
+export type FuenteDeArchivo = 'carrete' | 'archivos';
+
+/**
+ * Abre el selector que corresponda a la fuente. Devuelve `null` si el usuario
+ * canceló, que no es un error y no se le avisa.
+ */
+export async function elegirArchivo(
+  tipo: TipoDeArchivo,
+  fuente: FuenteDeArchivo = 'archivos',
+): Promise<ArchivoElegido | null> {
+  return fuente === 'carrete' ? elegirDelCarrete() : elegirDeArchivos(tipo);
+}
+
+/** El selector de documentos: la app Archivos en iOS, el de siempre. */
+async function elegirDeArchivos(tipo: TipoDeArchivo): Promise<ArchivoElegido | null> {
   const resultado = await DocumentPicker.getDocumentAsync({
     type: TIPOS_DE_ARCHIVO[tipo].accept.split(','),
     copyToCacheDirectory: true,
@@ -55,6 +72,79 @@ export async function elegirArchivo(tipo: TipoDeArchivo): Promise<ArchivoElegido
     tamanoBytes: elegido.size ?? 0,
     archivoWeb: elegido.file,
   };
+}
+
+/**
+ * El carrete. Solo imágenes: en la biblioteca de fotos no hay PDFs, así que un
+ * "estudio" que sea informe en papel escaneado sigue saliendo de Archivos.
+ *
+ * No pide permiso a mano: el selector de fotos del sistema (PHPicker en iOS,
+ * el Photo Picker en Android) corre fuera de la app y devuelve solo lo que el
+ * usuario eligió, sin acceso a la biblioteca entera.
+ */
+async function elegirDelCarrete(): Promise<ArchivoElegido | null> {
+  const resultado = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsMultipleSelection: false,
+    // exif en false por lo mismo que en la cámara: la foto de una herida no
+    // tiene por qué llevar la ubicación de la casa del tutor a un bucket.
+    exif: false,
+  });
+
+  if (resultado.canceled) return null;
+  const elegido = resultado.assets[0];
+  if (!elegido) return null;
+
+  return {
+    uri: elegido.uri,
+    // El carrete no siempre da nombre (una foto de iCloud puede venir sin él).
+    nombre: elegido.fileName ?? nombreDeRespaldo(elegido.mimeType),
+    contentType: elegido.mimeType ?? 'image/jpeg',
+    tamanoBytes: elegido.fileSize ?? 0,
+    archivoWeb: elegido.file,
+  };
+}
+
+/**
+ * Pregunta de dónde sacar el archivo cuando el tipo admite las dos fuentes.
+ * `null` = el usuario cerró sin elegir.
+ *
+ * Usa el diálogo del sistema y no un componente propio a propósito: es el paso
+ * previo a otro diálogo del sistema, y encadenar dos hojas nuestras sobre el
+ * selector nativo se lee como una pantalla de más.
+ */
+export function preguntarFuente(): Promise<FuenteDeArchivo | null> {
+  const opciones = ['Elegir del carrete', 'Elegir un archivo', 'Cancelar'];
+
+  if (Platform.OS === 'ios') {
+    return new Promise((resolver) => {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: opciones, cancelButtonIndex: 2 },
+        (indice) => resolver(indice === 0 ? 'carrete' : indice === 1 ? 'archivos' : null),
+      );
+    });
+  }
+
+  // Android no tiene hoja de acción nativa; `Alert` con tres botones es el
+  // equivalente y evita traer una dependencia por un menú de dos opciones.
+  return new Promise((resolver) => {
+    Alert.alert(
+      'Adjuntar un estudio',
+      'La placa está en el carrete; el informe escaneado, entre los archivos.',
+      [
+        { text: opciones[0], onPress: () => resolver('carrete') },
+        { text: opciones[1], onPress: () => resolver('archivos') },
+        { text: opciones[2], style: 'cancel', onPress: () => resolver(null) },
+      ],
+      { cancelable: true, onDismiss: () => resolver(null) },
+    );
+  });
+}
+
+/** `foto-...jpg` para la toma del carrete que viene sin nombre. */
+function nombreDeRespaldo(contentType: string | undefined): string {
+  const extension = contentType?.split('/')[1]?.split('+')[0] ?? 'jpg';
+  return `foto-${Date.now()}.${extension}`;
 }
 
 /**
