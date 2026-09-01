@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Icon, InlineError, PermissionCard, Switch } from '../../components';
+import { Button, Icon, InlineError, PermissionCard, Switch } from '../../components';
 import { sombra, useTheme } from '../../theme';
 import {
   activarAvisos,
   avisosActivados,
+  DEMORA_DE_SIMULACION,
   desactivarAvisos,
   HAY_PUSH,
   leerEstadoDelPermiso,
   pedirPermiso,
+  PUEDE_SIMULAR,
+  simularAviso,
   type EstadoDelPermiso,
 } from '../notificaciones';
 
@@ -196,6 +199,41 @@ export function MisNotificaciones() {
             </Text>
           </View>
 
+          {/*
+            Solo en desarrollo: manda el mismo texto que el backend como aviso
+            local, para poder mirar cómo lo dibuja el teléfono sin fabricar una
+            cita a la hora justa. `PUEDE_SIMULAR` es false en cualquier release.
+            No mira el permiso ni el interruptor de arriba: se muestra también
+            en el emulador, donde no hay push remoto pero sí aviso local.
+          */}
+          {PUEDE_SIMULAR ? (
+            <View style={[tarjeta, { borderColor: t['--color-primary'] }, estilos.bloque]}>
+              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+                Probar un aviso (solo en desarrollo)
+              </Text>
+              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                Llega en {DEMORA_DE_SIMULACION} segundos: cerrá la app para verlo como lo ve el
+                tutor.
+              </Text>
+              <View style={estilos.pruebas}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onPress={() => void simularAviso('dia-anterior')}
+                >
+                  El día anterior
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onPress={() => void simularAviso('mismo-dia')}
+                >
+                  El mismo día
+                </Button>
+              </View>
+            </View>
+          ) : null}
+
           <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
             <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
               Si no te llegan
@@ -220,4 +258,5 @@ const estilos = StyleSheet.create({
   aviso: { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   icono: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   flexible: { flex: 1, gap: 2 },
+  pruebas: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
 });
