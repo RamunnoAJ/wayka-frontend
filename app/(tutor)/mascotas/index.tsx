@@ -10,6 +10,7 @@ export default function MascotasDelTutor() {
       <MisMascotas
         onAbrir={(mascota) => router.push(`/(tutor)/mascotas/${mascota.id}`)}
         onVerRechazos={() => router.push('/(tutor)/sincronizacion')}
+        onAgregar={() => router.push('/(tutor)/mascotas/nueva')}
       />
     </EntradaDePantalla>
   );

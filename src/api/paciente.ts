@@ -9,6 +9,22 @@ import { http } from '../lib/http';
  */
 const RUTA = '/pacientes';
 
+/**
+ * Cuánto alcanza un tutor sobre una mascota. `edicion` hace lo mismo que el
+ * dueño salvo administrar: no invita, no revoca y no da de baja la mascota.
+ */
+export type NivelDeAcceso = 'dueno' | 'edicion' | 'lectura';
+
+/** El dueño es el único que administra los accesos (Reglas de Negocio, 3.2). */
+export function puedeAdministrar(paciente: Paciente): boolean {
+  return paciente.nivel_de_acceso === 'dueno';
+}
+
+/** Editar los datos no clínicos, la agenda y los adjuntos. */
+export function puedeEditar(paciente: Paciente): boolean {
+  return paciente.nivel_de_acceso === 'dueno' || paciente.nivel_de_acceso === 'edicion';
+}
+
 export interface Paciente {
   id: string;
   nombre: string;
@@ -18,9 +34,19 @@ export interface Paciente {
   fecha_nacimiento: string;
   sexo: string;
   peso_actual: number;
+  /**
+   * El dueño. No es editable: cambiarlo sería transferir la mascota a otra
+   * persona sin dejar rastro. Dar acceso a otro tutor es otra cosa y vive en
+   * `acceso-a-paciente.ts`.
+   */
   tutor_id: string;
-  /** Fija desde el alta: no es editable en el MVP (regla 2.2). */
-  clinica_id: string;
+  /**
+   * Cuánto alcanza sobre esta ficha el tutor que la está leyendo. No es una
+   * columna: el backend lo resuelve por pedido contra los vínculos vigentes, y
+   * viaja acá para que la pantalla sepa qué habilitar sin pedir un endpoint por
+   * mascota. Ausente cuando quien lee no es un tutor.
+   */
+  nivel_de_acceso?: NivelDeAcceso;
   /** Número de chip. Único entre fichas vigentes cuando está cargado. */
   identificador_externo?: string | null;
   created_at: string;
@@ -49,12 +75,12 @@ export interface FiltrosDePacientes {
 }
 
 /**
- * Campos editables de la ficha. `clinica_id` y `tutor_id` no están y no es un
- * olvido: la primera es fija en el MVP y cambiar la segunda sería transferir la
- * mascota a otra persona sin dejar rastro (Modelo de Datos, 4.2).
+ * Campos editables de la ficha. `tutor_id` no está y no es un olvido: cambiarlo
+ * sería transferir la mascota a otra persona sin dejar rastro.
  *
- * El tutor solo puede mandar `peso_actual`; cualquier otro campo hace que el
- * backend rechace la operación.
+ * Quien cuida al animal —el dueño y el co-tutor con edición— edita todos estos
+ * campos salvo `identificador_externo`, que es del veterinario: lo implanta y lo
+ * lee él, y es único entre fichas vigentes.
  */
 export interface ActualizarPacienteEntrada {
   nombre?: string;
@@ -68,9 +94,13 @@ export interface ActualizarPacienteEntrada {
 }
 
 /**
- * La clínica **no se envía**: es la del veterinario que da el alta, y queda fija
- * (regla 2.2). El tutor tiene que existir y tener el consentimiento otorgado
- * antes de este paso (proceso 4.1).
+ * El alta tiene dos caminos. Un veterinario da de alta a nombre de un tutor —ahí
+ * `tutor_id` es obligatorio— y su clínica queda vinculada a la mascota en la
+ * misma operación. Un tutor da de alta la suya: `tutor_id` se ignora, porque el
+ * dueño sale del token y nunca del cuerpo, y la mascota nace sin ninguna clínica
+ * hasta que él la comparta.
+ *
+ * El chip solo lo carga el veterinario.
  */
 export interface CrearPacienteEntrada {
   nombre: string;
@@ -79,7 +109,7 @@ export interface CrearPacienteEntrada {
   fecha_nacimiento: string;
   sexo: string;
   peso_actual: number;
-  tutor_id: string;
+  tutor_id?: string;
   identificador_externo?: string;
 }
 
@@ -106,6 +136,9 @@ export function actualizarPaciente(
  * Baja **lógica**: no cascadea. El historial, la medicación, las citas y los
  * adjuntos siguen consultables desde la ficha (regla 4.5). El copy de la UI no
  * debería decir "eliminar".
+ *
+ * La ejerce el dueño, y nadie más: ni un co-tutor con edición ni un veterinario.
+ * Lo que el veterinario tiene en su lugar es desvincular su clínica.
  */
 export function darDeBajaPaciente(pacienteId: string): Promise<null> {
   return http.delete<null>(`${RUTA}/${pacienteId}`);

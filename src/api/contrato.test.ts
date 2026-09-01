@@ -33,6 +33,12 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['Medicacion', 'src/api/medicacion.ts', 'Medicacion'],
     ['EventoClinico', 'src/api/evento-clinico.ts', 'EventoClinico'],
     ['Adjunto', 'src/api/adjunto.ts', 'Adjunto'],
+    ['ClinicaPublica', 'src/api/clinica.ts', 'ClinicaPublica'],
+    ['VinculoConClinica', 'src/api/acceso-a-paciente.ts', 'VinculoConClinica'],
+    ['CoTutor', 'src/api/acceso-a-paciente.ts', 'CoTutor'],
+    ['AccesosDelPaciente', 'src/api/acceso-a-paciente.ts', 'AccesosDelPaciente'],
+    ['Invitacion', 'src/api/invitacion.ts', 'Invitacion'],
+    ['InvitacionVistaPrevia', 'src/api/invitacion.ts', 'InvitacionVistaPrevia'],
   ];
 
   it.each(entidades)('%s tiene los mismos campos que su esquema', (_, ruta, esquema) => {

@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { FichaDePaciente } from '../../../src/features/paciente';
 import { EntradaDePantalla } from '../../../src/components';
@@ -11,7 +11,10 @@ export default function FichaDePacienteRuta() {
   const { id } = useLocalSearchParams<{ id: string }>();
   return (
     <EntradaDePantalla>
-      <FichaDePaciente pacienteId={id} />
+      <FichaDePaciente
+        pacienteId={id}
+        onSalirDeLaCartera={() => router.replace('/(veterinario)/pacientes')}
+      />
     </EntradaDePantalla>
   );
 }

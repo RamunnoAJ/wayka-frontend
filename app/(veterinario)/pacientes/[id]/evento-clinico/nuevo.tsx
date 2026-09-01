@@ -8,6 +8,7 @@ import { useClinica } from '../../../../../src/features/clinica/queries';
 import {
   useCitas,
   useCrearEvento,
+  useMiFichaDeVeterinario,
   usePaciente,
 } from '../../../../../src/features/paciente/queries';
 import { SubidaDeAdjunto } from '../../../../../src/features/paciente/SubidaDeAdjunto';
@@ -35,8 +36,10 @@ export default function NuevoEventoClinico() {
   const { t, px, texto } = useTheme();
   const paciente = usePaciente(id);
   const citas = useCitas(id);
-  // La clínica solo hace falta para escribir la fecha de cada cita en su zona.
-  const clinica = useClinica(paciente.data?.clinica_id);
+  // La clínica solo hace falta para escribir la fecha de cada cita en su zona, y
+  // es la del propio veterinario: la cita se agenda donde él atiende.
+  const miFicha = useMiFichaDeVeterinario();
+  const clinica = useClinica(miFicha.data?.clinica_id);
   const crear = useCrearEvento(id);
 
   const [eventoCargado, setEventoCargado] = useState<string | null>(null);

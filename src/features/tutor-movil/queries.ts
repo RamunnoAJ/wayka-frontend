@@ -1,7 +1,12 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 
 import { listarCitasDelAlcance, type CitaConPaciente } from '../../api/cita';
-import { listarPacientes, type Paciente } from '../../api/paciente';
+import {
+  crearPaciente,
+  listarPacientes,
+  type CrearPacienteEntrada,
+  type Paciente,
+} from '../../api/paciente';
 import { obtenerTutor, type Tutor } from '../../api/tutor';
 import { useSesion } from '../../hooks/useSesion';
 import { hayCopiaLocal } from '../../lib/base-local';
@@ -29,6 +34,39 @@ export function useMisMascotas(): UseQueryResult<Paciente[]> {
     queryKey: hayCopiaLocal ? ['sincronizacion', 'copia', 'pacientes'] : ['pacientes', 'mios'],
     queryFn: () => (hayCopiaLocal ? leerMisMascotas() : listarPacientes({ limite: 100 })),
   });
+}
+
+/**
+ * El alta del tutor no pasa por la cola de cambios sin conexión, a diferencia de
+ * sus otras escrituras: encolarla obligaría a inventar identificadores locales y
+ * a reconciliarlos después, que es un mecanismo entero para una pantalla que se
+ * usa dos veces en la vida.
+ *
+ * La mascota nueva baja en la próxima sincronización, así que además de los
+ * listados se invalida la copia local.
+ */
+export function useAgregarMiMascota() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: CrearPacienteEntrada) => crearPaciente(entrada),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ['pacientes'] });
+      void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
+    },
+  });
+}
+
+/**
+ * Una mascota del tutor. Sale del listado que ya está en memoria —o en la copia
+ * local— en vez de pedir la ficha de nuevo: es el mismo dato, y así la pantalla
+ * abre sin conexión igual que el listado del que se llegó.
+ */
+export function useMiMascota(pacienteId: string): UseQueryResult<Paciente | undefined> {
+  const mascotas = useMisMascotas();
+  return {
+    ...mascotas,
+    data: mascotas.data?.find((mascota) => mascota.id === pacienteId),
+  } as UseQueryResult<Paciente | undefined>;
 }
 
 export function useMiTutorID(): string | undefined {

@@ -28,10 +28,16 @@ export type EstadoDeCita = (typeof ESTADO_DE_CITA)[keyof typeof ESTADO_DE_CITA];
 export interface Cita {
   id: string;
   paciente_id: string;
+  /**
+   * La clínica que atiende esta cita. Se resuelve contra el actor y no se envía:
+   * una cita nace en la clínica del veterinario que la agenda. Es fija — mudarla
+   * cambiaría la grilla, el huso y la validez del profesional asignado.
+   */
+  clinica_id: string;
   tipo: TipoDeCita;
   /**
    * Momento de la cita, ISO 8601 con hora y zona. Cae dentro del horario de
-   * atención de la clínica del paciente y sobre su grilla de turnos (regla 2.2).
+   * atención de la clínica de la cita y sobre su grilla de turnos (regla 2.2).
    */
   fecha_programada: string;
   /**

@@ -4,11 +4,13 @@ import type { Paciente } from '../../api/paciente';
 import {
   Avatar,
   Badge,
+  Button,
   EmptyState,
   InlineError,
   Presionable,
   SkeletonText,
 } from '../../components';
+import { EtiquetaDeNivel } from '../accesos/EtiquetaDeNivel';
 import { sombra, useTheme } from '../../theme';
 import { IndicadorDeSincronizacion } from '../sincronizacion';
 import { capitalizar, edad, peso } from '../paciente/formato';
@@ -18,17 +20,18 @@ import { useMisMascotas } from './queries';
 /**
  * Mis mascotas (Alcance de Plataformas, 5.2).
  *
- * Nace vacío y eso no es un error: el tutor no da de alta mascotas por su
- * cuenta — el alta la inicia el veterinario, porque fija la clínica del paciente
- * (proceso 4.1). El vacío tiene que explicar eso, no ofrecer un botón que no
- * existe.
+ * Lista las que el tutor alcanza: las suyas y las que otra persona le compartió,
+ * con una etiqueta que distingue unas de otras. El vacío ofrece cargar la
+ * primera — el alta ya no depende de que una clínica lo haga.
  */
 export function MisMascotas({
   onAbrir,
   onVerRechazos,
+  onAgregar,
 }: {
   onAbrir: (mascota: Paciente) => void;
   onVerRechazos: () => void;
+  onAgregar: () => void;
 }) {
   const { t, px, texto } = useTheme();
   const mascotas = useMisMascotas();
@@ -37,7 +40,12 @@ export function MisMascotas({
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
       <ScrollView>
         <View style={[estilos.contenido, { paddingHorizontal: px('--gutter-mobile') }]}>
-          <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Mis mascotas</Text>
+          <View style={estilos.encabezado}>
+            <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Mis mascotas</Text>
+            <Button variant="secondary" size="sm" iconLeft="plus" onPress={onAgregar}>
+              Agregar
+            </Button>
+          </View>
 
           <IndicadorDeSincronizacion onVerRechazos={onVerRechazos} />
 
@@ -52,7 +60,12 @@ export function MisMascotas({
             <EmptyState
               icon="paw-print"
               title="Todavía no hay ninguna"
-              description="Cuando lleves a tu mascota a una veterinaria que use Wayka, la clínica la va a vincular a tu cuenta y su historial aparece acá."
+              description="Cargá a tu mascota para tener su ficha y su historial en un solo lugar. Después vas a poder compartirla con tu veterinaria y con quien la cuide."
+              action={
+                <Button variant="primary" iconLeft="plus" onPress={onAgregar}>
+                  Agregar una mascota
+                </Button>
+              }
             />
           ) : (
             <View style={estilos.lista}>
@@ -78,7 +91,14 @@ export function MisMascotas({
                       {[capitalizar(mascota.raza), edad(mascota.fecha_nacimiento)].join(' · ')}
                     </Text>
                   </View>
-                  <Badge tone="neutral">{peso(mascota.peso_actual)}</Badge>
+                  <View style={estilos.marcas}>
+                    <Badge tone="neutral">{peso(mascota.peso_actual)}</Badge>
+                    {/* Solo en las ajenas: en las propias, decir "dueño" en cada
+                        tarjeta sería ruido — es el caso normal. */}
+                    {mascota.nivel_de_acceso && mascota.nivel_de_acceso !== 'dueno' ? (
+                      <EtiquetaDeNivel nivel={mascota.nivel_de_acceso} />
+                    ) : null}
+                  </View>
                 </Presionable>
               ))}
             </View>
@@ -92,7 +112,14 @@ export function MisMascotas({
 const estilos = StyleSheet.create({
   raiz: { flex: 1 },
   contenido: { paddingVertical: 24, gap: 20 },
+  encabezado: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   lista: { gap: 12 },
+  marcas: { alignItems: 'flex-end', gap: 6 },
   tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, padding: 14 },
   flexible: { flex: 1, minWidth: 120, gap: 2 },
 });

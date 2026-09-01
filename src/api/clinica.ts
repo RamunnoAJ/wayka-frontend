@@ -59,6 +59,33 @@ export interface ActualizarClinicaEntrada {
   zona_horaria?: string;
 }
 
+/**
+ * La proyección pública: lo que una clínica publica en su cartel. Sin horario de
+ * atención ni plantel — eso lo lee quien trabaja ahí, no quien está eligiendo
+ * veterinaria.
+ */
+export interface ClinicaPublica {
+  id: string;
+  nombre: string;
+  direccion: string;
+  contacto: string;
+}
+
+export interface FiltrosDeClinicas {
+  busqueda?: string;
+  limite?: number;
+  desplazamiento?: number;
+}
+
+/**
+ * El directorio: es cómo el tutor elige con qué clínica compartir su mascota. Lo
+ * alcanza cualquier cuenta autenticada, porque antes de compartir no hay vínculo
+ * contra el cual acotarlo.
+ */
+export function buscarClinicas(filtros: FiltrosDeClinicas = {}): Promise<ClinicaPublica[]> {
+  return http.get<ClinicaPublica[]>('/clinicas', { params: { ...filtros } });
+}
+
 export function obtenerClinica(clinicaId: string): Promise<Clinica> {
   return http.get<Clinica>(`/clinicas/${clinicaId}`);
 }

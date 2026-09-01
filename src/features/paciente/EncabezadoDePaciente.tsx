@@ -23,7 +23,7 @@ interface EncabezadoProps {
   motivoBloqueo: string;
   deBaja: boolean;
   onEditar?: () => void;
-  onDarDeBaja?: () => void;
+  onDejarDeAtender?: () => void;
   onEditarPeso?: () => void;
   onVerTutor?: () => void;
 }
@@ -36,7 +36,7 @@ export function EncabezadoDePaciente({
   motivoBloqueo,
   deBaja,
   onEditar,
-  onDarDeBaja,
+  onDejarDeAtender,
   onEditarPeso,
   onVerTutor,
 }: EncabezadoProps) {
@@ -96,16 +96,19 @@ export function EncabezadoDePaciente({
           >
             Editar datos básicos
           </Button>
-          {/* "Dar de baja", no "eliminar": el dato sigue existiendo (regla 2.4). */}
+          {/* El veterinario ya no da de baja la mascota: con una atendida por
+              varias clínicas, eso sería dejar que una borre el registro de las
+              otras (regla 2.4). Lo que sí puede es sacarla de su cartera, que es
+              lo que en realidad quería hacer cuando dejaba de atenderla. */}
           <Button
             variant="ghost"
             size="sm"
             iconLeft="archive"
             disabled={bloqueado}
             accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-            onPress={onDarDeBaja}
+            onPress={onDejarDeAtender}
           >
-            Dar de baja
+            Dejar de atender
           </Button>
         </View>
       </View>

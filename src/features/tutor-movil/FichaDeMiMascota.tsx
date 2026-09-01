@@ -3,15 +3,19 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { camposDeAlergia, camposDeVacuna, TIPO_DE_EVENTO } from '../../api/evento-clinico';
 import { partirPorVigencia } from '../../api/medicacion';
+import { puedeAdministrar, puedeEditar } from '../../api/paciente';
 import {
   Avatar,
   Badge,
   Button,
+  Icon,
   InlineError,
   Input,
   MedicationItem,
+  Presionable,
   SkeletonText,
 } from '../../components';
+import { EtiquetaDeNivel } from '../accesos/EtiquetaDeNivel';
 import { mensajeDeError } from '../../lib/errores';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
@@ -28,13 +32,20 @@ import {
 import { SeccionAdjuntos } from '../paciente/SeccionAdjuntos';
 
 /**
- * Ficha de mi mascota, en solo lectura (Alcance de Plataformas, 5.3).
+ * Ficha de mi mascota (Alcance de Plataformas, 5.3 y 5.7).
  *
- * El tutor no edita ningún dato clínico. La **única** excepción es el peso, que
- * es lo que puede medir en su casa (Reglas de Negocio, 3.2) — y está acá y no en
- * una pantalla de edición aparte porque es un dato, no un formulario.
+ * Ningún tutor edita dato clínico, en ningún nivel. Lo que sí se edita son los
+ * datos del animal, y depende del vínculo: el dueño y el co-tutor con edición
+ * pueden, el de solo lectura mira. El nivel viene en la propia ficha, así que la
+ * pantalla no necesita pedirlo aparte.
  */
-export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
+export function FichaDeMiMascota({
+  pacienteId,
+  onVerAccesos,
+}: {
+  pacienteId: string;
+  onVerAccesos: () => void;
+}) {
   const { t, px, texto } = useTheme();
   const paciente = usePaciente(pacienteId);
   const eventos = useEventosClinicos(pacienteId);
@@ -63,6 +74,7 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
   }
 
   const mascota = paciente.data;
+  const puedeEscribir = puedeEditar(mascota);
   const { generales } = derivarAdjuntos(adjuntos.data);
   const alergias = (eventos.data ?? []).filter((e) => e.tipo === TIPO_DE_EVENTO.ALERGIA);
   const { activas, historicas } = partirPorVigencia(medicaciones.data ?? []);
@@ -91,8 +103,32 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
                   edad(mascota.fecha_nacimiento),
                 ].join(' · ')}
               </Text>
+              {/* En una mascota propia decir "es tuya" sería ruido; en una ajena
+                  es lo primero que hay que saber. */}
+              {mascota.nivel_de_acceso && mascota.nivel_de_acceso !== 'dueno' ? (
+                <EtiquetaDeNivel nivel={mascota.nivel_de_acceso} />
+              ) : null}
             </View>
           </View>
+
+          <Presionable
+            onPress={onVerAccesos}
+            fondo={t['--surface-card']}
+            fondoDestacado={t['--surface-hover']}
+            borde={t['--border-default']}
+            accessibilityLabel="Quién la ve"
+            style={[estilos.entrada, { borderRadius: px('--radius-card') }]}
+          >
+            <View style={estilos.flexible}>
+              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>Quién la ve</Text>
+              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                {puedeAdministrar(mascota)
+                  ? 'Las veterinarias y las personas con acceso'
+                  : 'Con quién más se comparte'}
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={18} color={t['--text-subtle']} />
+          </Presionable>
 
           <View style={[tarjeta, estilos.bloque]}>
             <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
@@ -103,24 +139,29 @@ export function FichaDeMiMascota({ pacienteId }: { pacienteId: string }) {
                 <Text style={[texto('h2'), { color: t['--text-strong'] }]}>
                   {peso(mascota.peso_actual)}
                 </Text>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  iconLeft="pencil"
-                  onPress={() => {
-                    setPesoNuevo(String(mascota.peso_actual).replace('.', ','));
-                    setEditandoPeso(true);
-                  }}
-                >
-                  Actualizar
-                </Button>
+                {/* El co-tutor de solo lectura ve el peso y no el botón: ofrecer
+                    una acción que el backend va a rechazar es un error que la
+                    interfaz puede evitar. */}
+                {puedeEscribir ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    iconLeft="pencil"
+                    onPress={() => {
+                      setPesoNuevo(String(mascota.peso_actual).replace('.', ','));
+                      setEditandoPeso(true);
+                    }}
+                  >
+                    Actualizar
+                  </Button>
+                ) : null}
               </View>
             ) : (
               <View style={estilos.bloque}>
                 <Input
                   label="Peso"
                   suffix="kg"
-                  hint="Al gramo, con coma. Es el único dato que podés cambiar vos."
+                  hint="Al gramo, con coma."
                   value={pesoNuevo}
                   onChangeText={setPesoNuevo}
                   keyboardType="decimal-pad"
@@ -297,6 +338,7 @@ const estilos = StyleSheet.create({
   cargando: { padding: 24, gap: 12 },
   contenido: { paddingVertical: 24, gap: 16 },
   identidad: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  entrada: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, padding: 14 },
   flexible: { flex: 1, minWidth: 120, gap: 4 },
   bloque: { gap: 10 },
   pesoFila: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },

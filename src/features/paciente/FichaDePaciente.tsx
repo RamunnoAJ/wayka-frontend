@@ -11,7 +11,10 @@ import { mensajeDeError } from '../../lib/errores';
 import { useTheme } from '../../theme';
 
 import { AvisoDePacienteDeBaja, AvisoSinMatricula, MotivoDeBloqueo } from './AvisosDeBloqueo';
+import { ConfirmarRevocacion } from '../accesos/ConfirmarRevocacion';
+import { useRevocarClinica } from '../accesos/queries';
 import { BandaDeUrgencia } from './BandaDeUrgencia';
+import { QuienesLaVen } from './QuienesLaVen';
 import { EncabezadoDePaciente } from './EncabezadoDePaciente';
 import { EsqueletoDeFicha } from './EsqueletoDeFicha';
 import { HistorialClinico } from './HistorialClinico';
@@ -65,9 +68,13 @@ const CTA_POR_PESTANIA: Record<Pestania, string> = {
 export function FichaDePaciente({
   pacienteId,
   pestaniaInicial = 'historial',
+  onSalirDeLaCartera,
 }: {
   pacienteId: string;
   pestaniaInicial?: Pestania;
+  /** Al desvincular, la mascota sale de la cartera y esta pantalla deja de tener
+   *  a quién mostrar: quien la usa decide adónde volver. */
+  onSalirDeLaCartera?: () => void;
 }) {
   const { t } = useTheme();
   const ancho = useAnchoDeVentana();
@@ -75,6 +82,8 @@ export function FichaDePaciente({
   const { sesion } = useSesion();
 
   const [pestania, setPestania] = useState<Pestania>(pestaniaInicial);
+  const [confirmandoDesvinculo, setConfirmandoDesvinculo] = useState(false);
+  const dejarDeAtender = useRevocarClinica(pacienteId);
 
   const paciente = usePaciente(pacienteId);
   const tutor = useTutor(paciente.data?.tutor_id);
@@ -84,9 +93,10 @@ export function FichaDePaciente({
   const adjuntos = useAdjuntos(pacienteId);
   const plantel = usePlantelPorId();
   const miFicha = useMiFichaDeVeterinario();
-  // La grilla la manda la clínica que atiende a la mascota, no la del actor
-  // (Reglas de Negocio, 2.2). El alcance ya garantiza que sean la misma.
-  const clinica = useClinica(paciente.data?.clinica_id);
+  // La grilla la manda la clínica donde se agenda, que para el veterinario es la
+  // suya: una mascota atendida también en otra tiene allá su propia agenda, con
+  // otro horario y otro huso (Modelo de Datos, 4.7).
+  const clinica = useClinica(miFicha.data?.clinica_id);
 
   const cerrar = useCerrarMedicacion(pacienteId);
   const crear = useCrearMedicacion(pacienteId);
@@ -153,6 +163,23 @@ export function FichaDePaciente({
 
   return (
     <Marco esMovil={esMovil} titulo={datos.nombre}>
+      {confirmandoDesvinculo && miFicha.data ? (
+        <ConfirmarRevocacion
+          nombre="tu veterinaria"
+          nombreDeLaMascota={datos.nombre}
+          esPersona={false}
+          enviando={dejarDeAtender.isPending}
+          onCancelar={() => setConfirmandoDesvinculo(false)}
+          onConfirmar={() =>
+            dejarDeAtender.mutate(miFicha.data.clinica_id, {
+              onSuccess: () => {
+                setConfirmandoDesvinculo(false);
+                onSalirDeLaCartera?.();
+              },
+            })
+          }
+        />
+      ) : null}
       {deBaja ? <AvisoDePacienteDeBaja /> : null}
       {sinMatricula ? <AvisoSinMatricula /> : null}
 
@@ -163,12 +190,20 @@ export function FichaDePaciente({
         bloqueado={bloqueado}
         motivoBloqueo={motivoBloqueo}
         deBaja={deBaja}
+        onDejarDeAtender={() => setConfirmandoDesvinculo(true)}
       />
 
       <BandaDeUrgencia
         datos={criticos}
         esMovil={esMovil}
         onVerMedicacion={() => setPestania('medicacion')}
+      />
+
+      <QuienesLaVen
+        pacienteId={pacienteId}
+        nombreDelDueno={tutor.data?.nombre}
+        contactoDelDueno={tutor.data?.contacto}
+        clinicaPropiaID={miFicha.data?.clinica_id}
       />
 
       <View style={estilos.barraDePestanias}>
