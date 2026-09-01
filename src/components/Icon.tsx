@@ -44,6 +44,7 @@ import {
   RotateCcw,
   ScanLine,
   Scissors,
+  Settings,
   ShieldAlert,
   SquareCheck,
   Stethoscope,
@@ -139,6 +140,7 @@ const REGISTRO = {
   'building-2': Building2,
   'log-out': LogOut,
   'map-pin': MapPin,
+  settings: Settings,
 } as const satisfies Record<string, ComponentType<LucideProps>>;
 
 export type NombreDeIcono = keyof typeof REGISTRO;

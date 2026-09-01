@@ -74,13 +74,15 @@ const TUTOR: ItemDeNavegacion[] = [
     icono: 'paw-print',
   },
   { href: '/(tutor)/citas', prefijo: '/citas', label: 'Citas', icono: 'calendar-days' },
-  { href: '/(tutor)/notificaciones', prefijo: '/notificaciones', label: 'Avisos', icono: 'bell' },
+  // Tres y no más: es la lista entera de lo que el tutor abre por sí mismo
+  // (Alcance de Plataformas, 5). Los adjuntos cuelgan de una mascota y los
+  // avisos son un interruptor, no una bandeja — ninguno de los dos sostiene una
+  // entrada acá, y una barra de cinco convierte la pestaña en un renglón.
   {
-    href: '/(tutor)/mis-datos',
-    prefijo: '/mis-datos',
-    label: 'Mis datos',
-    labelCorta: 'Mis datos',
-    icono: 'user-round',
+    href: '/(tutor)/ajustes',
+    prefijo: '/ajustes',
+    label: 'Ajustes',
+    icono: 'settings',
   },
 ];
 

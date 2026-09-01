@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Icon, InlineError, PermissionCard, Switch } from '../../components';
 import { sombra, useTheme } from '../../theme';
@@ -17,7 +17,12 @@ import {
 } from '../notificaciones';
 
 /**
- * Notificaciones (Alcance de Plataformas, 5.5).
+ * Avisos, bloque de Ajustes (Alcance de Plataformas, 5.5 y 5.8).
+ *
+ * **No es una pantalla de la barra y no lo fue por poco**: todo lo que el tutor
+ * toca acá es un interruptor, y un control solo no sostiene una pestaña. El
+ * resto del bloque explica qué manda el sistema, que es lo único que no se
+ * deduce del resto de la app.
  *
  * **No hay listado y no es una omisión**: la matriz de permisos dice que nadie
  * lee Notificaciones por API en el MVP — llegan como push y no se listan
@@ -113,146 +118,123 @@ export function MisNotificaciones() {
   };
 
   return (
-    <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
-      <ScrollView>
-        <View style={[estilos.contenido, { paddingHorizontal: px('--gutter-mobile') }]}>
-          <View style={estilos.titulo}>
-            <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Avisos</Text>
-            <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-              Te avisamos de las citas de tus mascotas. Nada más: no mandamos novedades ni
-              promociones.
-            </Text>
-          </View>
+    <View style={estilos.raiz}>
+      <View style={estilos.titulo}>
+        <Text style={[texto('h2'), { color: t['--text-strong'] }]}>Avisos</Text>
+        <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
+          Te avisamos de las citas de tus mascotas. Nada más: no mandamos novedades ni promociones.
+        </Text>
+      </View>
 
-          {/*
+      {/*
             En web no hay push: el del navegador es otro mecanismo y el backend
             solo habla Expo (Alcance de Plataformas, 5.5). Se lo decimos en vez
             de ofrecer un botón que no hace nada.
           */}
-          {!HAY_PUSH ? (
-            <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
-              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                Los avisos llegan a la app del teléfono
-              </Text>
-              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                Desde el navegador podés ver todo lo de tus mascotas, pero los recordatorios de
-                turno se mandan al teléfono. Entrá una vez desde la app para empezar a recibirlos.
-              </Text>
-            </View>
-          ) : permiso === 'concedido' ? (
-            <View style={[tarjeta, estilos.bloque]}>
-              <Switch
-                label="Recibir avisos en este teléfono"
-                description={
-                  activados
-                    ? 'Te llegan los recordatorios de los turnos de tus mascotas.'
-                    : 'Están apagados en este aparato. Tus turnos siguen igual.'
-                }
-                checked={activados}
-                disabled={aplicando}
-                onChange={(destino) => void cambiar(destino)}
-              />
-              {fallo ? (
-                <InlineError title="No se pudo cambiar" onRetry={() => void cambiar(!activados)} />
-              ) : null}
-            </View>
-          ) : permiso ? (
-            <PermissionCard
-              status={permiso}
-              onAsk={permiso === 'sin-preguntar' ? () => void permitir() : undefined}
-              onOpenSettings={
-                permiso === 'denegado' ? () => void Linking.openSettings() : undefined
-              }
-            />
+      {!HAY_PUSH ? (
+        <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
+          <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+            Los avisos llegan a la app del teléfono
+          </Text>
+          <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+            Desde el navegador podés ver todo lo de tus mascotas, pero los recordatorios de turno se
+            mandan al teléfono. Entrá una vez desde la app para empezar a recibirlos.
+          </Text>
+        </View>
+      ) : permiso === 'concedido' ? (
+        <View style={[tarjeta, estilos.bloque]}>
+          <Switch
+            label="Recibir avisos en este teléfono"
+            description={
+              activados
+                ? 'Te llegan los recordatorios de los turnos de tus mascotas.'
+                : 'Están apagados en este aparato. Tus turnos siguen igual.'
+            }
+            checked={activados}
+            disabled={aplicando}
+            onChange={(destino) => void cambiar(destino)}
+          />
+          {fallo ? (
+            <InlineError title="No se pudo cambiar" onRetry={() => void cambiar(!activados)} />
           ) : null}
+        </View>
+      ) : permiso ? (
+        <PermissionCard
+          status={permiso}
+          onAsk={permiso === 'sin-preguntar' ? () => void permitir() : undefined}
+          onOpenSettings={permiso === 'denegado' ? () => void Linking.openSettings() : undefined}
+        />
+      ) : null}
 
-          <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-            {AVISOS.map((aviso) => (
-              <View key={aviso.titulo} style={estilos.aviso}>
-                <View
-                  style={[
-                    estilos.icono,
-                    { borderRadius: px('--radius-md'), backgroundColor: t['--color-primary-soft'] },
-                  ]}
-                >
-                  <Icon name={aviso.icono} size={18} color={t['--color-primary-strong']} />
-                </View>
-                <View style={estilos.flexible}>
-                  <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                    {aviso.titulo}
-                  </Text>
-                  <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                    {aviso.detalle}
-                  </Text>
-                </View>
-              </View>
-            ))}
+      <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
+        {AVISOS.map((aviso) => (
+          <View key={aviso.titulo} style={estilos.aviso}>
+            <View
+              style={[
+                estilos.icono,
+                { borderRadius: px('--radius-md'), backgroundColor: t['--color-primary-soft'] },
+              ]}
+            >
+              <Icon name={aviso.icono} size={18} color={t['--color-primary-strong']} />
+            </View>
+            <View style={estilos.flexible}>
+              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+                {aviso.titulo}
+              </Text>
+              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{aviso.detalle}</Text>
+            </View>
           </View>
+        ))}
+      </View>
 
-          <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
-            <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-              Qué dice un aviso
-            </Text>
-            <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-              Qué mascota, qué día y a qué hora. Nunca información clínica: una notificación se lee
-              en la pantalla bloqueada del teléfono, a la vista de cualquiera.
-            </Text>
-          </View>
+      <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
+        <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>Qué dice un aviso</Text>
+        <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+          Qué mascota, qué día y a qué hora. Nunca información clínica: una notificación se lee en
+          la pantalla bloqueada del teléfono, a la vista de cualquiera.
+        </Text>
+      </View>
 
-          {/*
+      {/*
             Solo en desarrollo: manda el mismo texto que el backend como aviso
             local, para poder mirar cómo lo dibuja el teléfono sin fabricar una
             cita a la hora justa. `PUEDE_SIMULAR` es false en cualquier release.
             No mira el permiso ni el interruptor de arriba: se muestra también
             en el emulador, donde no hay push remoto pero sí aviso local.
           */}
-          {PUEDE_SIMULAR ? (
-            <View style={[tarjeta, { borderColor: t['--color-primary'] }, estilos.bloque]}>
-              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                Probar un aviso (solo en desarrollo)
-              </Text>
-              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                Llega en {DEMORA_DE_SIMULACION} segundos: cerrá la app para verlo como lo ve el
-                tutor.
-              </Text>
-              <View style={estilos.pruebas}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onPress={() => void simularAviso('dia-anterior')}
-                >
-                  El día anterior
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onPress={() => void simularAviso('mismo-dia')}
-                >
-                  El mismo día
-                </Button>
-              </View>
-            </View>
-          ) : null}
-
-          <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
-            <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-              Si no te llegan
-            </Text>
-            <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-              Revisá que el interruptor de arriba esté prendido y que la app tenga permiso de
-              notificaciones en los ajustes del teléfono. Cerrar sesión también da de baja este
-              aparato, y vuelve a darlo de alta cuando entrás de nuevo.
-            </Text>
+      {PUEDE_SIMULAR ? (
+        <View style={[tarjeta, { borderColor: t['--color-primary'] }, estilos.bloque]}>
+          <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+            Probar un aviso (solo en desarrollo)
+          </Text>
+          <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+            Llega en {DEMORA_DE_SIMULACION} segundos: cerrá la app para verlo como lo ve el tutor.
+          </Text>
+          <View style={estilos.pruebas}>
+            <Button variant="secondary" size="sm" onPress={() => void simularAviso('dia-anterior')}>
+              El día anterior
+            </Button>
+            <Button variant="secondary" size="sm" onPress={() => void simularAviso('mismo-dia')}>
+              El mismo día
+            </Button>
           </View>
         </View>
-      </ScrollView>
+      ) : null}
+
+      <View style={[tarjeta, { backgroundColor: t['--surface-sunken'] }, estilos.bloque]}>
+        <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>Si no te llegan</Text>
+        <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+          Revisá que el interruptor de arriba esté prendido y que la app tenga permiso de
+          notificaciones en los ajustes del teléfono. Cerrar sesión también da de baja este aparato,
+          y vuelve a darlo de alta cuando entrás de nuevo.
+        </Text>
+      </View>
     </View>
   );
 }
 
 const estilos = StyleSheet.create({
-  raiz: { flex: 1 },
-  contenido: { paddingVertical: 24, gap: 16 },
+  raiz: { gap: 16 },
   titulo: { gap: 6 },
   bloque: { gap: 14 },
   aviso: { flexDirection: 'row', alignItems: 'flex-start', gap: 14 },

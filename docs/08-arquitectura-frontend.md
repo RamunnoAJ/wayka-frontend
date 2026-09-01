@@ -57,14 +57,24 @@ Esto es coherente con lo ya dicho en Stack Técnico: esa separación es de naveg
     tutores/[id].tsx
     citas/index.tsx
 
-  /(tutor)                    → alcanzable solo en build nativo (Alcance de Plataformas, sección 5)
+  /(tutor)                    → alcanzable en web y en nativo (Alcance de Plataformas, sección 5)
     _layout.tsx
-    mascotas/index.tsx
-    mascotas/[id].tsx
-    citas.tsx
-    notificaciones.tsx
-    mis-datos.tsx
+    mascotas/index.tsx        → pestaña 1
+    mascotas/nueva.tsx
+    mascotas/[id]/index.tsx
+    mascotas/[id]/compartir.tsx
+    mascotas/[id]/accesos.tsx
+    citas.tsx                 → pestaña 2
+    ajustes.tsx               → pestaña 3: ficha propia, avisos y cuenta
+    invitaciones/[token].tsx  → destino del enlace del correo
+    sincronizacion.tsx        → rechazos de la cola sin conexión, se llega desde mascotas
 ```
+
+**La barra del tutor tiene tres pestañas y el resto son pantallas de detalle**
+(Alcance de Plataformas, sección 5). No todo archivo de `/(tutor)` es una
+entrada del menú: `invitaciones/[token]` se abre desde el correo y
+`sincronizacion` desde el aviso del listado de mascotas. Quién es pestaña lo
+dice `src/features/navegacion/items.ts`, no la cantidad de archivos.
 
 El guard de rol vive en cada `_layout.tsx` de grupo: lee el `tipo_usuario` de la sesión (sección 6) y hace `redirect` si no corresponde — un Tutor que de alguna forma llegara a una URL de `/(veterinario)` en la versión web (que no debería poder ni loguearse ahí, por el bloqueo de canal del backend) rebota, no ve una pantalla oculta a medias.
 
