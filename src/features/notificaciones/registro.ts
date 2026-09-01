@@ -1,3 +1,4 @@
+import { EVENTO_DE_USO } from '../../api/telemetria';
 import {
   eliminarDispositivo,
   registrarDispositivo,
@@ -9,6 +10,7 @@ import {
   leerDispositivoRegistrado,
   leerPreferenciaDeAvisos,
 } from '../../lib/almacenamiento-avisos';
+import { emitir } from '../../lib/telemetria';
 
 import {
   HAY_PUSH,
@@ -138,6 +140,9 @@ export async function activarAvisos(): Promise<void> {
  */
 export async function desactivarAvisos(): Promise<void> {
   await guardarPreferenciaDeAvisos(false);
+  // El mejor aviso temprano de fatiga: quien apaga los avisos no se fue todavía,
+  // pero se fue del único canal que lo traía de vuelta (Telemetría de Producto, 5.3).
+  emitir(EVENTO_DE_USO.NOTIFICACIONES_DESACTIVADAS);
 
   const id = await idDelDispositivo();
   await recordarDispositivo(null);

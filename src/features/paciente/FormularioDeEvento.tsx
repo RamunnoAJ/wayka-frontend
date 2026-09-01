@@ -13,6 +13,7 @@ import {
 import { Button, InlineError, Input, Select, type OpcionDeSelect } from '../../components';
 import { useTheme } from '../../theme';
 
+import { useCargaDeEventoMedida } from './useCargaDeEventoMedida';
 import { hoyEnLaClinica, momentoCorto } from './formato';
 
 /**
@@ -82,6 +83,10 @@ export function FormularioDeEvento({
   onCancelar,
 }: FormularioDeEventoProps) {
   const { t, texto } = useTheme();
+  // El tiempo de carga es lo que decide si el veterinario vuelve al papel, y el
+  // abandono dice si el formulario es largo o si no se entiende: con duración
+  // alta es lo primero, con duración baja lo segundo (Telemetría de Producto, 5.1).
+  const cargaMedida = useCargaDeEventoMedida();
 
   const [tipo, setTipo] = useState<TipoDeEvento>(TIPO_DE_EVENTO.CONSULTA);
   const [fecha, setFecha] = useState(hoyEnLaClinica());
@@ -322,7 +327,8 @@ export function FormularioDeEvento({
             size="lg"
             disabled={!completo}
             loading={enviando}
-            onPress={() =>
+            onPress={() => {
+              cargaMedida.guardada();
               onGuardar({
                 tipo,
                 fecha,
@@ -330,8 +336,8 @@ export function FormularioDeEvento({
                 ...(diagnostico.trim() ? { diagnostico: diagnostico.trim() } : {}),
                 ...(campoEstructurado() ? { campo_estructurado: campoEstructurado() } : {}),
                 ...(citaId !== SIN_CITA ? { cita_id: citaId } : {}),
-              })
-            }
+              });
+            }}
           >
             Cargar evento
           </Button>

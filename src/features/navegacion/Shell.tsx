@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MobileTabBar, SidebarNav } from '../../components';
 import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { useSesion } from '../../hooks/useSesion';
+import { usePantallaVista, useTelemetriaAutomatica } from '../../hooks/useTelemetria';
 import { useTheme } from '../../theme';
 import { useCerrarSesion } from '../auth';
 import { useMiClinica } from '../clinica';
@@ -59,6 +60,11 @@ export function Shell({ children }: { children: ReactNode }) {
   // El nombre de la persona no está en la cuenta: vive en su ficha. Sin ella se
   // muestra el correo, que identifica igual aunque se lea peor.
   const miFicha = useMiFichaDeVeterinario();
+
+  // Acá y no en el layout raíz: el marco solo se dibuja con sesión iniciada, y
+  // sin sesión no hay telemetría que emitir ni ruta a la que se pueda entrar.
+  useTelemetriaAutomatica(Boolean(sesion));
+  usePantallaVista(ruta);
 
   const rol = sesion?.usuario.tipo_usuario;
   const items = rol ? NAVEGACION_POR_ROL[rol] : [];

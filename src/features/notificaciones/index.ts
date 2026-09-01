@@ -1,3 +1,4 @@
+export { escucharAperturaDesdeAviso } from './apertura';
 export {
   activarAvisos,
   avisosActivados,

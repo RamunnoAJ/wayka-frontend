@@ -7,13 +7,16 @@ import type { Cita } from '../../api/cita';
 import { actualizarPaciente, type Paciente } from '../../api/paciente';
 import { actualizarTutor, type ActualizarTutorEntrada, type Tutor } from '../../api/tutor';
 import { actualizarCita, darDeBajaCita } from '../../api/cita';
+import { EVENTO_DE_USO } from '../../api/telemetria';
 import { hayCopiaLocal } from '../../lib/base-local';
+import { emitir } from '../../lib/telemetria';
 
 import {
   contarPendientes,
   contarRechazadas,
   descartar,
   estadosPorRegistro,
+  hayAjenasPurgadas,
   leerMisMascotas,
   leerRegistro,
   leerTodasLasCitas,
@@ -135,6 +138,7 @@ export function useSincronizacionAutomatica(habilitada: boolean): void {
   useEffect(() => {
     if (!hayCopiaLocal || !habilitada) return;
 
+    void anotarSiLaSesionSaleDeLaCopia();
     mutate();
     const red = Network.addNetworkStateListener((estado) => {
       if (estado.isInternetReachable) mutate();
@@ -147,6 +151,33 @@ export function useSincronizacionAutomatica(habilitada: boolean): void {
       app.remove();
     };
   }, [habilitada, mutate]);
+}
+
+/**
+ * Deja registrado que esta sesión se está sirviendo de la copia local: la app
+ * abrió sin llegar al servidor, y lo que el tutor está viendo salió del
+ * dispositivo. Es lo que dice si el modo sin conexión resuelve algo real o si
+ * solo agrega complejidad (Telemetría de Producto, 5.4).
+ *
+ * Se anota una vez por arranque y no en cada lectura: lo que se cuenta son
+ * sesiones, no consultas a la base local.
+ */
+let yaSeAnotoLaSesionOffline = false;
+
+async function anotarSiLaSesionSaleDeLaCopia(): Promise<void> {
+  if (yaSeAnotoLaSesionOffline) return;
+
+  try {
+    const red = await Network.getNetworkStateAsync();
+    if (red.isInternetReachable) return;
+
+    yaSeAnotoLaSesionOffline = true;
+    // La copia caducada es el caso que más interesa: el tutor está mirando datos
+    // que ya no se pueden refrescar (Sincronización Offline, 8).
+    emitir(EVENTO_DE_USO.SESION_SERVIDA_OFFLINE, { copia_caducada: await hayAjenasPurgadas() });
+  } catch {
+    // Sin poder consultar el estado de la red no se inventa una respuesta.
+  }
 }
 
 export function useEncolarPeso() {

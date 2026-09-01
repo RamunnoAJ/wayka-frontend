@@ -4,7 +4,15 @@ import { ESTADO_DE_CITA, type Cita } from '../../api/cita';
 import type { Clinica } from '../../api/clinica';
 import { render } from '../../pruebas/render';
 
+import { emitir } from '../../lib/telemetria';
+
 import { FormularioDeEvento } from './FormularioDeEvento';
+
+jest.mock('../../lib/telemetria', () => ({ emitir: jest.fn() }));
+
+const emitirMock = emitir as jest.MockedFunction<typeof emitir>;
+
+beforeEach(() => emitirMock.mockClear());
 
 /**
  * **Cerrar una cita es la única cosa que este formulario hace y que ningún otro
@@ -111,5 +119,39 @@ describe('FormularioDeEvento y el cierre de la cita', () => {
     );
 
     expect(queryByText('¿Cierra una cita agendada?')).toBeNull();
+  });
+});
+
+/**
+ * El tiempo de carga es lo que decide si el veterinario vuelve al papel, y el
+ * abandono dice si el formulario es largo o si no se entiende. Sin estos dos
+ * eventos, la única señal que queda es que dejó de cargar.
+ */
+describe('lo que el formulario deja medido', () => {
+  it('anota que se abrió la carga', async () => {
+    await render(<FormularioDeEvento {...propsBase()} />);
+
+    expect(emitirMock).toHaveBeenCalledWith('carga_evento_abierta');
+  });
+
+  it('cerrar sin guardar cuenta como abandono, con lo que tardó', async () => {
+    const pantalla = await render(<FormularioDeEvento {...propsBase()} />);
+
+    await pantalla.unmount();
+
+    const abandono = emitirMock.mock.calls.find(([nombre]) => nombre === 'carga_evento_abandonada');
+    expect(abandono).toBeTruthy();
+    expect(typeof abandono?.[1]?.duracion_ms).toBe('number');
+  });
+
+  it('guardar no es abandonar', async () => {
+    const pantalla = await render(<FormularioDeEvento {...propsBase()} />);
+    await completarYGuardar(pantalla);
+
+    await pantalla.unmount();
+
+    expect(emitirMock.mock.calls.map(([nombre]) => nombre)).not.toContain(
+      'carga_evento_abandonada',
+    );
   });
 });
