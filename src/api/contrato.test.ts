@@ -30,6 +30,8 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['Veterinario', 'src/api/veterinario.ts', 'Veterinario'],
     ['Clinica', 'src/api/clinica.ts', 'Clinica'],
     ['Cita', 'src/api/cita.ts', 'Cita'],
+    ['ConsultaAtendida', 'src/api/consulta.ts', 'ConsultaAtendida'],
+    ['ConsultaAtendidaConPaciente', 'src/api/consulta.ts', 'ConsultaAtendidaConPaciente'],
     ['Medicacion', 'src/api/medicacion.ts', 'Medicacion'],
     ['EventoClinico', 'src/api/evento-clinico.ts', 'EventoClinico'],
     ['Adjunto', 'src/api/adjunto.ts', 'Adjunto'],
@@ -55,6 +57,7 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
   // derivado, así que se nombra la constante además del alias.
   const enumerados: [string, string, string, string | undefined][] = [
     ['TipoDeCita', 'src/api/cita.ts', 'TipoDeCita', 'TIPO_DE_CITA'],
+    ['OrigenDeConsulta', 'src/api/consulta.ts', 'OrigenDeConsulta', 'ORIGEN_DE_CONSULTA'],
     ['EstadoDeCita', 'src/api/cita.ts', 'EstadoDeCita', 'ESTADO_DE_CITA'],
     ['TipoDeEventoClinico', 'src/api/evento-clinico.ts', 'TipoDeEvento', 'TIPO_DE_EVENTO'],
     ['TipoDeAdjunto', 'src/api/adjunto.ts', 'TipoDeAdjunto', 'TIPO_DE_ADJUNTO'],

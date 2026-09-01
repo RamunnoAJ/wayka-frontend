@@ -4,9 +4,11 @@ import { http } from '../lib/http';
  * Calendario del paciente.
  *
  * `estado` **no se escribe desde el cliente** en ninguna operación: nace en
- * `pendiente`, pasa a `cumplido` cuando se carga el Evento clínico que la
- * referencia por `cita_id`, y a `vencido` por un job del backend (Modelo de
- * Datos, 4.7). No hay endpoint que lo reciba — por eso no está en las entradas.
+ * `pendiente`, pasa a `cumplido` cuando se asienta la Consulta atendida que la
+ * referencia —sea porque el veterinario la asentó al atender o porque la dedujo
+ * la carga de un evento que declara su cita— y a `vencido` por un job del backend
+ * (Modelo de Datos, 4.7). No hay endpoint que lo reciba — por eso no está en las
+ * entradas.
  */
 
 export const TIPO_DE_CITA = {
@@ -159,12 +161,12 @@ export function esReagendable(cita: Cita): boolean {
 }
 
 /**
- * Si esta cita puede cerrarla un Evento clínico que la referencie.
+ * Si esta cita todavía se puede atender.
  *
- * **Una vencida también se cierra**: la mascota llegó tarde y se la atendió
+ * **Una vencida también se atiende**: la mascota llegó tarde y se la atendió
  * igual, y dejarla vencida para siempre falsearía el historial (Reglas de
  * Negocio, 4.4). La que no se puede es la que ya está cumplida — el backend
- * rechaza el segundo evento que la reclame.
+ * rechaza el segundo asiento sobre la misma cita.
  */
 export function esCerrable(cita: Cita): boolean {
   return cita.estado !== ESTADO_DE_CITA.CUMPLIDO;

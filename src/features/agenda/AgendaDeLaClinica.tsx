@@ -3,13 +3,16 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   ESTADO_DE_CITA,
+  esCerrable,
   SIN_ASIGNAR,
   type CitaConPaciente,
   type EstadoDeCita,
   type TipoDeCita,
 } from '../../api/cita';
+import { ORIGEN_DE_CONSULTA } from '../../api/consulta';
 import {
   Avatar,
+  Button,
   Input,
   InlineError,
   Presionable,
@@ -27,6 +30,7 @@ import {
   rangoDelPeriodo,
   type ModoDeCalendario,
 } from '../citas';
+import { useAsentarAtencion } from '../consultas';
 import { horaCorta, hoyEnLaClinica } from '../paciente/formato';
 import { usePlantel } from '../veterinario/queries';
 
@@ -234,42 +238,77 @@ function FilaDeAgenda({
   const { t, px, texto } = useTheme();
   const { cita, paciente_nombre, paciente_especie, veterinario_nombre, zona_horaria } = fila;
   const colores = tono(t, cita.estado);
+  const asentar = useAsentarAtencion(cita.paciente_id);
 
   return (
-    <Presionable
-      onPress={() => onAbrir(cita.paciente_id)}
-      fondo={t['--surface-card']}
-      fondoDestacado={t['--surface-hover']}
-      borde={t['--border-default']}
-      style={[estilos.fila, sombra('--shadow-sm'), { borderRadius: px('--radius-card') }]}
+    <View
+      style={[
+        estilos.fila,
+        sombra('--shadow-sm'),
+        {
+          borderRadius: px('--radius-card'),
+          backgroundColor: t['--surface-card'],
+          borderColor: t['--border-default'],
+        },
+      ]}
     >
-      <View
-        style={[estilos.hora, { backgroundColor: colores.fondo, borderRadius: px('--radius-md') }]}
+      <Presionable
+        onPress={() => onAbrir(cita.paciente_id)}
+        fondo={t['--surface-card']}
+        fondoDestacado={t['--surface-hover']}
+        style={estilos.datosDeLaFila}
       >
-        <Text style={[texto('body-strong'), { color: colores.texto }]}>
-          {horaCorta(cita.fecha_programada, zona_horaria)}
-        </Text>
-      </View>
-      <Avatar name={paciente_nombre} species={paciente_especie} size="sm" />
-      <View style={estilos.flexible}>
-        <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>{paciente_nombre}</Text>
-        <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
-          {/* Sin profesional no es un dato faltante: es una cita de la clínica
-              que todavía no se repartió. */}
-          {veterinario_nombre
-            ? `${ETIQUETA_DE_TIPO[cita.tipo]} · ${veterinario_nombre}`
-            : `${ETIQUETA_DE_TIPO[cita.tipo]} · sin asignar`}
-        </Text>
-        {/* El estado va dentro de la columna de texto y no como una tercera
-            columna a la derecha: en un teléfono, la hora, el avatar y el nombre
-            ya se comen el ancho, y la etiqueta terminaba fuera de la pantalla. */}
-        {cita.estado !== ESTADO_DE_CITA.PENDIENTE ? (
-          <Text style={[texto('caption'), { fontWeight: '700', color: colores.texto }]}>
-            {ETIQUETA_DE_ESTADO[cita.estado]}
+        <View
+          style={[
+            estilos.hora,
+            { backgroundColor: colores.fondo, borderRadius: px('--radius-md') },
+          ]}
+        >
+          <Text style={[texto('body-strong'), { color: colores.texto }]}>
+            {horaCorta(cita.fecha_programada, zona_horaria)}
           </Text>
-        ) : null}
-      </View>
-    </Presionable>
+        </View>
+        <Avatar name={paciente_nombre} species={paciente_especie} size="sm" />
+        <View style={estilos.flexible}>
+          <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+            {paciente_nombre}
+          </Text>
+          <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
+            {/* Sin profesional no es un dato faltante: es una cita de la clínica
+                que todavía no se repartió. */}
+            {veterinario_nombre
+              ? `${ETIQUETA_DE_TIPO[cita.tipo]} · ${veterinario_nombre}`
+              : `${ETIQUETA_DE_TIPO[cita.tipo]} · sin asignar`}
+          </Text>
+          {/* El estado va dentro de la columna de texto y no como una tercera
+              columna a la derecha: en un teléfono, la hora, el avatar y el nombre
+              ya se comen el ancho, y la etiqueta terminaba fuera de la pantalla. */}
+          {cita.estado !== ESTADO_DE_CITA.PENDIENTE ? (
+            <Text style={[texto('caption'), { fontWeight: '700', color: colores.texto }]}>
+              {ETIQUETA_DE_ESTADO[cita.estado]}
+            </Text>
+          ) : null}
+        </View>
+      </Presionable>
+
+      {/*
+        Asentar es un toque desde la agenda: es donde el veterinario está parado
+        cuando termina de atender, y la cita queda cumplida con eso —cumplirla es
+        haber atendido, no haber escrito (Reglas de Negocio, 4.4)—. Una vencida
+        también se atiende: la mascota llegó tarde y se la atendió igual.
+      */}
+      {esCerrable(cita) ? (
+        <Button
+          variant="secondary"
+          size="sm"
+          loading={asentar.isPending}
+          accessibilityLabel={`Asentar que se atendió a ${paciente_nombre}`}
+          onPress={() => asentar.mutate({ origen: ORIGEN_DE_CONSULTA.AGENDADA, cita_id: cita.id })}
+        >
+          Atendí
+        </Button>
+      ) : null}
+    </View>
   );
 }
 
@@ -280,7 +319,15 @@ const estilos = StyleSheet.create({
   titulo: { flex: 1, minWidth: 260, gap: 6 },
   filtros: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12 },
   campo: { flexGrow: 1, flexBasis: 200, minWidth: 180, maxWidth: 260 },
-  fila: { flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, padding: 12 },
+  fila: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    padding: 12,
+    flexWrap: 'wrap',
+  },
+  datosDeLaFila: { flexDirection: 'row', alignItems: 'center', gap: 14, flex: 1, minWidth: 0 },
   hora: { paddingVertical: 8, paddingHorizontal: 12, minWidth: 68, alignItems: 'center' },
   // Sin `minWidth`, la columna de texto se encoge antes que desbordar: en un
   // teléfono angosto el nombre corta en dos líneas y nada se sale de la

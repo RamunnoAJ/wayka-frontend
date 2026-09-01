@@ -15,6 +15,8 @@ import { ConfirmarRevocacion } from '../accesos/ConfirmarRevocacion';
 import { useRevocarClinica } from '../accesos/queries';
 import { BandaDeUrgencia } from './BandaDeUrgencia';
 import { QuienesLaVen } from './QuienesLaVen';
+import { AsentarAtencion } from '../consultas';
+
 import { EncabezadoDePaciente } from './EncabezadoDePaciente';
 import { EsqueletoDeFicha } from './EsqueletoDeFicha';
 import { HistorialClinico } from './HistorialClinico';
@@ -191,6 +193,15 @@ export function FichaDePaciente({
         motivoBloqueo={motivoBloqueo}
         deBaja={deBaja}
         onDejarDeAtender={() => setConfirmandoDesvinculo(true)}
+      />
+
+      {/* Debajo de la identidad y antes que nada del historial: es lo primero
+          que se hace al recibir a la mascota, y lo que se escribe viene después
+          (Alcance de Plataformas, 3.3.1). */}
+      <AsentarAtencion
+        pacienteId={pacienteId}
+        bloqueado={bloqueado}
+        motivoBloqueo={motivoBloqueo}
       />
 
       <BandaDeUrgencia

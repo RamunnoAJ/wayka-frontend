@@ -58,8 +58,18 @@ export interface EventoClinico {
   descripcion: string;
   diagnostico?: string | null;
   campo_estructurado?: CampoEstructurado | null;
-  /** Cita que esta atención vino a cumplir; null si no estaba agendada. */
+  /**
+   * Cita que esta atención vino a cumplir; null si no estaba agendada o si el
+   * evento no tiene asiento. Es **derivado y de solo lectura**: sale de la
+   * atención, porque el evento ya no guarda su propia FK a la cita — de una misma
+   * atención cuelgan varios eventos y solo uno podía quedarse con ella.
+   */
   cita_id?: string | null;
+  /**
+   * Atención en la que se escribió (Modelo de Datos, 4.16); null cuando no hay
+   * asiento: una carga histórica, o una atención que nadie asentó.
+   */
+  consulta_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -90,7 +100,15 @@ export interface CrearEventoEntrada {
   diagnostico?: string;
   /** Obligatorio en vacuna, medicación y alergia; prohibido en el resto. */
   campo_estructurado?: CampoEstructurado;
+  /**
+   * Cita que esta carga cumple. Es un atajo: resuelve la atención de esa cita y,
+   * si nadie la asentó todavía, la asienta —y con ella la cita queda cumplida—.
+   * Ya no hay una cita por evento: si la atención ya tiene asiento, este evento
+   * se suma a él.
+   */
   cita_id?: string;
+  /** La atención ya asentada desde la que se carga, cuando se entra desde ahí. */
+  consulta_id?: string;
 }
 
 export type ActualizarEventoEntrada = Partial<Omit<CrearEventoEntrada, 'tipo'>>;

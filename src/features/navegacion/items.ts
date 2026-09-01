@@ -24,6 +24,14 @@ const VETERINARIO: ItemDeNavegacion[] = [
     label: 'Agenda',
     icono: 'calendar-days',
   },
+  // Va al lado de la agenda porque se miran juntas: la agenda dice qué hay por
+  // atender y esta, qué se atendió y todavía no se documentó.
+  {
+    href: '/(veterinario)/atenciones',
+    prefijo: '/atenciones',
+    label: 'Atenciones',
+    icono: 'clipboard-check',
+  },
   {
     href: '/(veterinario)/pacientes',
     prefijo: '/pacientes',

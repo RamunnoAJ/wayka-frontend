@@ -9,8 +9,12 @@ import { AgendaDeLaClinica } from './AgendaDeLaClinica';
 import { useAgenda } from './queries';
 
 jest.mock('./queries', () => ({ useAgenda: jest.fn() }));
+jest.mock('../consultas', () => ({ useAsentarAtencion: () => mockAsentar() }));
 jest.mock('../veterinario/queries', () => ({ usePlantel: () => ({ data: [] }) }));
 jest.mock('../../hooks/useSesion', () => ({ useSesion: () => mockSesion() }));
+
+const asentar = jest.fn();
+const mockAsentar = () => ({ mutate: asentar, isPending: false, isError: false });
 
 /** La ficha de veterinario de quien mira; un clínica_admin no tiene. */
 let mockSesion: () => { sesion: { usuario: { veterinario_id: string | null } } | null };
@@ -130,5 +134,26 @@ describe('AgendaDeLaClinica', () => {
 
     await fireEvent.changeText(getByLabelText('Buscar mascota'), 'FRI');
     expect(getByText('Frida')).toBeTruthy();
+  });
+});
+
+describe('asentar la atención desde la agenda', () => {
+  it('asienta la cita como atendida, que es lo que la cumple', async () => {
+    useAgendaMock.mockReturnValue(agendaCargada([CITA]));
+
+    const pantalla = await render(<AgendaDeLaClinica onAbrirPaciente={jest.fn()} />);
+    await fireEvent.press(pantalla.getByLabelText('Asentar que se atendió a Frida'));
+
+    expect(asentar).toHaveBeenCalledWith({ origen: 'agendada', cita_id: 'c1' });
+  });
+
+  it('no lo ofrece sobre una cita que ya se atendió', async () => {
+    useAgendaMock.mockReturnValue(
+      agendaCargada([{ ...CITA, cita: { ...CITA.cita, estado: 'cumplido' } } as CitaConPaciente]),
+    );
+
+    const pantalla = await render(<AgendaDeLaClinica onAbrirPaciente={jest.fn()} />);
+
+    expect(pantalla.queryByLabelText('Asentar que se atendió a Frida')).toBeNull();
   });
 });
