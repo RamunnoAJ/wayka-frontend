@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import * as Network from 'expo-network';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 
 import type { Cita } from '../../api/cita';
 import { actualizarPaciente, type Paciente } from '../../api/paciente';
@@ -115,6 +116,19 @@ export function useSincronizar() {
  * espera creciente: la señal de que conviene reintentar es que haya red otra
  * vez, y eso el sistema lo avisa.
  */
+/**
+ * Sincroniza en los tres momentos en que puede haber red y algo que traer: al
+ * arrancar, cuando vuelve la conexión, y cuando la app vuelve del fondo.
+ *
+ * El tercero es el que más ocurre en la práctica: el teléfono pasa la mayor
+ * parte del tiempo con la app suspendida, y volver a abrirla es cuando el tutor
+ * quiere ver lo que la clínica escribió. Sin eso, la copia solo se pone al día
+ * si el proceso se reinició o si la red cambió de estado justo ahí.
+ *
+ * No hay reintento periódico ni backoff: una corrida que falla por falta de red
+ * la vuelve a disparar el listener de conexión, y una que falla por otra cosa
+ * volvería a fallar igual. Un temporizador solo agregaría viajes.
+ */
 export function useSincronizacionAutomatica(habilitada: boolean): void {
   const { mutate } = useSincronizar();
 
@@ -122,10 +136,16 @@ export function useSincronizacionAutomatica(habilitada: boolean): void {
     if (!hayCopiaLocal || !habilitada) return;
 
     mutate();
-    const suscripcion = Network.addNetworkStateListener((estado) => {
+    const red = Network.addNetworkStateListener((estado) => {
       if (estado.isInternetReachable) mutate();
     });
-    return () => suscripcion.remove();
+    const app = AppState.addEventListener('change', (estado) => {
+      if (estado === 'active') mutate();
+    });
+    return () => {
+      red.remove();
+      app.remove();
+    };
   }, [habilitada, mutate]);
 }
 
