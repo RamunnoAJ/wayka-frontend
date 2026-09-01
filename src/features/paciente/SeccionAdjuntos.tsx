@@ -37,6 +37,13 @@ interface AdjuntosProps {
   esMovil: boolean;
   bloqueado: boolean;
   motivoBloqueo: string;
+  /**
+   * La lista salió de la copia local del dispositivo: están los metadatos y no
+   * la URL prefirmada, que vence en minutos y por eso no se replica. Los
+   * archivos se listan y no se abren, y subir o retirar tampoco entran — no
+   * están en la superficie de escritura sin conexión del tutor.
+   */
+  soloMetadatos?: boolean;
   onRetirar: (adjunto: Adjunto) => void;
 }
 
@@ -50,6 +57,7 @@ export function SeccionAdjuntos({
   esMovil,
   bloqueado,
   motivoBloqueo,
+  soloMetadatos = false,
   onRetirar,
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
@@ -71,12 +79,18 @@ export function SeccionAdjuntos({
           borderBottomColor: t['--border-subtle'],
         }}
       >
-        <SubidaDeAdjunto
-          pacienteId={pacienteId}
-          tituloDeCamara={nombreDePaciente}
-          bloqueado={bloqueado}
-          motivoBloqueo={motivoBloqueo}
-        />
+        {soloMetadatos ? (
+          <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+            Necesitás conexión para ver estos archivos o subir uno nuevo.
+          </Text>
+        ) : (
+          <SubidaDeAdjunto
+            pacienteId={pacienteId}
+            tituloDeCamara={nombreDePaciente}
+            bloqueado={bloqueado}
+            motivoBloqueo={motivoBloqueo}
+          />
+        )}
       </View>
 
       {error ? (
@@ -110,11 +124,15 @@ export function SeccionAdjuntos({
               >
                 <MiniaturaDeArchivo
                   contentType={adjunto.content_type}
-                  url={adjunto.archivo_url}
+                  url={soloMetadatos ? undefined : adjunto.archivo_url}
                   icono={iconoDeArchivo(adjunto)}
                   alto={ALTO_DE_MINIATURA}
-                  onAbrir={(origen) => setMirando({ adjunto, origen })}
-                  accessibilityLabel={`Ver ${adjunto.nombre_archivo}`}
+                  onAbrir={soloMetadatos ? undefined : (origen) => setMirando({ adjunto, origen })}
+                  accessibilityLabel={
+                    soloMetadatos
+                      ? `${adjunto.nombre_archivo}, necesitás conexión para verlo`
+                      : `Ver ${adjunto.nombre_archivo}`
+                  }
                 />
                 <View style={estilos.cuerpo}>
                   <Text
@@ -128,7 +146,7 @@ export function SeccionAdjuntos({
                   <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
                     {`${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(adjunto.created_at.slice(0, 10))}`}
                   </Text>
-                  {propio ? (
+                  {propio && !soloMetadatos ? (
                     <Button
                       variant="ghost"
                       size="sm"

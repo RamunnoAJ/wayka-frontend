@@ -20,14 +20,13 @@ import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { capitalizar, edad, fechaCorta, peso } from '../paciente/formato';
 import { useGuardarPesoDelTutor } from '../sincronizacion';
+import { derivarAdjuntos, useRetirarAdjunto } from '../paciente/queries';
 import {
-  derivarAdjuntos,
-  useAdjuntos,
-  useEventosClinicos,
-  useMedicaciones,
-  usePaciente,
-  useRetirarAdjunto,
-} from '../paciente/queries';
+  useAdjuntosDeMiMascota,
+  useHistorialDeMiMascota,
+  useMedicacionesDeMiMascota,
+  useMiMascota,
+} from './queries';
 import { SeccionAdjuntos } from '../paciente/SeccionAdjuntos';
 
 /**
@@ -48,10 +47,14 @@ export function FichaDeMiMascota({
   onCompartir: () => void;
 }) {
   const { t, px, texto } = useTheme();
-  const paciente = usePaciente(pacienteId);
-  const eventos = useEventosClinicos(pacienteId);
-  const medicaciones = useMedicaciones(pacienteId);
-  const adjuntos = useAdjuntos(pacienteId);
+  // Todo sale de la copia local en el dispositivo: es lo que hace que la ficha
+  // abra sin conexión, con datos que pueden estar unos minutos atrás y lo dice
+  // el indicador de sincronización. La excepción son los adjuntos, que necesitan
+  // una URL que solo existe en línea.
+  const paciente = useMiMascota(pacienteId);
+  const eventos = useHistorialDeMiMascota(pacienteId);
+  const medicaciones = useMedicacionesDeMiMascota(pacienteId);
+  const adjuntos = useAdjuntosDeMiMascota(pacienteId);
   const guardarPeso = useGuardarPesoDelTutor(paciente.data);
   const retirar = useRetirarAdjunto(pacienteId);
   const { sesion } = useSesion();
@@ -76,7 +79,7 @@ export function FichaDeMiMascota({
 
   const mascota = paciente.data;
   const puedeEscribir = puedeEditar(mascota);
-  const { generales } = derivarAdjuntos(adjuntos.data);
+  const { generales } = derivarAdjuntos(adjuntos.data?.adjuntos);
   const alergias = (eventos.data ?? []).filter((e) => e.tipo === TIPO_DE_EVENTO.ALERGIA);
   const { activas, historicas } = partirPorVigencia(medicaciones.data ?? []);
   const pesoValido = Number(pesoNuevo.replace(',', '.')) > 0;
@@ -314,6 +317,7 @@ export function FichaDeMiMascota({
             esMovil
             bloqueado={false}
             motivoBloqueo=""
+            soloMetadatos={adjuntos.data?.soloMetadatos ?? false}
             onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
           />
         </View>

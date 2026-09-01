@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 
+import { listarAdjuntos, type Adjunto } from '../../api/adjunto';
 import { listarCitasDelAlcance, type CitaConPaciente } from '../../api/cita';
+import { listarEventosClinicos, type EventoClinico } from '../../api/evento-clinico';
+import { listarMedicaciones, type Medicacion } from '../../api/medicacion';
 import {
   crearPaciente,
   listarPacientes,
@@ -12,7 +15,10 @@ import { useSesion } from '../../hooks/useSesion';
 import { hayCopiaLocal } from '../../lib/base-local';
 import {
   hayAjenasPurgadas,
+  leerAdjuntosDe,
   leerAgendaLocal,
+  leerEventosDe,
+  leerMedicacionesDe,
   leerMiFicha,
   leerMisMascotas,
   purgarAjenasVencidas,
@@ -95,6 +101,72 @@ export function useMiMascota(pacienteId: string): UseQueryResult<Paciente | unde
     ...mascotas,
     data: mascotas.data?.find((mascota) => mascota.id === pacienteId),
   } as UseQueryResult<Paciente | undefined>;
+}
+
+/**
+ * El historial y la medicación de una mascota, de la copia local en el
+ * dispositivo. Misma regla que el listado: la fuente es la copia, que el motor
+ * mantiene al día, y por eso la ficha abre sin conexión.
+ */
+export function useHistorialDeMiMascota(pacienteId: string): UseQueryResult<EventoClinico[]> {
+  return useQuery({
+    queryKey: hayCopiaLocal
+      ? ['sincronizacion', 'copia', 'eventos', pacienteId]
+      : ['eventos', pacienteId],
+    queryFn: () =>
+      hayCopiaLocal
+        ? leerEventosDe(pacienteId)
+        : listarEventosClinicos(pacienteId, { limite: 200 }),
+  });
+}
+
+export function useMedicacionesDeMiMascota(pacienteId: string): UseQueryResult<Medicacion[]> {
+  return useQuery({
+    queryKey: hayCopiaLocal
+      ? ['sincronizacion', 'copia', 'medicaciones', pacienteId]
+      : ['medicaciones', pacienteId],
+    queryFn: () =>
+      hayCopiaLocal
+        ? leerMedicacionesDe(pacienteId)
+        : listarMedicaciones(pacienteId, { limite: 200 }),
+  });
+}
+
+/**
+ * Los adjuntos son la excepción a "la fuente es la copia local", y por un motivo
+ * concreto: para **mirar** un archivo hace falta la URL prefirmada, que vence en
+ * minutos y por eso no se replica (Sincronización sin Conexión, 2). Lo que sí
+ * está en el dispositivo son los metadatos.
+ *
+ * Entonces se pide en línea primero —así los archivos se abren— y se cae a los
+ * metadatos locales cuando no hay red: la ficha muestra qué archivos tiene la
+ * mascota aunque no pueda abrirlos, que es bastante mejor que un bloque de error
+ * donde debería haber una lista.
+ */
+export interface AdjuntosDeLaFicha {
+  adjuntos: Adjunto[];
+  /** Sin la URL prefirmada no hay nada que abrir: la interfaz lo tiene que decir. */
+  soloMetadatos: boolean;
+}
+
+export function useAdjuntosDeMiMascota(pacienteId: string): UseQueryResult<AdjuntosDeLaFicha> {
+  return useQuery({
+    queryKey: hayCopiaLocal
+      ? ['sincronizacion', 'copia', 'adjuntos', pacienteId]
+      : ['adjuntos', pacienteId],
+    queryFn: async () => {
+      try {
+        return { adjuntos: await listarAdjuntos(pacienteId), soloMetadatos: false };
+      } catch (error) {
+        if (!hayCopiaLocal) throw error;
+        const locales = await leerAdjuntosDe(pacienteId);
+        return {
+          adjuntos: locales.map((adjunto) => ({ ...adjunto, archivo_url: '' })),
+          soloMetadatos: true,
+        };
+      }
+    },
+  });
 }
 
 export function useMiTutorID(): string | undefined {
