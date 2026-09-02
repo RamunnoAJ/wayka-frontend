@@ -9,8 +9,8 @@ import {
   Button,
   EmptyState,
   Icon,
-  IconButton,
   InlineError,
+  MenuDeAcciones,
   Select,
   type NombreDeIcono,
   type OpcionDeSelect,
@@ -307,24 +307,40 @@ function FilaDeEvento({
               Cumplió cita agendada
             </Badge>
           ) : null}
-          <View style={estilos.accionesFila}>
-            {/* Cualquier veterinario de la clínica edita o da de baja el evento
-                de un colega; `veterinario_id` conserva la autoría (RN 3.2). */}
-            <IconButton
-              icon="pencil"
-              label={bloqueado ? motivoBloqueo : 'Editar evento'}
-              size="sm"
-              disabled={bloqueado}
-              onPress={() => onEditar?.(evento)}
+          {/* Cualquier veterinario de la clínica corrige o da de baja el evento
+              de un colega; `veterinario_id` conserva la autoría (RN 3.2). Las dos
+              van al menú: eran dos íconos sin texto, y uno de ellos saca el
+              evento del historial. */}
+          {onEditar || onDarDeBaja ? (
+            <MenuDeAcciones
+              accessibilityLabel={
+                bloqueado ? motivoBloqueo : `Acciones del evento del ${evento.fecha}`
+              }
+              acciones={[
+                ...(onEditar
+                  ? [
+                      {
+                        label: 'Corregir',
+                        icono: 'pencil' as const,
+                        deshabilitada: bloqueado,
+                        onPress: () => onEditar(evento),
+                      },
+                    ]
+                  : []),
+                ...(onDarDeBaja
+                  ? [
+                      {
+                        label: 'Dar de baja',
+                        icono: 'archive' as const,
+                        peligro: true,
+                        deshabilitada: bloqueado,
+                        onPress: () => onDarDeBaja(evento),
+                      },
+                    ]
+                  : []),
+              ]}
             />
-            <IconButton
-              icon="archive"
-              label={bloqueado ? motivoBloqueo : 'Dar de baja el evento'}
-              size="sm"
-              disabled={bloqueado}
-              onPress={() => onDarDeBaja?.(evento)}
-            />
-          </View>
+          ) : null}
         </View>
 
         <View style={estilos.autor}>

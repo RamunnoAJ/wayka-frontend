@@ -59,17 +59,35 @@ const VETERINARIO: ItemDeNavegacion[] = [
 // El clínica_admin no tiene "Pacientes" ni "Agenda" y no es un olvido: su rol
 // alcanza datos administrativos, no las mascotas atendidas ni su calendario.
 const CLINICA_ADMIN: ItemDeNavegacion[] = [
+  // El panel es solo el tablero: lo único que se mira todos los días. Después la
+  // agenda, que es donde se reparte lo que el tablero cuenta sin repartir.
   {
     href: '/(clinica-admin)/panel',
     prefijo: '/panel',
-    label: 'Mi clínica',
-    icono: 'building-2',
+    label: 'Panel',
+    icono: 'clipboard-check',
   },
+  {
+    href: '/(clinica-admin)/agenda',
+    prefijo: '/agenda',
+    label: 'Agenda',
+    icono: 'calendar-days',
+  },
+  // Las ausencias no tienen sección: se cargan desde la fila de la persona y se
+  // listan en su ficha, porque una ausencia es de alguien.
   {
     href: '/(clinica-admin)/veterinarios',
     prefijo: '/veterinarios',
-    label: 'Veterinarios',
+    label: 'Plantel',
     icono: 'user-round',
+  },
+  // Ajustes junta lo que comparte frecuencia: los datos de la clínica y el
+  // horario se configuran una vez y casi no se vuelven a tocar.
+  {
+    href: '/(clinica-admin)/ajustes',
+    prefijo: '/ajustes',
+    label: 'Ajustes',
+    icono: 'settings',
   },
 ];
 

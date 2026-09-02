@@ -2,33 +2,38 @@
 // asíncronos: sin `await`, la aserción corre antes de que el árbol se actualice.
 import { fireEvent } from '@testing-library/react-native';
 
-import type { Clinica } from '../../api/clinica';
+import type { Grilla } from '../../api/clinica';
 import { horaEnLaClinica, instanteEnLaClinica } from '../../lib/zona';
 import { render } from '../../pruebas/render';
 
 import { FormularioDeCita } from './FormularioDeCita';
+
+jest.mock('./queries', () => ({ useAgenda: () => ({ data: [] }) }));
+jest.mock('../ausencias', () => ({ useAusencias: () => ({ data: mockAusencias() }) }));
+
+const ausencias: { veterinario_id: string; desde: string; hasta: string }[] = [];
+const mockAusencias = () => ausencias;
 
 /**
  * Lo que se prueba acá es la regla, no el layout: **el formulario no ofrece una
  * hora que el backend vaya a rechazar** (regla 2.2). El backend la valida igual;
  * esto evita el viaje perdido y el error que el usuario no puede prevenir.
  */
-const CLINICA: Clinica = {
-  id: 'c1',
-  nombre: 'Veterinaria Norte',
-  direccion: 'Av. Siempre Viva 123',
-  contacto: '011-1234-5678',
-  hora_apertura: '09:00',
-  hora_cierre: '18:00',
+const GRILLA: Grilla = {
+  // Abre todos los dias para que el resultado no dependa del dia de la semana en
+  // que caiga la fecha que el test elige.
+  franjas: [0, 1, 2, 3, 4, 5, 6].map((dia) => ({
+    dia_semana: dia as 0,
+    hora_desde: '09:00',
+    hora_hasta: '18:00',
+  })),
   duracion_turno_minutos: 30,
   zona_horaria: 'America/Argentina/Buenos_Aires',
-  created_at: '',
-  updated_at: '',
 };
 
 function propsBase() {
   return {
-    clinica: CLINICA,
+    grilla: GRILLA,
     enviando: false,
     etiquetaGuardar: 'Agendar',
     onGuardar: jest.fn(),
@@ -88,7 +93,7 @@ describe('FormularioDeCita', () => {
 
   it('avisa en vez de romperse cuando la clínica no tiene horario', async () => {
     const { getByText, queryByText } = await render(
-      <FormularioDeCita {...propsBase()} clinica={undefined} />,
+      <FormularioDeCita {...propsBase()} grilla={undefined} />,
     );
 
     expect(getByText(/Falta el horario de la clínica/)).toBeOnTheScreen();
@@ -103,5 +108,64 @@ describe('FormularioDeCita', () => {
 
     expect(queryByText('Tipo')).toBeNull();
     expect(getByText('Día')).toBeOnTheScreen();
+  });
+});
+
+/**
+ * La otra mitad de la regla 2.2: el backend rechaza asignarle una cita a alguien
+ * con una ausencia cargada, y ofrecerlo para después fallar es el error que esta
+ * pantalla existe para evitar.
+ */
+describe('FormularioDeCita y las ausencias', () => {
+  const PLANTEL = [
+    {
+      id: 'v-1',
+      nombre: 'Ana Rossi',
+      tipo_documento: 'dni' as const,
+      numero_documento: '1',
+      clinica_id: 'c1',
+      created_at: '',
+      updated_at: '',
+    },
+  ];
+
+  beforeEach(() => {
+    jest.useFakeTimers({ now: instanteEnLaClinica('2027-01-04', 8 * 60) });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    ausencias.length = 0;
+  });
+
+  it('rotula como ausente a quien no va a estar en ese turno', async () => {
+    ausencias.push({
+      veterinario_id: 'v-1',
+      desde: instanteEnLaClinica('2027-01-04', 0).toISOString(),
+      hasta: instanteEnLaClinica('2027-01-05', 0).toISOString(),
+    });
+
+    const utilidades = await render(<FormularioDeCita {...propsBase()} plantel={PLANTEL} />);
+    // Elegir el turno es lo que hace que la disponibilidad tenga sentido: sin
+    // hora no hay contra qué medirla.
+    await fireEvent.press(utilidades.getByText('10:00'));
+    await fireEvent.press(utilidades.getByLabelText('Profesional'));
+
+    expect(utilidades.getByText('Ana Rossi · ausente ese día')).toBeOnTheScreen();
+  });
+
+  it('la ofrece normal cuando la ausencia no cubre ese turno', async () => {
+    // Una ausencia de la tarde no tapa el turno de las 10:00.
+    ausencias.push({
+      veterinario_id: 'v-1',
+      desde: instanteEnLaClinica('2027-01-04', 16 * 60).toISOString(),
+      hasta: instanteEnLaClinica('2027-01-04', 20 * 60).toISOString(),
+    });
+
+    const utilidades = await render(<FormularioDeCita {...propsBase()} plantel={PLANTEL} />);
+    await fireEvent.press(utilidades.getByText('10:00'));
+    await fireEvent.press(utilidades.getByLabelText('Profesional'));
+
+    expect(utilidades.getByText('Ana Rossi')).toBeOnTheScreen();
   });
 });

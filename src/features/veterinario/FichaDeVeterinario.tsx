@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +7,8 @@ import { Button, InlineError, Input, Select, Skeleton } from '../../components';
 import { TIPO_USUARIO } from '../../constants/roles';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
+import { AusenciasDelProfesional } from '../ausencias';
+import { useMiClinica } from '../clinica';
 import { FormularioDeContrasena, useUsuariosDeLaClinica } from '../cuenta';
 
 import { TIPOS_DE_DOCUMENTO } from './FormularioDeVeterinario';
@@ -29,6 +32,7 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
   const { t, px, texto } = useTheme();
   const plantel = usePlantel();
   const guardar = useActualizarVeterinario();
+  const clinica = useMiClinica();
   const [tocado, setTocado] = useState<ActualizarVeterinarioEntrada>({});
   const [guardado, setGuardado] = useState(false);
   const [restableciendo, setRestableciendo] = useState(false);
@@ -96,6 +100,21 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
             { maxWidth: px('--content-max'), paddingHorizontal: px('--gutter-page') },
           ]}
         >
+          {/*
+            La barra lateral tiene "Plantel" y vuelve acá, pero eso hay que
+            saberlo: una pantalla a la que se entra desde una fila necesita la
+            salida donde se la busca, arriba a la izquierda.
+          */}
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft="arrow-left"
+            onPress={() => router.replace('/(clinica-admin)/veterinarios')}
+            style={estilos.volver}
+          >
+            Volver al plantel
+          </Button>
+
           <View style={estilos.titulo}>
             <Text style={[texto('h1'), { color: t['--text-strong'] }]}>{veterinario.nombre}</Text>
             <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
@@ -238,6 +257,30 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
               />
             )}
           </View>
+
+          {/*
+            Las ausencias van en la ficha porque una ausencia es de alguien: la
+            pregunta "¿cuándo no está?" se hace mirando a la persona. Quién falta
+            hoy lo responde la etiqueta del listado del plantel.
+          */}
+          <View
+            style={[
+              estilos.tarjeta,
+              sombra('--shadow-sm'),
+              {
+                padding: px('--gutter-card'),
+                borderRadius: px('--radius-card'),
+                backgroundColor: t['--surface-card'],
+                borderColor: t['--border-default'],
+              },
+            ]}
+          >
+            <AusenciasDelProfesional
+              veterinarioId={veterinarioId}
+              nombre={veterinario.nombre}
+              zonaHoraria={clinica.data?.zona_horaria}
+            />
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -245,6 +288,7 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
 }
 
 const estilos = StyleSheet.create({
+  volver: { alignSelf: 'flex-start' },
   raiz: { flex: 1 },
   cargando: { padding: 32, gap: 12 },
   contenido: { width: '100%', alignSelf: 'center', paddingVertical: 32, gap: 20 },

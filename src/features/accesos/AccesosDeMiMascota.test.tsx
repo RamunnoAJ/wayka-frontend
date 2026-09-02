@@ -52,7 +52,7 @@ afterEach(() => jest.restoreAllMocks());
 
 describe('AccesosDeMiMascota', () => {
   it('el dueño ve las acciones de administración', async () => {
-    const { getAllByText, getByText } = await render(
+    const { getAllByLabelText, getByText } = await render(
       <AccesosDeMiMascota
         pacienteId="p-1"
         nombreDeLaMascota="Luna"
@@ -62,12 +62,14 @@ describe('AccesosDeMiMascota', () => {
     );
 
     await waitFor(() => expect(getByText('Veterinaria Norte')).toBeTruthy());
-    expect(getAllByText('Quitar').length).toBe(2);
+    // Las acciones de cada fila viven detrás de su menú, y el menú se nombra por
+    // la fila: con uno por fila, "Acciones" a secas los deja a todos igual.
+    expect(getAllByLabelText(/^Acciones de /).length).toBe(2);
     expect(getByText('Compartir')).toBeTruthy();
   });
 
   it('el co-tutor ve la misma lista y ninguna acción', async () => {
-    const { getByText, queryByText } = await render(
+    const { getByText, queryByText, queryAllByLabelText } = await render(
       <AccesosDeMiMascota
         pacienteId="p-1"
         nombreDeLaMascota="Luna"
@@ -81,8 +83,8 @@ describe('AccesosDeMiMascota', () => {
     await waitFor(() => expect(getByText('Veterinaria Norte')).toBeTruthy());
     expect(getByText('Beto Gómez')).toBeTruthy();
 
-    expect(queryByText('Quitar')).toBeNull();
+    // Sin acciones: saber quién más mira no es administrar (Alcance, 5.10).
+    expect(queryAllByLabelText(/^Acciones de /)).toHaveLength(0);
     expect(queryByText('Compartir')).toBeNull();
-    expect(queryByText('Solo mirar')).toBeNull();
   });
 });

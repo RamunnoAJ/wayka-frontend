@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import {
   ESTADO_DE_CITA,
@@ -15,12 +15,14 @@ import {
   Button,
   Input,
   InlineError,
+  MenuDeAcciones,
   Presionable,
   Select,
   Tabs,
   type ItemDeTab,
   type OpcionDeSelect,
 } from '../../components';
+import { TIPO_USUARIO } from '../../constants/roles';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme, type Tokens } from '../../theme';
 import {
@@ -34,6 +36,9 @@ import { useAsentarAtencion } from '../consultas';
 import { horaCorta, hoyEnLaClinica } from '../paciente/formato';
 import { usePlantel } from '../veterinario/queries';
 
+import { AgendarDesdeLaAgenda } from './AgendarDesdeLaAgenda';
+import { AsignarProfesional } from './AsignarProfesional';
+import { ReagendarDesdeLaAgenda } from './ReagendarDesdeLaAgenda';
 import { useAgenda } from './queries';
 
 /**
@@ -76,6 +81,10 @@ const ETIQUETA_DE_ESTADO: Record<EstadoDeCita, string> = {
 };
 
 const VISTAS: ItemDeTab<ModoDeCalendario>[] = [
+  // Los tres del contrato (Alcance de Plataformas, 3.6). Día no dibuja grilla:
+  // la grilla existe para elegir un día adentro de un período, y con uno solo no
+  // hay nada que elegir.
+  { value: MODO_DE_CALENDARIO.DIA, label: 'Día' },
   { value: MODO_DE_CALENDARIO.SEMANA, label: 'Semana' },
   { value: MODO_DE_CALENDARIO.MES, label: 'Mes' },
 ];
@@ -103,7 +112,12 @@ function tono(t: Tokens, estado: EstadoDeCita): { fondo: string; texto: string }
 }
 
 interface AgendaProps {
-  onAbrirPaciente: (pacienteId: string) => void;
+  /**
+   * Sin handler, la fila no lleva a ningún lado: es lo que corresponde para el
+   * clínica_admin, que lee la agenda pero no alcanza la ficha del paciente.
+   * Ofrecer un toque que termina en 403 es peor que no ofrecerlo.
+   */
+  onAbrirPaciente?: (pacienteId: string) => void;
 }
 
 export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
@@ -123,7 +137,17 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
   // resto del plantel son contexto que se pide, no lo primero que se ve. Un
   // clínica_admin no tiene ficha de veterinario y abre en toda la clínica, que
   // es exactamente lo que administra.
-  const miVeterinarioId = useSesion().sesion?.usuario.veterinario_id ?? null;
+  const sesion = useSesion().sesion;
+  const miVeterinarioId = sesion?.usuario.veterinario_id ?? null;
+  // Asentar la atención es afirmación asistencial y la hace quien atendió: el
+  // clínica_admin lee la agenda y la reparte, no la cierra (Reglas de Negocio,
+  // 3.2). El backend lo rechaza igual; ofrecer el botón sería prometerlo.
+  const puedeAsentar = sesion?.usuario.tipo_usuario === TIPO_USUARIO.VETERINARIO;
+  // El veterinario agenda desde la ficha de la mascota, que es donde está
+  // parado; el clínica_admin no tiene ficha a la que entrar, así que agenda
+  // desde acá, buscando en la cartera.
+  const agendaDesdeAca = sesion?.usuario.tipo_usuario === TIPO_USUARIO.CLINICA_ADMIN;
+  const [agendando, setAgendando] = useState(false);
   const [profesional, setProfesional] = useState(miVeterinarioId ?? TODOS_LOS_PROFESIONALES);
 
   const filtros = useMemo(() => {
@@ -163,6 +187,11 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                 dos turnos de la misma hora no se pisan.
               </Text>
             </View>
+            {agendaDesdeAca ? (
+              <Button iconLeft="calendar-plus" onPress={() => setAgendando(true)}>
+                Agendar turno
+              </Button>
+            ) : null}
           </View>
 
           <View style={estilos.filtros}>
@@ -218,27 +247,61 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
               onAncla={setAncla}
               cargando={agenda.isPending}
               colorDePunto={(tokens, fila) => tono(tokens, fila.cita.estado).texto}
-              renderCita={(fila) => <FilaDeAgenda fila={fila} onAbrir={onAbrirPaciente} />}
+              renderCita={(fila) => (
+                <FilaDeAgenda fila={fila} puedeAsentar={puedeAsentar} onAbrir={onAbrirPaciente} />
+              )}
             />
           )}
         </View>
       </ScrollView>
+
+      {agendando ? <AgendarDesdeLaAgenda onCerrar={() => setAgendando(false)} /> : null}
     </View>
+  );
+}
+
+/**
+ * Envuelve el bloque de datos de la fila. Con handler es presionable y lleva a la
+ * ficha; sin handler es una `View` y no anuncia nada al lector de pantalla — un
+ * botón que no hace nada es peor que texto.
+ */
+function Contenedor({
+  onPress,
+  fondo,
+  fondoDestacado,
+  style,
+  children,
+}: {
+  onPress?: () => void;
+  fondo: string;
+  fondoDestacado: string;
+  style: ViewStyle;
+  children: ReactNode;
+}) {
+  if (!onPress) return <View style={style}>{children}</View>;
+  return (
+    <Presionable onPress={onPress} fondo={fondo} fondoDestacado={fondoDestacado} style={style}>
+      {children}
+    </Presionable>
   );
 }
 
 /** Una cita en la lista del día: la hora, la mascota y quién la atiende. */
 function FilaDeAgenda({
   fila,
+  puedeAsentar,
   onAbrir,
 }: {
+  puedeAsentar: boolean;
   fila: CitaConPaciente;
-  onAbrir: (pacienteId: string) => void;
+  onAbrir?: (pacienteId: string) => void;
 }) {
   const { t, px, texto } = useTheme();
   const { cita, paciente_nombre, paciente_especie, veterinario_nombre, zona_horaria } = fila;
   const colores = tono(t, cita.estado);
   const asentar = useAsentarAtencion(cita.paciente_id);
+  const [asignando, setAsignando] = useState(false);
+  const [reagendando, setReagendando] = useState(false);
 
   return (
     <View
@@ -252,8 +315,8 @@ function FilaDeAgenda({
         },
       ]}
     >
-      <Presionable
-        onPress={() => onAbrir(cita.paciente_id)}
+      <Contenedor
+        onPress={onAbrir ? () => onAbrir(cita.paciente_id) : undefined}
         fondo={t['--surface-card']}
         fondoDestacado={t['--surface-hover']}
         style={estilos.datosDeLaFila}
@@ -289,7 +352,7 @@ function FilaDeAgenda({
             </Text>
           ) : null}
         </View>
-      </Presionable>
+      </Contenedor>
 
       {/*
         Asentar es un toque desde la agenda: es donde el veterinario está parado
@@ -297,7 +360,7 @@ function FilaDeAgenda({
         haber atendido, no haber escrito (Reglas de Negocio, 4.4)—. Una vencida
         también se atiende: la mascota llegó tarde y se la atendió igual.
       */}
-      {esCerrable(cita) ? (
+      {puedeAsentar && esCerrable(cita) ? (
         <Button
           variant="secondary"
           size="sm"
@@ -307,6 +370,49 @@ function FilaDeAgenda({
         >
           Atendí
         </Button>
+      ) : null}
+
+      {/*
+        Repartir va al menú y asentar no: asentar es lo que se hace todo el día
+        parado al lado de la mesa, y repartir es ocasional. Solo lo pendiente se
+        reparte: a una cumplida ya la atendió alguien.
+      */}
+      {cita.estado === ESTADO_DE_CITA.PENDIENTE ? (
+        <MenuDeAcciones
+          accessibilityLabel={`Acciones de la cita de ${paciente_nombre}`}
+          acciones={[
+            {
+              label: cita.veterinario_id ? 'Cambiar quién atiende' : 'Asignar profesional',
+              icono: 'user-round',
+              onPress: () => setAsignando(true),
+            },
+            // Mover el turno desde acá y no desde la ficha del paciente: el
+            // clínica_admin no la alcanza, y al veterinario le costaba salir de
+            // la agenda y volver.
+            {
+              label: 'Reagendar',
+              icono: 'calendar-clock',
+              onPress: () => setReagendando(true),
+            },
+          ]}
+        />
+      ) : null}
+
+      {asignando ? (
+        <AsignarProfesional
+          cita={cita}
+          nombreDelPaciente={paciente_nombre}
+          zonaHoraria={zona_horaria}
+          onCerrar={() => setAsignando(false)}
+        />
+      ) : null}
+
+      {reagendando ? (
+        <ReagendarDesdeLaAgenda
+          cita={cita}
+          nombreDelPaciente={paciente_nombre}
+          onCerrar={() => setReagendando(false)}
+        />
       ) : null}
     </View>
   );

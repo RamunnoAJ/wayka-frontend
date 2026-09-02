@@ -30,3 +30,32 @@ describe('a dónde lleva tocar una sección', () => {
     expect(destinoAlTocar(AGENDA, '/pacientes')).toBe(AGENDA.href);
   });
 });
+
+describe('secciones del clínica_admin', () => {
+  const ADMIN = NAVEGACION_POR_ROL[TIPO_USUARIO.CLINICA_ADMIN];
+
+  /**
+   * El corte es por frecuencia: el tablero y la agenda se miran todos los días,
+   * el plantel cada tanto, y Ajustes junta lo que se configura una vez. Las
+   * ausencias no tienen sección — se cargan desde la fila de la persona, porque
+   * una ausencia es de alguien (Alcance de Plataformas, 3.2).
+   */
+  it('separa lo que se mira a diario de lo que se configura una vez', () => {
+    expect(ADMIN.map((item) => item.prefijo)).toEqual([
+      '/panel',
+      '/agenda',
+      '/veterinarios',
+      '/ajustes',
+    ]);
+  });
+
+  /**
+   * El rol alcanza datos administrativos y conteos, no las mascotas atendidas ni
+   * su calendario: que esas secciones no estén no es un olvido.
+   */
+  it('no ofrece pacientes ni agenda clínica', () => {
+    const prefijos = ADMIN.map((item) => item.prefijo);
+    expect(prefijos).not.toContain('/pacientes');
+    expect(prefijos).not.toContain('/atenciones');
+  });
+});

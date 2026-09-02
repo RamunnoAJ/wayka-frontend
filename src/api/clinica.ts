@@ -19,17 +19,20 @@ export interface Clinica {
   direccion_lat?: number | null;
   direccion_lng?: number | null;
   contacto: string;
-  hora_apertura: HoraDelDia;
-  hora_cierre: HoraDelDia;
   /**
-   * Define la grilla del calendario: la hora de una Cita tiene que ser múltiplo
-   * de este valor contado desde `hora_apertura` (regla 2.2).
+   * Junto con las franjas de atención define la grilla: la hora de una Cita
+   * tiene que ser múltiplo de este valor contado desde el `hora_desde` de la
+   * franja en la que cae (regla 2.2).
+   *
+   * Se queda en la clínica y no baja a la franja porque el turno es cuánto dura
+   * atender a un paciente ahí, y eso no cambia porque sea martes a la mañana o
+   * jueves a la tarde.
    */
   duracion_turno_minutos: number;
   /**
-   * Nombre IANA de la zona en la que se interpretan el horario de atención y la
-   * hora de las Citas. `hora_apertura` dice "09:00" sin decir 09:00 de dónde, y
-   * esa pregunta la contesta la clínica.
+   * Nombre IANA de la zona en la que se interpretan las franjas de atención y la
+   * hora de las Citas. `hora_desde` dice "09:00" sin decir 09:00 de dónde, y esa
+   * pregunta la contesta la clínica.
    */
   zona_horaria: string;
   created_at: string;
@@ -37,9 +40,9 @@ export interface Clinica {
 }
 
 /**
- * Los tres campos de horario se validan como conjunto contra el estado
- * resultante, no de a uno: mover solo el cierre puede dejar un intervalo que la
- * duración del turno ya no divide.
+ * El horario de atención no se edita por acá: son las franjas, y se escriben
+ * enteras contra su propia ruta. La duración del turno sí, porque es de la
+ * clínica y no de la franja — y se valida contra las franjas vigentes.
  */
 export interface ActualizarClinicaEntrada {
   nombre?: string;
@@ -53,8 +56,6 @@ export interface ActualizarClinicaEntrada {
   direccion_lat?: number;
   direccion_lng?: number;
   contacto?: string;
-  hora_apertura?: HoraDelDia;
-  hora_cierre?: HoraDelDia;
   duracion_turno_minutos?: number;
   zona_horaria?: string;
 }
@@ -95,4 +96,84 @@ export function actualizarClinica(
   entrada: ActualizarClinicaEntrada,
 ): Promise<Clinica> {
   return http.patch<Clinica>(`/clinicas/${clinicaId}`, { body: entrada });
+}
+
+/** 0 = lunes, 6 = domingo. La semana de una veterinaria empieza el lunes. */
+export type DiaDeLaSemana = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export const DIAS_DE_LA_SEMANA: DiaDeLaSemana[] = [0, 1, 2, 3, 4, 5, 6];
+
+export const NOMBRE_DEL_DIA: Record<DiaDeLaSemana, string> = {
+  0: 'Lunes',
+  1: 'Martes',
+  2: 'Miércoles',
+  3: 'Jueves',
+  4: 'Viernes',
+  5: 'Sábado',
+  6: 'Domingo',
+};
+
+/**
+ * Un tramo en el que la clínica atiende. No lleva id: las franjas se escriben
+ * como conjunto y no se referencian de a una.
+ */
+export interface FranjaDeAtencion {
+  dia_semana: DiaDeLaSemana;
+  hora_desde: HoraDelDia;
+  hora_hasta: HoraDelDia;
+}
+
+/**
+ * El horario de atención completo. Un día que no aparece en `franjas` es un día
+ * cerrado: no hay un campo que lo diga, porque un booleano que pudiera
+ * contradecir a las franjas del mismo día sería un dato a mantener coherente a
+ * mano (Modelo de Datos, 4.18).
+ */
+export interface Grilla {
+  franjas: FranjaDeAtencion[];
+  duracion_turno_minutos: number;
+  zona_horaria: string;
+}
+
+export interface EscribirGrillaEntrada {
+  franjas: FranjaDeAtencion[];
+}
+
+export interface TurnosPorDia {
+  dia_semana: DiaDeLaSemana;
+  turnos: number;
+}
+
+/**
+ * Qué pasaría si esa grilla se guardara, sin guardarla. Existe porque achicar el
+ * horario se rechaza mientras haya Citas pendientes fuera de la grilla nueva, y
+ * descubrirlo recién en el texto de un error obliga a corregir a ciegas hasta
+ * que el guardado deje de fallar (Alcance de Plataformas, 3.2.3).
+ */
+export interface PrevisualizacionDeGrilla {
+  turnos_por_dia: TurnosPorDia[];
+  /** Solo el instante: ni paciente, ni tipo, ni profesional. */
+  citas_que_quedan_afuera: string[];
+}
+
+export function obtenerGrilla(clinicaId: string): Promise<Grilla> {
+  return http.get<Grilla>(`/clinicas/${clinicaId}/franjas`);
+}
+
+/**
+ * Reemplaza el conjunto entero en una transacción. No hay alta ni baja de una
+ * franja suelta: la grilla es una sola cosa y hay que poder validarla completa
+ * antes de aceptarla.
+ */
+export function escribirGrilla(clinicaId: string, entrada: EscribirGrillaEntrada): Promise<Grilla> {
+  return http.put<Grilla>(`/clinicas/${clinicaId}/franjas`, { body: entrada });
+}
+
+export function previsualizarGrilla(
+  clinicaId: string,
+  entrada: EscribirGrillaEntrada,
+): Promise<PrevisualizacionDeGrilla> {
+  return http.post<PrevisualizacionDeGrilla>(`/clinicas/${clinicaId}/franjas/previsualizacion`, {
+    body: entrada,
+  });
 }

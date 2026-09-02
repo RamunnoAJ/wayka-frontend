@@ -10,9 +10,16 @@ import {
   type EstadoDeCita,
   type TipoDeCita,
 } from '../../api/cita';
-import type { Clinica } from '../../api/clinica';
+import type { Grilla } from '../../api/clinica';
 import type { Veterinario } from '../../api/veterinario';
-import { Button, EmptyState, Icon, IconButton, InlineError } from '../../components';
+import {
+  Button,
+  EmptyState,
+  Icon,
+  IconButton,
+  InlineError,
+  MenuDeAcciones,
+} from '../../components';
 import { useTheme, type Tokens } from '../../theme';
 
 import { aIso, desdeIso, diaDeInstante, horaCorta, hoyEnLaClinica, momentoCorto } from './formato';
@@ -71,7 +78,7 @@ function tono(t: Tokens, estado: EstadoDeCita): { fondo: string; texto: string }
 interface CalendarioProps {
   citas: Cita[] | undefined;
   /** Define la grilla de horas ofrecidas. Es la clínica que atiende a la mascota. */
-  clinica: Clinica | undefined;
+  grilla: Grilla | undefined;
   /** Plantel de esa clínica, para poder asignar profesional. */
   plantel: Veterinario[] | undefined;
   error: boolean;
@@ -95,7 +102,7 @@ interface CalendarioProps {
 
 export function SeccionCalendario({
   citas,
-  clinica,
+  grilla,
   plantel,
   error,
   onReintentar,
@@ -118,16 +125,16 @@ export function SeccionCalendario({
   const porDia = useMemo(() => {
     const mapa = new Map<string, Cita[]>();
     for (const cita of lista) {
-      const clave = diaDeInstante(cita.fecha_programada, clinica?.zona_horaria);
+      const clave = diaDeInstante(cita.fecha_programada, grilla?.zona_horaria);
       const dia = mapa.get(clave);
       if (dia) dia.push(cita);
       else mapa.set(clave, [cita]);
     }
     return mapa;
-  }, [lista, clinica?.zona_horaria]);
+  }, [lista, grilla?.zona_horaria]);
 
   const celdas = useMemo(() => construirMes(foco), [foco]);
-  const hoy = hoyEnLaClinica(clinica?.zona_horaria);
+  const hoy = hoyEnLaClinica(grilla?.zona_horaria);
 
   const accion = (
     <Button
@@ -144,7 +151,7 @@ export function SeccionCalendario({
   const formularioDeAlta =
     formulario === 'nueva' && !bloqueado ? (
       <FormularioDeCita
-        clinica={clinica}
+        grilla={grilla}
         plantel={plantel}
         enviando={guardando}
         error={errorAlGuardar}
@@ -322,7 +329,7 @@ export function SeccionCalendario({
                   <Text
                     style={[texto('body-sm'), { fontWeight: '700', color: t['--text-strong'] }]}
                   >
-                    {momentoCorto(cita.fecha_programada, clinica?.zona_horaria)}
+                    {momentoCorto(cita.fecha_programada, grilla?.zona_horaria)}
                   </Text>
                   <View style={estilos.estado}>
                     <View style={[estilos.punto, { backgroundColor: colores.texto }]} />
@@ -363,36 +370,49 @@ export function SeccionCalendario({
                   </View>
                 )}
 
-                {/* Solo lo pendiente se reagenda: mover una cita es mover algo que
-                    todavía va a pasar (regla 2.2). */}
-                {esReagendable(cita) ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    iconLeft="calendar-clock"
-                    disabled={bloqueado}
-                    accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                    onPress={() =>
-                      setFormulario((abierto) => (abierto === cita.id ? null : cita.id))
-                    }
-                  >
-                    Reagendar
-                  </Button>
-                ) : null}
+                {/*
+                  Reagendar y retirar van al menú y registrar la atención no:
+                  esa es la acción del día y bajarla a un desplegable le
+                  agregaría un toque a lo que más se usa. Las otras dos son
+                  ocasionales, y una de ellas saca la cita del calendario.
 
-                {/* La baja es para lo que no va a ocurrir. No dice "eliminar":
-                    la cita no se borra, deja de aparecer en el calendario. */}
-                {esRetirable(cita) ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    iconLeft="archive"
-                    disabled={bloqueado}
-                    accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                    onPress={() => onRetirar(cita)}
-                  >
-                    Retirar
-                  </Button>
+                  Solo lo pendiente se reagenda —mover una cita es mover algo
+                  que todavía va a pasar (regla 2.2)— y la baja es para lo que
+                  no va a ocurrir. No dice "eliminar": la cita no se borra,
+                  deja de aparecer en el calendario.
+                */}
+                {esReagendable(cita) || esRetirable(cita) ? (
+                  <MenuDeAcciones
+                    accessibilityLabel={
+                      bloqueado
+                        ? motivoBloqueo
+                        : `Acciones de la cita de ${ETIQUETA_DE_TIPO[cita.tipo]}`
+                    }
+                    acciones={[
+                      ...(esReagendable(cita)
+                        ? [
+                            {
+                              label: 'Reagendar',
+                              icono: 'calendar-clock' as const,
+                              deshabilitada: bloqueado,
+                              onPress: () =>
+                                setFormulario((abierto) => (abierto === cita.id ? null : cita.id)),
+                            },
+                          ]
+                        : []),
+                      ...(esRetirable(cita)
+                        ? [
+                            {
+                              label: 'Retirar del calendario',
+                              icono: 'archive' as const,
+                              peligro: true,
+                              deshabilitada: bloqueado,
+                              onPress: () => onRetirar(cita),
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
                 ) : null}
               </View>
 
@@ -401,7 +421,7 @@ export function SeccionCalendario({
                   {/* La reagenda no cambia el tipo: qué control corresponde es
                       criterio clínico, no del calendario (Reglas de Negocio, 3.2). */}
                   <FormularioDeCita
-                    clinica={clinica}
+                    grilla={grilla}
                     plantel={plantel}
                     soloFechaYAviso
                     valorInicial={{

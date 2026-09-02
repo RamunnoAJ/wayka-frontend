@@ -26,7 +26,9 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
 
   const entidades: [string, string, string][] = [
     ['Paciente', 'src/api/paciente.ts', 'Paciente'],
+    ['PacienteEnLaCartera', 'src/api/paciente.ts', 'PacienteEnLaCartera'],
     ['Tutor', 'src/api/tutor.ts', 'Tutor'],
+    ['TutorEnElPadron', 'src/api/tutor.ts', 'TutorEnElPadron'],
     ['Veterinario', 'src/api/veterinario.ts', 'Veterinario'],
     ['Clinica', 'src/api/clinica.ts', 'Clinica'],
     ['Cita', 'src/api/cita.ts', 'Cita'],
@@ -36,6 +38,9 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['EventoClinico', 'src/api/evento-clinico.ts', 'EventoClinico'],
     ['Adjunto', 'src/api/adjunto.ts', 'Adjunto'],
     ['ClinicaPublica', 'src/api/clinica.ts', 'ClinicaPublica'],
+    ['Grilla', 'src/api/clinica.ts', 'Grilla'],
+    ['FranjaDeAtencion', 'src/api/clinica.ts', 'FranjaDeAtencion'],
+    ['PrevisualizacionDeGrilla', 'src/api/clinica.ts', 'PrevisualizacionDeGrilla'],
     ['VinculoConClinica', 'src/api/acceso-a-paciente.ts', 'VinculoConClinica'],
     ['CoTutor', 'src/api/acceso-a-paciente.ts', 'CoTutor'],
     ['AccesosDelPaciente', 'src/api/acceso-a-paciente.ts', 'AccesosDelPaciente'],

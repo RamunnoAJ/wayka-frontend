@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -6,8 +7,10 @@ import {
   Avatar,
   Badge,
   Button,
+  DialogoDeConfirmacion,
   EmptyState,
   InlineError,
+  MenuDeAcciones,
   Skeleton,
   SkeletonText,
 } from '../../components';
@@ -15,6 +18,10 @@ import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
 
+import { estaAusenteAhora, FormularioDeAusencia, useAusencias } from '../ausencias';
+import { useMiClinica } from '../clinica';
+
+import { AvisoDeMatriculas } from './AvisoDeMatriculas';
 import { FormularioDeVeterinario } from './FormularioDeVeterinario';
 import { useCrearVeterinario, useDarDeBajaVeterinario, usePlantel } from './queries';
 
@@ -37,6 +44,16 @@ export function Plantel() {
   const darDeBaja = useDarDeBajaVeterinario();
   const [abierto, setAbierto] = useState(false);
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [cargandoAusencia, setCargandoAusencia] = useState<string | null>(null);
+  const aDarDeBaja = plantel.data?.find((ficha) => ficha.id === confirmando);
+  const aAusentar = plantel.data?.find((ficha) => ficha.id === cargandoAusencia);
+
+  // Quién no está hoy. Es la mirada transversal que se perdió al sacar la
+  // sección de Ausencias: la lista de cada persona vive en su ficha, pero "quién
+  // falta hoy" se pregunta mirando el plantel entero.
+  const ausencias = useAusencias();
+  const clinica = useMiClinica();
+  const ausentes = estaAusenteAhora(ausencias.data);
 
   return (
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
@@ -68,13 +85,12 @@ export function Plantel() {
             />
           ) : null}
 
-          {darDeBaja.isError ? (
-            <InlineError
-              compact
-              title="No se pudo dar de baja"
-              description={mensajeDeError(darDeBaja.error)}
-            />
-          ) : null}
+          {/*
+            Va arriba del listado y no solo como etiqueta en cada fila: la
+            etiqueta ya está, pero obliga a recorrer el plantel entero para
+            saber si hay alguien restringido.
+          */}
+          {plantel.data ? <AvisoDeMatriculas plantel={plantel.data} /> : null}
 
           {plantel.isPending ? (
             <View style={estilos.lista}>
@@ -113,19 +129,49 @@ export function Plantel() {
                   key={veterinario.id}
                   veterinario={veterinario}
                   esMovil={esMovil}
-                  confirmando={confirmando === veterinario.id}
-                  dandoDeBaja={darDeBaja.isPending}
-                  onPedirBaja={() => setConfirmando(veterinario.id)}
-                  onCancelarBaja={() => setConfirmando(null)}
-                  onConfirmarBaja={() =>
-                    darDeBaja.mutate(veterinario.id, { onSuccess: () => setConfirmando(null) })
+                  ausenteHasta={ausentes.get(veterinario.id)?.hasta}
+                  zonaHoraria={clinica.data?.zona_horaria}
+                  onAbrirFicha={() =>
+                    router.push(`/(clinica-admin)/veterinarios/${veterinario.id}`)
                   }
+                  onCargarAusencia={() => setCargandoAusencia(veterinario.id)}
+                  onPedirBaja={() => {
+                    darDeBaja.reset();
+                    setConfirmando(veterinario.id);
+                  }}
                 />
               ))}
             </View>
           )}
         </View>
       </ScrollView>
+
+      {/*
+        Un solo diálogo para todo el listado, montado acá y no en cada fila:
+        montar uno por fila dejaría tantos modales como personas en el plantel.
+      */}
+      {aAusentar ? (
+        <FormularioDeAusencia
+          veterinarioId={aAusentar.id}
+          nombre={aAusentar.nombre}
+          zonaHoraria={clinica.data?.zona_horaria}
+          onCerrar={() => setCargandoAusencia(null)}
+        />
+      ) : null}
+
+      {aDarDeBaja ? (
+        <DialogoDeConfirmacion
+          titulo={`¿Dar de baja a ${aDarDeBaja.nombre}?`}
+          descripcion="Se desactiva también su cuenta y deja de poder entrar. Lo que escribió queda donde está, con su firma: nada del historial se borra."
+          etiquetaConfirmar="Dar de baja"
+          enviando={darDeBaja.isPending}
+          error={darDeBaja.isError ? mensajeDeError(darDeBaja.error) : undefined}
+          onCancelar={() => setConfirmando(null)}
+          onConfirmar={() =>
+            darDeBaja.mutate(aDarDeBaja.id, { onSuccess: () => setConfirmando(null) })
+          }
+        />
+      ) : null}
     </View>
   );
 }
@@ -133,21 +179,22 @@ export function Plantel() {
 interface FilaProps {
   veterinario: Veterinario;
   esMovil: boolean;
-  confirmando: boolean;
-  dandoDeBaja: boolean;
+  /** Con valor, no está hoy y la fila lo dice hasta cuándo. */
+  ausenteHasta?: Date;
+  zonaHoraria: string | undefined;
+  onAbrirFicha: () => void;
+  onCargarAusencia: () => void;
   onPedirBaja: () => void;
-  onCancelarBaja: () => void;
-  onConfirmarBaja: () => void;
 }
 
 function FilaDeVeterinario({
   veterinario,
   esMovil,
-  confirmando,
-  dandoDeBaja,
+  ausenteHasta,
+  zonaHoraria,
+  onAbrirFicha,
+  onCargarAusencia,
   onPedirBaja,
-  onCancelarBaja,
-  onConfirmarBaja,
 }: FilaProps) {
   const { t, px, texto } = useTheme();
 
@@ -180,25 +227,36 @@ function FilaDeVeterinario({
         {veterinario.matricula ? `Matrícula ${veterinario.matricula}` : 'Sin matrícula'}
       </Badge>
 
-      {confirmando ? (
-        <View style={estilos.confirmacion}>
-          <Text style={[texto('body-sm'), { color: t['--text-danger'] }]}>
-            Se desactiva también su cuenta. Lo que escribió queda con su firma.
-          </Text>
-          <View style={estilos.acciones}>
-            <Button variant="danger" size="sm" loading={dandoDeBaja} onPress={onConfirmarBaja}>
-              Dar de baja
-            </Button>
-            <Button variant="ghost" size="sm" onPress={onCancelarBaja}>
-              Cancelar
-            </Button>
-          </View>
-        </View>
-      ) : (
-        <Button variant="ghost" size="sm" iconLeft="archive" onPress={onPedirBaja}>
-          Dar de baja
-        </Button>
-      )}
+      {/* Hoy no está: la agenda no le ofrece turnos y sus citas del rango ya
+          quedaron sin profesional. */}
+      {ausenteHasta ? (
+        <Badge tone="warning" icon="calendar-clock">
+          {`Ausente hasta el ${new Intl.DateTimeFormat('es-AR', {
+            day: 'numeric',
+            month: 'short',
+            timeZone: zonaHoraria,
+          }).format(ausenteHasta)}`}
+        </Badge>
+      ) : null}
+
+      {
+        /*
+          Las dos acciones van detrás de los tres puntos y no a la vista: dos
+          botones por fila pesan lo mismo que el nombre, y con una baja entre
+          ellos la cercanía es el problema — se apunta a una y se toca la otra.
+          La baja además conserva su confirmación en la fila.
+        */
+        <MenuDeAcciones
+          accessibilityLabel={`Acciones de ${veterinario.nombre}`}
+          acciones={[
+            { label: 'Ver ficha', icono: 'pencil', onPress: onAbrirFicha },
+            // Una ausencia es de una persona: se carga desde su fila, que es
+            // donde se la busca.
+            { label: 'Cargar ausencia', icono: 'calendar-clock', onPress: onCargarAusencia },
+            { label: 'Dar de baja', icono: 'archive', peligro: true, onPress: onPedirBaja },
+          ]}
+        />
+      }
     </View>
   );
 }
