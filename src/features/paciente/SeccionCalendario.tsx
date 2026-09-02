@@ -10,7 +10,7 @@ import {
   type EstadoDeCita,
   type TipoDeCita,
 } from '../../api/cita';
-import type { Clinica } from '../../api/clinica';
+import type { Grilla } from '../../api/clinica';
 import type { Veterinario } from '../../api/veterinario';
 import { Button, EmptyState, Icon, IconButton, InlineError } from '../../components';
 import { useTheme, type Tokens } from '../../theme';
@@ -71,7 +71,7 @@ function tono(t: Tokens, estado: EstadoDeCita): { fondo: string; texto: string }
 interface CalendarioProps {
   citas: Cita[] | undefined;
   /** Define la grilla de horas ofrecidas. Es la clínica que atiende a la mascota. */
-  clinica: Clinica | undefined;
+  grilla: Grilla | undefined;
   /** Plantel de esa clínica, para poder asignar profesional. */
   plantel: Veterinario[] | undefined;
   error: boolean;
@@ -95,7 +95,7 @@ interface CalendarioProps {
 
 export function SeccionCalendario({
   citas,
-  clinica,
+  grilla,
   plantel,
   error,
   onReintentar,
@@ -118,16 +118,16 @@ export function SeccionCalendario({
   const porDia = useMemo(() => {
     const mapa = new Map<string, Cita[]>();
     for (const cita of lista) {
-      const clave = diaDeInstante(cita.fecha_programada, clinica?.zona_horaria);
+      const clave = diaDeInstante(cita.fecha_programada, grilla?.zona_horaria);
       const dia = mapa.get(clave);
       if (dia) dia.push(cita);
       else mapa.set(clave, [cita]);
     }
     return mapa;
-  }, [lista, clinica?.zona_horaria]);
+  }, [lista, grilla?.zona_horaria]);
 
   const celdas = useMemo(() => construirMes(foco), [foco]);
-  const hoy = hoyEnLaClinica(clinica?.zona_horaria);
+  const hoy = hoyEnLaClinica(grilla?.zona_horaria);
 
   const accion = (
     <Button
@@ -144,7 +144,7 @@ export function SeccionCalendario({
   const formularioDeAlta =
     formulario === 'nueva' && !bloqueado ? (
       <FormularioDeCita
-        clinica={clinica}
+        grilla={grilla}
         plantel={plantel}
         enviando={guardando}
         error={errorAlGuardar}
@@ -322,7 +322,7 @@ export function SeccionCalendario({
                   <Text
                     style={[texto('body-sm'), { fontWeight: '700', color: t['--text-strong'] }]}
                   >
-                    {momentoCorto(cita.fecha_programada, clinica?.zona_horaria)}
+                    {momentoCorto(cita.fecha_programada, grilla?.zona_horaria)}
                   </Text>
                   <View style={estilos.estado}>
                     <View style={[estilos.punto, { backgroundColor: colores.texto }]} />
@@ -401,7 +401,7 @@ export function SeccionCalendario({
                   {/* La reagenda no cambia el tipo: qué control corresponde es
                       criterio clínico, no del calendario (Reglas de Negocio, 3.2). */}
                   <FormularioDeCita
-                    clinica={clinica}
+                    grilla={grilla}
                     plantel={plantel}
                     soloFechaYAviso
                     valorInicial={{

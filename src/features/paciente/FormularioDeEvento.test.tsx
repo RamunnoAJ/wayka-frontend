@@ -27,8 +27,6 @@ const CLINICA: Clinica = {
   nombre: 'Veterinaria Norte',
   direccion: 'Av. Siempre Viva 123',
   contacto: '011-1234-5678',
-  hora_apertura: '09:00',
-  hora_cierre: '18:00',
   duracion_turno_minutos: 30,
   zona_horaria: 'America/Argentina/Buenos_Aires',
   created_at: '',

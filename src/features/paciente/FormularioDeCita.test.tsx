@@ -2,7 +2,7 @@
 // asíncronos: sin `await`, la aserción corre antes de que el árbol se actualice.
 import { fireEvent } from '@testing-library/react-native';
 
-import type { Clinica } from '../../api/clinica';
+import type { Grilla } from '../../api/clinica';
 import { horaEnLaClinica, instanteEnLaClinica } from '../../lib/zona';
 import { render } from '../../pruebas/render';
 
@@ -13,22 +13,21 @@ import { FormularioDeCita } from './FormularioDeCita';
  * hora que el backend vaya a rechazar** (regla 2.2). El backend la valida igual;
  * esto evita el viaje perdido y el error que el usuario no puede prevenir.
  */
-const CLINICA: Clinica = {
-  id: 'c1',
-  nombre: 'Veterinaria Norte',
-  direccion: 'Av. Siempre Viva 123',
-  contacto: '011-1234-5678',
-  hora_apertura: '09:00',
-  hora_cierre: '18:00',
+const GRILLA: Grilla = {
+  // Abre todos los dias para que el resultado no dependa del dia de la semana en
+  // que caiga la fecha que el test elige.
+  franjas: [0, 1, 2, 3, 4, 5, 6].map((dia) => ({
+    dia_semana: dia as 0,
+    hora_desde: '09:00',
+    hora_hasta: '18:00',
+  })),
   duracion_turno_minutos: 30,
   zona_horaria: 'America/Argentina/Buenos_Aires',
-  created_at: '',
-  updated_at: '',
 };
 
 function propsBase() {
   return {
-    clinica: CLINICA,
+    grilla: GRILLA,
     enviando: false,
     etiquetaGuardar: 'Agendar',
     onGuardar: jest.fn(),
@@ -88,7 +87,7 @@ describe('FormularioDeCita', () => {
 
   it('avisa en vez de romperse cuando la clínica no tiene horario', async () => {
     const { getByText, queryByText } = await render(
-      <FormularioDeCita {...propsBase()} clinica={undefined} />,
+      <FormularioDeCita {...propsBase()} grilla={undefined} />,
     );
 
     expect(getByText(/Falta el horario de la clínica/)).toBeOnTheScreen();

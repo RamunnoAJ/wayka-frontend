@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { ActualizarClinicaEntrada, Clinica } from '../../api/clinica';
 
-import { horaDeMinutos, minutosDeHora } from './grilla';
 import {
   Button,
   InlineError,
@@ -20,19 +19,14 @@ import { sombra, useTheme } from '../../theme';
 import { useActualizarClinica, useClinica } from './queries';
 
 /**
- * Datos administrativos de la clínica y su horario de atención (Alcance de
- * Plataformas, 3.2).
+ * Datos administrativos de la clínica y la duración de su turno (Alcance de
+ * Plataformas, 3.2.5).
  *
- * Los tres campos de horario definen la grilla con la que agenda toda la
- * clínica, así que un cambio acá cambia qué horas son válidas en el calendario
- * de todos. El backend rechaza el que deje citas pendientes afuera; la pantalla
- * muestra ese motivo tal cual en vez de un "no se pudo guardar".
+ * El horario de atención **no se edita acá**: son las franjas, se escriben
+ * enteras y tienen su propio editor (`EditorDeHorario`). La duración del turno
+ * sí, porque es de la clínica y no de la franja — cuánto dura atender a un
+ * paciente no cambia porque sea martes a la mañana o jueves a la tarde.
  */
-const HORAS: OpcionDeSelect[] = Array.from({ length: 24 * 2 }, (_, i) => {
-  const hora = horaDeMinutos(i * 30);
-  return { value: hora, label: hora };
-});
-
 const DURACIONES: OpcionDeSelect[] = [15, 20, 30, 45, 60].map((minutos) => ({
   value: String(minutos),
   label: `${minutos} min`,
@@ -86,34 +80,16 @@ export function FormularioDeClinica({
   const borrador: ActualizarClinicaEntrada = {
     nombre: consulta.data.nombre,
     contacto: consulta.data.contacto,
-    hora_apertura: consulta.data.hora_apertura,
-    hora_cierre: consulta.data.hora_cierre,
     duracion_turno_minutos: consulta.data.duracion_turno_minutos,
     ...tocado,
   };
 
-  const apertura = minutosDeHora(borrador.hora_apertura ?? '00:00');
-  const cierre = minutosDeHora(borrador.hora_cierre ?? '00:00');
   const duracion = borrador.duracion_turno_minutos ?? 0;
-  const intervalo = cierre - apertura;
-
-  // Las mismas dos reglas que aplica el backend (2.2), replicadas para no
-  // mandar un guardado que ya sabemos que se rechaza.
-  const errorDeHorario = (() => {
-    if (intervalo <= 0) return 'El cierre tiene que ser posterior a la apertura.';
-    if (duracion <= 0) return 'Elegí una duración de turno.';
-    if (intervalo % duracion !== 0) {
-      return `Un turno de ${duracion} min no divide de forma exacta el horario: el último quedaría cortado por el cierre.`;
-    }
-    return undefined;
-  })();
 
   const direccion = direccionTocada ?? direccionDeFicha(consulta.data);
   // Una clínica sin domicilio no se puede visitar: a diferencia de la ficha de
   // tutor, acá la dirección no se puede dejar vacía (regla 2.6).
   const completo = borrador.nombre?.trim() && direccion.texto.trim() && borrador.contacto?.trim();
-
-  const turnosPorDia = errorDeHorario ? 0 : Math.floor(intervalo / duracion);
 
   function cambiar(campos: ActualizarClinicaEntrada) {
     setTocado((previo) => ({ ...previo, ...campos }));
@@ -158,30 +134,14 @@ export function FormularioDeClinica({
 
       <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
         <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-          HORARIO DE ATENCIÓN
+          DURACIÓN DEL TURNO
         </Text>
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-          Definen la grilla con la que agenda toda la clínica. Es un horario único para toda la
-          semana: el MVP no modela corte de mediodía ni horario por día.
+          Cuánto dura atender a un paciente acá. Junto con el horario de atención define la grilla
+          con la que agenda todo el equipo, así que cambiarla cambia qué horas son válidas.
         </Text>
 
         <View style={estilos.fila}>
-          <View style={estilos.campo}>
-            <Select
-              label="Abre"
-              options={HORAS}
-              value={borrador.hora_apertura ?? '09:00'}
-              onChange={(valor) => cambiar({ hora_apertura: valor })}
-            />
-          </View>
-          <View style={estilos.campo}>
-            <Select
-              label="Cierra"
-              options={HORAS}
-              value={borrador.hora_cierre ?? '18:00'}
-              onChange={(valor) => cambiar({ hora_cierre: valor })}
-            />
-          </View>
           <View style={estilos.campo}>
             <Select
               label="Duración del turno"
@@ -191,14 +151,6 @@ export function FormularioDeClinica({
             />
           </View>
         </View>
-
-        {errorDeHorario ? (
-          <InlineError compact title="El horario no cierra" description={errorDeHorario} />
-        ) : (
-          <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-            {`Entran ${turnosPorDia} turnos por día.`}
-          </Text>
-        )}
       </View>
 
       {guardar.isError ? (
@@ -211,7 +163,7 @@ export function FormularioDeClinica({
 
       <Button
         size="lg"
-        disabled={Boolean(errorDeHorario) || !completo}
+        disabled={!completo}
         loading={guardar.isPending}
         onPress={() =>
           guardar.mutate(

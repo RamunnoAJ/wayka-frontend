@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { Clinica } from '../../api/clinica';
-import { turnosDelDia } from '../clinica/grilla';
+import type { Grilla } from '../../api/clinica';
+import { franjasDelDia, diaDeLaSemanaDe, turnosDelDia } from '../clinica/grilla';
 import { TIPO_DE_CITA, type CrearCitaEntrada, type TipoDeCita } from '../../api/cita';
 import type { Veterinario } from '../../api/veterinario';
 import { useAgenda } from '../agenda/queries';
@@ -38,7 +38,7 @@ const TIPOS: OpcionDeSelect<TipoDeCita>[] = [
 const SIN_PROFESIONAL = '';
 
 interface FormularioDeCitaProps {
-  clinica: Clinica | undefined;
+  grilla: Grilla | undefined;
   /** Plantel de la clínica, para poder asignar. Vacío deja el selector afuera. */
   plantel?: Veterinario[];
   /** En la reagenda el tipo no se toca: qué control corresponde es criterio clínico. */
@@ -53,7 +53,7 @@ interface FormularioDeCitaProps {
 }
 
 export function FormularioDeCita({
-  clinica,
+  grilla,
   plantel = [],
   soloFechaYAviso = false,
   valorInicial,
@@ -69,7 +69,7 @@ export function FormularioDeCita({
   const [dia, setDia] = useState(() =>
     valorInicial?.fecha_programada
       ? aIso(new Date(valorInicial.fecha_programada))
-      : hoyEnLaClinica(clinica?.zona_horaria),
+      : hoyEnLaClinica(grilla?.zona_horaria),
   );
   const [turno, setTurno] = useState<string | null>(valorInicial?.fecha_programada ?? null);
   const [notificar, setNotificar] = useState(valorInicial?.notificar_tutor ?? true);
@@ -87,7 +87,7 @@ export function FormularioDeCita({
     });
   }, []);
 
-  const turnos = useMemo(() => (clinica ? turnosDelDia(clinica, dia) : []), [clinica, dia]);
+  const turnos = useMemo(() => (grilla ? turnosDelDia(grilla, dia) : []), [grilla, dia]);
   const disponibles = turnos.filter((t) => t.disponible);
 
   // Quién ya está ocupado ese día. Se pide la agenda del día entero y no una
@@ -129,7 +129,7 @@ export function FormularioDeCita({
   // asignación en vez de mandar algo que el backend va a rechazar.
   const profesionalElegido = ocupadosEnElTurno.has(profesional) ? SIN_PROFESIONAL : profesional;
 
-  if (!clinica) {
+  if (!grilla) {
     return (
       <View style={{ padding: px('--gutter-card') }}>
         <InlineError
@@ -169,7 +169,7 @@ export function FormularioDeCita({
 
       <View style={estilos.turnos}>
         <Text style={[texto('caption'), { color: t['--text-muted'] }]}>
-          {`Turnos de ${clinica.duracion_turno_minutos} min · ${clinica.hora_apertura} a ${clinica.hora_cierre}`}
+          {`Turnos de ${grilla.duracion_turno_minutos} min · ${resumenDelDia(grilla, dia)}`}
         </Text>
         {turnos.length === 0 ? (
           <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
@@ -277,3 +277,14 @@ const estilos = StyleSheet.create({
   turno: { paddingVertical: 8, paddingHorizontal: 14, borderWidth: 1 },
   acciones: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
 });
+
+/**
+ * "09:00 a 13:00 y 16:00 a 20:00" — el horario de ese día concreto, no el de la
+ * semana. Con corte de mediodía, un único "abre a las 9, cierra a las 20"
+ * mentiría sobre las horas del medio.
+ */
+function resumenDelDia(grilla: Grilla, diaIso: string): string {
+  const franjas = franjasDelDia(grilla, diaDeLaSemanaDe(diaIso));
+  if (franjas.length === 0) return 'cerrado';
+  return franjas.map((franja) => `${franja.hora_desde} a ${franja.hora_hasta}`).join(' y ');
+}

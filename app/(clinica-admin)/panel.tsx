@@ -4,25 +4,29 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 
 import { Button, EntradaDePantalla } from '../../src/components';
+import { Ausencias } from '../../src/features/ausencias';
 import { BotonCerrarSesion } from '../../src/features/auth';
-import { FormularioDeClinica } from '../../src/features/clinica';
+import { EditorDeHorario, FormularioDeClinica, useClinica } from '../../src/features/clinica';
+import { Tablero } from '../../src/features/tablero';
 import { FormularioDeContrasena } from '../../src/features/cuenta';
 import { useSesion } from '../../src/hooks/useSesion';
 import { sombra, useTheme } from '../../src/theme';
 
 /**
- * Panel de clínica (Alcance de Plataformas, 3.2): datos administrativos y
- * horario de atención, más el acceso al plantel.
+ * Panel de clínica (Alcance de Plataformas, 3.2). Es la pantalla entera del rol:
+ * no hay una barra con secciones paralelas porque no hay nada más. Un tablero
+ * arriba y la gestión abajo.
  *
  * La clínica no se da de alta ni de baja desde acá — eso lo hace el
  * administrador de la plataforma por fuera de la API (proceso 4.10). Y no hay
- * acceso a historial ni medicación: el rol alcanza datos administrativos, no las
- * mascotas atendidas.
+ * acceso a historial ni medicación: el rol alcanza datos administrativos y
+ * conteos, no las mascotas atendidas.
  */
 export default function Panel() {
   const { t, px, texto } = useTheme();
   const { sesion } = useSesion();
   const clinicaId = sesion?.usuario.clinica_id ?? undefined;
+  const clinica = useClinica(clinicaId);
   const [cambiandoContrasena, setCambiandoContrasena] = useState(false);
 
   return (
@@ -38,7 +42,8 @@ export default function Panel() {
             <View style={estilos.titulo}>
               <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Panel de clínica</Text>
               <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-                Los datos con los que te ven los tutores y el horario con el que agenda tu equipo.
+                Cómo viene la semana, los datos con los que te ven los tutores y el horario con el
+                que agenda tu equipo.
               </Text>
             </View>
             <Button
@@ -51,7 +56,12 @@ export default function Panel() {
           </View>
 
           {clinicaId ? (
-            <FormularioDeClinica clinicaId={clinicaId} />
+            <>
+              <Tablero clinicaId={clinicaId} />
+              <FormularioDeClinica clinicaId={clinicaId} />
+              <EditorDeHorario clinicaId={clinicaId} />
+              <Ausencias zonaHoraria={clinica.data?.zona_horaria} />
+            </>
           ) : (
             <Text style={[texto('body'), { color: t['--text-muted'] }]}>
               Tu cuenta no tiene una clínica asociada. Escribinos: es un dato que se define al dar

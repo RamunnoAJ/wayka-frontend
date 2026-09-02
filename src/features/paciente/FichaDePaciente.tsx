@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { estaDadoDeBaja } from '../../api/paciente';
-import { useClinica } from '../clinica/queries';
+import { useGrilla } from '../clinica/queries';
 import { Button, IconButton, InlineError, Tabs, type ItemDeTab } from '../../components';
 import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { useSesion } from '../../hooks/useSesion';
@@ -98,7 +98,7 @@ export function FichaDePaciente({
   // La grilla la manda la clínica donde se agenda, que para el veterinario es la
   // suya: una mascota atendida también en otra tiene allá su propia agenda, con
   // otro horario y otro huso (Modelo de Datos, 4.7).
-  const clinica = useClinica(miFicha.data?.clinica_id);
+  const grilla = useGrilla(miFicha.data?.clinica_id);
 
   const cerrar = useCerrarMedicacion(pacienteId);
   const crear = useCrearMedicacion(pacienteId);
@@ -268,7 +268,7 @@ export function FichaDePaciente({
       {pestania === 'calendario' ? (
         <SeccionCalendario
           citas={citas.data}
-          clinica={clinica.data}
+          grilla={grilla.data}
           plantel={plantel.data ? [...plantel.data.values()] : undefined}
           error={citas.isError}
           onReintentar={() => citas.refetch()}

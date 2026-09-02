@@ -2,14 +2,21 @@ import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tan
 
 import {
   actualizarClinica,
+  escribirGrilla,
   obtenerClinica,
+  obtenerGrilla,
+  previsualizarGrilla,
   type ActualizarClinicaEntrada,
   type Clinica,
+  type EscribirGrillaEntrada,
+  type Grilla,
+  type PrevisualizacionDeGrilla,
 } from '../../api/clinica';
 import { useSesion } from '../../hooks/useSesion';
 
 export const CLAVES = {
   clinica: (id: string) => ['clinica', id] as const,
+  grilla: (id: string) => ['clinica', id, 'grilla'] as const,
 };
 
 export function useClinica(clinicaId: string | undefined): UseQueryResult<Clinica> {
@@ -41,5 +48,44 @@ export function useActualizarClinica(clinicaId: string) {
     onSuccess: (clinica) => {
       cliente.setQueryData(CLAVES.clinica(clinicaId), clinica);
     },
+  });
+}
+
+/**
+ * El horario de atención va por su propia consulta y no adentro de la clínica:
+ * lo lee el veterinario en cada pantalla que agenda, y el clinica_admin cuando
+ * lo edita, que son dos momentos distintos.
+ */
+export function useGrilla(clinicaId: string | undefined): UseQueryResult<Grilla> {
+  return useQuery({
+    queryKey: CLAVES.grilla(clinicaId ?? ''),
+    queryFn: () => obtenerGrilla(clinicaId as string),
+    enabled: Boolean(clinicaId),
+    // Cambia rara vez y lo consulta cada pantalla que agenda: no vale un viaje
+    // por navegación.
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useEscribirGrilla(clinicaId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: EscribirGrillaEntrada) => escribirGrilla(clinicaId, entrada),
+    onSuccess: (grilla) => {
+      cliente.setQueryData(CLAVES.grilla(clinicaId), grilla);
+      // La agenda del veterinario se arma con esta grilla: si cambió, lo que ya
+      // esté en pantalla quedó viejo.
+      void cliente.invalidateQueries({ queryKey: ['citas'] });
+    },
+  });
+}
+
+/**
+ * La previsualización no escribe nada, así que es una mutación por su forma —se
+ * dispara a mano y manda un cuerpo— y no una consulta que se cachea.
+ */
+export function usePrevisualizarGrilla(clinicaId: string) {
+  return useMutation<PrevisualizacionDeGrilla, Error, EscribirGrillaEntrada>({
+    mutationFn: (entrada) => previsualizarGrilla(clinicaId, entrada),
   });
 }
