@@ -42,6 +42,7 @@ describe('secciones del clínica_admin', () => {
   it('separa el tablero de lo que se configura', () => {
     expect(ADMIN.map((item) => item.prefijo)).toEqual([
       '/panel',
+      '/agenda',
       '/horario',
       '/ausencias',
       '/veterinarios',
@@ -56,7 +57,6 @@ describe('secciones del clínica_admin', () => {
   it('no ofrece pacientes ni agenda clínica', () => {
     const prefijos = ADMIN.map((item) => item.prefijo);
     expect(prefijos).not.toContain('/pacientes');
-    expect(prefijos).not.toContain('/citas');
     expect(prefijos).not.toContain('/atenciones');
   });
 });

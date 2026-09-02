@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import {
   ESTADO_DE_CITA,
@@ -22,6 +22,7 @@ import {
   type ItemDeTab,
   type OpcionDeSelect,
 } from '../../components';
+import { TIPO_USUARIO } from '../../constants/roles';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme, type Tokens } from '../../theme';
 import {
@@ -109,7 +110,12 @@ function tono(t: Tokens, estado: EstadoDeCita): { fondo: string; texto: string }
 }
 
 interface AgendaProps {
-  onAbrirPaciente: (pacienteId: string) => void;
+  /**
+   * Sin handler, la fila no lleva a ningún lado: es lo que corresponde para el
+   * clínica_admin, que lee la agenda pero no alcanza la ficha del paciente.
+   * Ofrecer un toque que termina en 403 es peor que no ofrecerlo.
+   */
+  onAbrirPaciente?: (pacienteId: string) => void;
 }
 
 export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
@@ -129,7 +135,12 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
   // resto del plantel son contexto que se pide, no lo primero que se ve. Un
   // clínica_admin no tiene ficha de veterinario y abre en toda la clínica, que
   // es exactamente lo que administra.
-  const miVeterinarioId = useSesion().sesion?.usuario.veterinario_id ?? null;
+  const sesion = useSesion().sesion;
+  const miVeterinarioId = sesion?.usuario.veterinario_id ?? null;
+  // Asentar la atención es afirmación asistencial y la hace quien atendió: el
+  // clínica_admin lee la agenda y la reparte, no la cierra (Reglas de Negocio,
+  // 3.2). El backend lo rechaza igual; ofrecer el botón sería prometerlo.
+  const puedeAsentar = sesion?.usuario.tipo_usuario === TIPO_USUARIO.VETERINARIO;
   const [profesional, setProfesional] = useState(miVeterinarioId ?? TODOS_LOS_PROFESIONALES);
 
   const filtros = useMemo(() => {
@@ -224,7 +235,9 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
               onAncla={setAncla}
               cargando={agenda.isPending}
               colorDePunto={(tokens, fila) => tono(tokens, fila.cita.estado).texto}
-              renderCita={(fila) => <FilaDeAgenda fila={fila} onAbrir={onAbrirPaciente} />}
+              renderCita={(fila) => (
+                <FilaDeAgenda fila={fila} puedeAsentar={puedeAsentar} onAbrir={onAbrirPaciente} />
+              )}
             />
           )}
         </View>
@@ -233,13 +246,41 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
   );
 }
 
+/**
+ * Envuelve el bloque de datos de la fila. Con handler es presionable y lleva a la
+ * ficha; sin handler es una `View` y no anuncia nada al lector de pantalla — un
+ * botón que no hace nada es peor que texto.
+ */
+function Contenedor({
+  onPress,
+  fondo,
+  fondoDestacado,
+  style,
+  children,
+}: {
+  onPress?: () => void;
+  fondo: string;
+  fondoDestacado: string;
+  style: ViewStyle;
+  children: ReactNode;
+}) {
+  if (!onPress) return <View style={style}>{children}</View>;
+  return (
+    <Presionable onPress={onPress} fondo={fondo} fondoDestacado={fondoDestacado} style={style}>
+      {children}
+    </Presionable>
+  );
+}
+
 /** Una cita en la lista del día: la hora, la mascota y quién la atiende. */
 function FilaDeAgenda({
   fila,
+  puedeAsentar,
   onAbrir,
 }: {
+  puedeAsentar: boolean;
   fila: CitaConPaciente;
-  onAbrir: (pacienteId: string) => void;
+  onAbrir?: (pacienteId: string) => void;
 }) {
   const { t, px, texto } = useTheme();
   const { cita, paciente_nombre, paciente_especie, veterinario_nombre, zona_horaria } = fila;
@@ -259,8 +300,8 @@ function FilaDeAgenda({
         },
       ]}
     >
-      <Presionable
-        onPress={() => onAbrir(cita.paciente_id)}
+      <Contenedor
+        onPress={onAbrir ? () => onAbrir(cita.paciente_id) : undefined}
         fondo={t['--surface-card']}
         fondoDestacado={t['--surface-hover']}
         style={estilos.datosDeLaFila}
@@ -296,7 +337,7 @@ function FilaDeAgenda({
             </Text>
           ) : null}
         </View>
-      </Presionable>
+      </Contenedor>
 
       {/*
         Asentar es un toque desde la agenda: es donde el veterinario está parado
@@ -304,7 +345,7 @@ function FilaDeAgenda({
         haber atendido, no haber escrito (Reglas de Negocio, 4.4)—. Una vencida
         también se atiende: la mascota llegó tarde y se la atendió igual.
       */}
-      {esCerrable(cita) ? (
+      {puedeAsentar && esCerrable(cita) ? (
         <Button
           variant="secondary"
           size="sm"

@@ -68,11 +68,19 @@ const CLINICA_ADMIN: ItemDeNavegacion[] = [
     label: 'Panel',
     icono: 'clipboard-check',
   },
+  // La agenda va segunda, después del tablero: el tablero dice cuánto hay sin
+  // repartir y esta es la pantalla donde se reparte.
+  {
+    href: '/(clinica-admin)/agenda',
+    prefijo: '/agenda',
+    label: 'Agenda',
+    icono: 'calendar-days',
+  },
   {
     href: '/(clinica-admin)/horario',
     prefijo: '/horario',
     label: 'Horario',
-    icono: 'calendar-days',
+    icono: 'calendar-check',
   },
   // Aparte del horario aunque las dos definan quién atiende cuándo: el horario
   // se configura una vez y una ausencia se carga cada semana, muchas veces con

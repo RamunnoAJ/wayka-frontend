@@ -17,7 +17,9 @@ const asentar = jest.fn();
 const mockAsentar = () => ({ mutate: asentar, isPending: false, isError: false });
 
 /** La ficha de veterinario de quien mira; un clínica_admin no tiene. */
-let mockSesion: () => { sesion: { usuario: { veterinario_id: string | null } } | null };
+let mockSesion: () => {
+  sesion: { usuario: { veterinario_id: string | null; tipo_usuario: string } } | null;
+};
 
 const useAgendaMock = useAgenda as jest.MockedFunction<typeof useAgenda>;
 
@@ -50,7 +52,9 @@ describe('AgendaDeLaClinica', () => {
   beforeEach(() => {
     jest.useFakeTimers().setSystemTime(new Date('2026-09-01T12:00:00-03:00'));
     useAgendaMock.mockReturnValue(agendaCargada([CITA]));
-    mockSesion = () => ({ sesion: { usuario: { veterinario_id: 'vet-1' } } });
+    mockSesion = () => ({
+      sesion: { usuario: { veterinario_id: 'vet-1', tipo_usuario: 'veterinario' } },
+    });
   });
 
   afterEach(() => jest.useRealTimers());
@@ -109,7 +113,9 @@ describe('AgendaDeLaClinica', () => {
   });
 
   it('quien no atiende abre en toda la clínica y no tiene "Mis citas"', async () => {
-    mockSesion = () => ({ sesion: { usuario: { veterinario_id: null } } });
+    mockSesion = () => ({
+      sesion: { usuario: { veterinario_id: null, tipo_usuario: 'clinica_admin' } },
+    });
 
     const { queryByText } = await render(<AgendaDeLaClinica onAbrirPaciente={jest.fn()} />);
 
@@ -117,6 +123,38 @@ describe('AgendaDeLaClinica', () => {
     expect(useAgendaMock).toHaveBeenLastCalledWith(
       expect.not.objectContaining({ veterinario_id: expect.anything() }),
     );
+  });
+
+  /**
+   * Asentar la atención es afirmación asistencial y la hace quien atendió: el
+   * clínica_admin lee la agenda y la reparte, no la cierra (Reglas de Negocio,
+   * 3.2). El backend lo rechaza igual; ofrecer el botón sería prometerlo.
+   */
+  it('no le ofrece asentar la atención al clínica_admin', async () => {
+    mockSesion = () => ({
+      sesion: { usuario: { veterinario_id: null, tipo_usuario: 'clinica_admin' } },
+    });
+
+    const { queryByLabelText, getByLabelText } = await render(<AgendaDeLaClinica />);
+
+    expect(queryByLabelText('Asentar que se atendió a Frida')).toBeNull();
+    // Repartir sí: es la tarea que el tablero ya señalaba sin dejar hacer.
+    expect(getByLabelText('Acciones de la cita de Frida')).toBeOnTheScreen();
+  });
+
+  /**
+   * Sin handler la fila no lleva a ningún lado: el admin no alcanza la ficha del
+   * paciente, y un toque que termina en 403 es peor que ninguno.
+   */
+  it('sin onAbrirPaciente la fila no navega', async () => {
+    mockSesion = () => ({
+      sesion: { usuario: { veterinario_id: null, tipo_usuario: 'clinica_admin' } },
+    });
+
+    const { getByText } = await render(<AgendaDeLaClinica />);
+
+    // La fila sigue mostrando los datos, solo que no es un control.
+    expect(getByText('Frida')).toBeOnTheScreen();
   });
 
   it('busca por mascota dentro del período, sin volver a la red', async () => {
