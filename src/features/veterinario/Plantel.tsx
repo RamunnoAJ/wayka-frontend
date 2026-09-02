@@ -15,6 +15,7 @@ import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
 
+import { AvisoDeMatriculas } from './AvisoDeMatriculas';
 import { FormularioDeVeterinario } from './FormularioDeVeterinario';
 import { useCrearVeterinario, useDarDeBajaVeterinario, usePlantel } from './queries';
 
@@ -75,6 +76,13 @@ export function Plantel() {
               description={mensajeDeError(darDeBaja.error)}
             />
           ) : null}
+
+          {/*
+            Va arriba del listado y no solo como etiqueta en cada fila: la
+            etiqueta ya está, pero obliga a recorrer el plantel entero para
+            saber si hay alguien restringido.
+          */}
+          {plantel.data ? <AvisoDeMatriculas plantel={plantel.data} /> : null}
 
           {plantel.isPending ? (
             <View style={estilos.lista}>
