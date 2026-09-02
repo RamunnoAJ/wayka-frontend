@@ -18,6 +18,7 @@ import { aIso, desdeIso, diaDeInstante, diaYMes, fechaCorta, mesYAnio } from '..
  * distintos y un solo criterio movería turnos de casillero.
  */
 export const MODO_DE_CALENDARIO = {
+  DIA: 'dia',
   SEMANA: 'semana',
   MES: 'mes',
 } as const;
@@ -72,6 +73,7 @@ export function celdasDelMes(iso: string): string[] {
 }
 
 export function celdasDelPeriodo(iso: string, modo: ModoDeCalendario): string[] {
+  if (modo === MODO_DE_CALENDARIO.DIA) return [iso];
   return modo === MODO_DE_CALENDARIO.SEMANA ? diasDeLaSemana(iso) : celdasDelMes(iso);
 }
 
@@ -81,6 +83,7 @@ export function celdasDelPeriodo(iso: string, modo: ModoDeCalendario): string[] 
  * de octubre y se saltearía septiembre entero.
  */
 export function desplazarPeriodo(iso: string, modo: ModoDeCalendario, pasos: number): string {
+  if (modo === MODO_DE_CALENDARIO.DIA) return sumarDias(iso, pasos);
   if (modo === MODO_DE_CALENDARIO.SEMANA) return sumarDias(inicioDeSemana(iso), pasos * 7);
   const d = desdeIso(iso);
   return aIso(new Date(d.getFullYear(), d.getMonth() + pasos, 1));
@@ -92,6 +95,7 @@ export function desplazarPeriodo(iso: string, modo: ModoDeCalendario, pasos: num
  * `29 dic 2025 – 4 ene 2026`.
  */
 export function tituloDePeriodo(iso: string, modo: ModoDeCalendario): string {
+  if (modo === MODO_DE_CALENDARIO.DIA) return fechaCorta(iso);
   if (modo === MODO_DE_CALENDARIO.MES) return mesYAnio(iso);
 
   const dias = diasDeLaSemana(iso);

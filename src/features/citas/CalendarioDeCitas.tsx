@@ -85,6 +85,14 @@ export function CalendarioDeCitas({
   // no se ve.
   const dia = filtrado && celdas.includes(filtrado) ? filtrado : null;
   const semana = modo === MODO_DE_CALENDARIO.SEMANA;
+  const unSoloDia = modo === MODO_DE_CALENDARIO.DIA;
+
+  const etiquetaAnterior = unSoloDia ? 'Día anterior' : semana ? 'Semana anterior' : 'Mes anterior';
+  const etiquetaSiguiente = unSoloDia
+    ? 'Día siguiente'
+    : semana
+      ? 'Semana siguiente'
+      : 'Mes siguiente';
 
   const conCitas = (dia ? [dia] : celdas).filter((fecha) => porDia.has(fecha));
 
@@ -93,7 +101,7 @@ export function CalendarioDeCitas({
       <View style={estilos.encabezado}>
         <IconButton
           icon="chevron-left"
-          label={semana ? 'Semana anterior' : 'Mes anterior'}
+          label={etiquetaAnterior}
           onPress={() => onAncla(desplazarPeriodo(ancla, modo, -1))}
         />
         <Text style={[texto('h4'), estilos.titulo, { color: t['--text-strong'] }]}>
@@ -101,71 +109,80 @@ export function CalendarioDeCitas({
         </Text>
         <IconButton
           icon="chevron-right"
-          label={semana ? 'Semana siguiente' : 'Mes siguiente'}
+          label={etiquetaSiguiente}
           onPress={() => onAncla(desplazarPeriodo(ancla, modo, 1))}
         />
       </View>
 
-      <View style={estilos.fila}>
-        {INICIALES_DE_SEMANA.map((inicial, posicion) => (
-          <View key={posicion} style={estilos.celda}>
-            <Text style={[texto('caption'), estilos.centrado, { color: t['--text-subtle'] }]}>
-              {inicial}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={estilos.fila}>
-        {celdas.map((fecha) => {
-          const delCasillero = porDia.get(fecha) ?? [];
-          const activo = fecha === dia;
-          // En semana no hay mes vecino que apagar: las siete casillas son la
-          // semana entera.
-          const apagado = !semana && !esDelMes(fecha, ancla);
-
-          return (
-            <View key={fecha} style={estilos.celda}>
-              <Presionable
-                // Tocar el día que ya filtra lo saca: sin esto, volver a ver el
-                // período entero obligaría a cambiar de vista y venir de nuevo.
-                onPress={() => setFiltrado(activo ? null : fecha)}
-                fondo={activo ? t['--surface-selected'] : 'transparent'}
-                fondoDestacado={activo ? t['--surface-selected'] : t['--surface-hover']}
-                borde={fecha === hoy ? t['--color-primary-strong'] : 'transparent'}
-                accessibilityState={{ selected: activo }}
-                accessibilityLabel={`${fechaConDiaDeSemana(fecha)}, ${
-                  delCasillero.length === 0
-                    ? 'sin citas'
-                    : `${delCasillero.length} cita${delCasillero.length === 1 ? '' : 's'}`
-                }`}
-                style={[estilos.dia, { borderRadius: px('--radius-md') }]}
-              >
-                <Text
-                  style={[
-                    texto('body-sm'),
-                    estilos.centrado,
-                    {
-                      fontWeight: activo || fecha === hoy ? '700' : '400',
-                      color: apagado ? t['--text-subtle'] : t['--text-strong'],
-                    },
-                  ]}
-                >
-                  {Number(fecha.slice(8))}
+      {/*
+        En día no se dibuja la grilla: existe para elegir un día adentro de un
+        período, y con uno solo no hay nada que elegir. Quedan la navegación y
+        la lista, que es lo que se viene a ver.
+      */}
+      {unSoloDia ? null : (
+        <>
+          <View style={estilos.fila}>
+            {INICIALES_DE_SEMANA.map((inicial, posicion) => (
+              <View key={posicion} style={estilos.celda}>
+                <Text style={[texto('caption'), estilos.centrado, { color: t['--text-subtle'] }]}>
+                  {inicial}
                 </Text>
-                <View style={estilos.puntos}>
-                  {delCasillero.slice(0, PUNTOS_VISIBLES).map((fila) => (
-                    <View
-                      key={fila.cita.id}
-                      style={[estilos.punto, { backgroundColor: colorDePunto(t, fila) }]}
-                    />
-                  ))}
+              </View>
+            ))}
+          </View>
+
+          <View style={estilos.fila}>
+            {celdas.map((fecha) => {
+              const delCasillero = porDia.get(fecha) ?? [];
+              const activo = fecha === dia;
+              // En semana no hay mes vecino que apagar: las siete casillas son la
+              // semana entera.
+              const apagado = !semana && !esDelMes(fecha, ancla);
+
+              return (
+                <View key={fecha} style={estilos.celda}>
+                  <Presionable
+                    // Tocar el día que ya filtra lo saca: sin esto, volver a ver el
+                    // período entero obligaría a cambiar de vista y venir de nuevo.
+                    onPress={() => setFiltrado(activo ? null : fecha)}
+                    fondo={activo ? t['--surface-selected'] : 'transparent'}
+                    fondoDestacado={activo ? t['--surface-selected'] : t['--surface-hover']}
+                    borde={fecha === hoy ? t['--color-primary-strong'] : 'transparent'}
+                    accessibilityState={{ selected: activo }}
+                    accessibilityLabel={`${fechaConDiaDeSemana(fecha)}, ${
+                      delCasillero.length === 0
+                        ? 'sin citas'
+                        : `${delCasillero.length} cita${delCasillero.length === 1 ? '' : 's'}`
+                    }`}
+                    style={[estilos.dia, { borderRadius: px('--radius-md') }]}
+                  >
+                    <Text
+                      style={[
+                        texto('body-sm'),
+                        estilos.centrado,
+                        {
+                          fontWeight: activo || fecha === hoy ? '700' : '400',
+                          color: apagado ? t['--text-subtle'] : t['--text-strong'],
+                        },
+                      ]}
+                    >
+                      {Number(fecha.slice(8))}
+                    </Text>
+                    <View style={estilos.puntos}>
+                      {delCasillero.slice(0, PUNTOS_VISIBLES).map((fila) => (
+                        <View
+                          key={fila.cita.id}
+                          style={[estilos.punto, { backgroundColor: colorDePunto(t, fila) }]}
+                        />
+                      ))}
+                    </View>
+                  </Presionable>
                 </View>
-              </Presionable>
-            </View>
-          );
-        })}
-      </View>
+              );
+            })}
+          </View>
+        </>
+      )}
 
       <View style={estilos.detalle}>
         {cargando ? (

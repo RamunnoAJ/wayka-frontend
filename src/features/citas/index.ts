@@ -6,3 +6,8 @@ export {
   tituloDePeriodo,
   type ModoDeCalendario,
 } from './calendario';
+export {
+  calcularDisponibilidad,
+  motivoDeNoDisponible,
+  type Disponibilidad,
+} from './disponibilidad';

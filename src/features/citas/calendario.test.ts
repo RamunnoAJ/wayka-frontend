@@ -4,6 +4,7 @@ import {
   agruparPorDia,
   rangoDelPeriodo,
   celdasDelMes,
+  celdasDelPeriodo,
   desplazarPeriodo,
   diasDeLaSemana,
   esDelMes,
@@ -115,5 +116,28 @@ describe('el agrupado', () => {
       cita('temprano', '2026-09-05T09:00:00-03:00'),
     ]);
     expect(porDia.get('2026-09-05')?.map((f) => f.cita.id)).toEqual(['temprano', 'tarde']);
+  });
+});
+
+/**
+ * El modo día completa los tres del contrato (Alcance de Plataformas, 3.6). Es
+ * una celda y se mueve de a un día: sin eso, "por día" sería la semana con un
+ * filtro puesto.
+ */
+describe('el período de un día', () => {
+  it('tiene una sola celda', () => {
+    expect(celdasDelPeriodo('2027-01-06', MODO_DE_CALENDARIO.DIA)).toEqual(['2027-01-06']);
+  });
+
+  it('se desplaza de a un día y cruza el fin de mes', () => {
+    expect(desplazarPeriodo('2027-01-06', MODO_DE_CALENDARIO.DIA, 1)).toBe('2027-01-07');
+    expect(desplazarPeriodo('2027-01-01', MODO_DE_CALENDARIO.DIA, -1)).toBe('2026-12-31');
+  });
+
+  it('pide a la API solo ese día, no la semana que lo contiene', () => {
+    const { desde, hasta } = rangoDelPeriodo('2027-01-06', MODO_DE_CALENDARIO.DIA, 'UTC');
+
+    expect(desde).toBe('2027-01-06T00:00:00.000Z');
+    expect(hasta).toBe('2027-01-07T00:00:00.000Z');
   });
 });

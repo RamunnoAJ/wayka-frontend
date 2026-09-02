@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Grilla } from '../../api/clinica';
+import { useAusencias } from '../ausencias';
+import { calcularDisponibilidad, motivoDeNoDisponible } from '../citas';
 import { franjasDelDia, diaDeLaSemanaDe, turnosDelDia } from '../clinica/grilla';
 import { TIPO_DE_CITA, type CrearCitaEntrada, type TipoDeCita } from '../../api/cita';
 import type { Veterinario } from '../../api/veterinario';
@@ -100,34 +102,43 @@ export function FormularioDeCita({
     limite: 200,
   });
 
-  const ocupadosEnElTurno = useMemo(() => {
-    if (!turno) return new Set<string>();
-    const ocupados = new Set<string>();
-    for (const fila of agendaDelDia.data ?? []) {
-      const mismoMomento =
-        new Date(fila.cita.fecha_programada).getTime() === new Date(turno).getTime();
-      // La propia cita no cuenta como ocupación de sí misma al reagendar.
-      const esOtraCita = fila.cita.id !== valorInicial?.id;
-      if (mismoMomento && esOtraCita && fila.cita.veterinario_id) {
-        ocupados.add(fila.cita.veterinario_id);
-      }
-    }
-    return ocupados;
-  }, [agendaDelDia.data, turno, valorInicial?.id]);
+  // Quién no va a estar ese día. La cuenta la hace `calcularDisponibilidad`,
+  // que es la misma que usa la agenda al repartir: escrita en cada pantalla, se
+  // separa en la primera corrección que toque solo a una.
+  const ausenciasDelDia = useAusencias({
+    desde: `${dia}T00:00:00`,
+    hasta: `${dia}T23:59:59`,
+  });
+
+  const disponibilidad = useMemo(
+    () =>
+      calcularDisponibilidad({
+        momento: turno,
+        citas: agendaDelDia.data,
+        ausencias: ausenciasDelDia.data,
+        exceptoCitaId: valorInicial?.id,
+      }),
+    [agendaDelDia.data, ausenciasDelDia.data, turno, valorInicial?.id],
+  );
 
   const opcionesDeProfesional: OpcionDeSelect[] = [
     { value: SIN_PROFESIONAL, label: 'Sin asignar · queda de la clínica' },
-    ...plantel.map((veterinario) => ({
-      value: veterinario.id,
-      label: ocupadosEnElTurno.has(veterinario.id)
-        ? `${veterinario.nombre} · ocupado a esa hora`
-        : veterinario.nombre,
-    })),
+    ...plantel.map((veterinario) => {
+      const motivo = motivoDeNoDisponible(veterinario.id, disponibilidad);
+      return {
+        value: veterinario.id,
+        label: motivo ? `${veterinario.nombre} · ${motivo}` : veterinario.nombre,
+      };
+    }),
   ];
 
-  // Si el turno cambia y quien estaba elegido quedó ocupado, se suelta la
-  // asignación en vez de mandar algo que el backend va a rechazar.
-  const profesionalElegido = ocupadosEnElTurno.has(profesional) ? SIN_PROFESIONAL : profesional;
+  // Si el turno cambia y quien estaba elegido quedó ocupado o ausente, se suelta
+  // la asignación en vez de mandar algo que el backend va a rechazar. La cita se
+  // agenda igual sin profesional: que no haya nadie disponible no es motivo para
+  // no tomar el turno.
+  const profesionalElegido = motivoDeNoDisponible(profesional, disponibilidad)
+    ? SIN_PROFESIONAL
+    : profesional;
 
   if (!grilla) {
     return (

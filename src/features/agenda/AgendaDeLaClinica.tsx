@@ -15,6 +15,7 @@ import {
   Button,
   Input,
   InlineError,
+  MenuDeAcciones,
   Presionable,
   Select,
   Tabs,
@@ -34,6 +35,7 @@ import { useAsentarAtencion } from '../consultas';
 import { horaCorta, hoyEnLaClinica } from '../paciente/formato';
 import { usePlantel } from '../veterinario/queries';
 
+import { AsignarProfesional } from './AsignarProfesional';
 import { useAgenda } from './queries';
 
 /**
@@ -76,6 +78,10 @@ const ETIQUETA_DE_ESTADO: Record<EstadoDeCita, string> = {
 };
 
 const VISTAS: ItemDeTab<ModoDeCalendario>[] = [
+  // Los tres del contrato (Alcance de Plataformas, 3.6). Día no dibuja grilla:
+  // la grilla existe para elegir un día adentro de un período, y con uno solo no
+  // hay nada que elegir.
+  { value: MODO_DE_CALENDARIO.DIA, label: 'Día' },
   { value: MODO_DE_CALENDARIO.SEMANA, label: 'Semana' },
   { value: MODO_DE_CALENDARIO.MES, label: 'Mes' },
 ];
@@ -239,6 +245,7 @@ function FilaDeAgenda({
   const { cita, paciente_nombre, paciente_especie, veterinario_nombre, zona_horaria } = fila;
   const colores = tono(t, cita.estado);
   const asentar = useAsentarAtencion(cita.paciente_id);
+  const [asignando, setAsignando] = useState(false);
 
   return (
     <View
@@ -307,6 +314,33 @@ function FilaDeAgenda({
         >
           Atendí
         </Button>
+      ) : null}
+
+      {/*
+        Repartir va al menú y asentar no: asentar es lo que se hace todo el día
+        parado al lado de la mesa, y repartir es ocasional. Solo lo pendiente se
+        reparte: a una cumplida ya la atendió alguien.
+      */}
+      {cita.estado === ESTADO_DE_CITA.PENDIENTE ? (
+        <MenuDeAcciones
+          accessibilityLabel={`Acciones de la cita de ${paciente_nombre}`}
+          acciones={[
+            {
+              label: cita.veterinario_id ? 'Cambiar quién atiende' : 'Asignar profesional',
+              icono: 'user-round',
+              onPress: () => setAsignando(true),
+            },
+          ]}
+        />
+      ) : null}
+
+      {asignando ? (
+        <AsignarProfesional
+          cita={cita}
+          nombreDelPaciente={paciente_nombre}
+          zonaHoraria={zona_horaria}
+          onCerrar={() => setAsignando(false)}
+        />
       ) : null}
     </View>
   );
