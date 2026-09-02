@@ -44,12 +44,48 @@ describe('Plantel', () => {
   it('deja entrar a la ficha de cada persona', async () => {
     listar.mockResolvedValue([ficha('Ana Rossi', 'MP-4821'), ficha('Sofía Aguirre')]);
 
-    const { findAllByText } = await render(<Plantel />);
-    const entradas = await findAllByText('Ver ficha');
+    const { findByLabelText, findByText } = await render(<Plantel />);
 
-    expect(entradas).toHaveLength(2);
-    await fireEvent.press(entradas[1]!);
+    // El menú se nombra por la fila a la que pertenece: con uno por fila,
+    // "Acciones" a secas los dejaría a todos con el mismo nombre.
+    await fireEvent.press(await findByLabelText('Acciones de Sofía Aguirre'));
+    await fireEvent.press(await findByText('Ver ficha'));
+
     expect(irA).toHaveBeenCalledWith('/(clinica-admin)/veterinarios/id-Sofía Aguirre');
+  });
+
+  /**
+   * Las acciones viven detrás de los tres puntos: dos botones por fila pesan lo
+   * mismo que el nombre, y con una baja entre ellos se apunta a una y se toca la
+   * otra.
+   */
+  it('no muestra las acciones hasta abrir el menú de la fila', async () => {
+    listar.mockResolvedValue([ficha('Ana Rossi', 'MP-4821')]);
+
+    const { findByText, queryByText, findByLabelText } = await render(<Plantel />);
+    await findByText('Ana Rossi');
+
+    expect(queryByText('Ver ficha')).toBeNull();
+    expect(queryByText('Dar de baja')).toBeNull();
+
+    await fireEvent.press(await findByLabelText('Acciones de Ana Rossi'));
+
+    expect(await findByText('Ver ficha')).toBeOnTheScreen();
+    expect(await findByText('Dar de baja')).toBeOnTheScreen();
+  });
+
+  /**
+   * La baja conserva su confirmación: es la única acción del listado que
+   * desactiva una cuenta, y el menú no la convierte en un toque.
+   */
+  it('pide confirmación antes de dar de baja', async () => {
+    listar.mockResolvedValue([ficha('Ana Rossi', 'MP-4821')]);
+
+    const { findByText, findByLabelText } = await render(<Plantel />);
+    await fireEvent.press(await findByLabelText('Acciones de Ana Rossi'));
+    await fireEvent.press(await findByText('Dar de baja'));
+
+    expect(await findByText(/Se desactiva también su cuenta/)).toBeOnTheScreen();
   });
 
   it('avisa arriba del listado quién no puede escribir historial', async () => {

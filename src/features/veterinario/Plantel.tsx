@@ -9,6 +9,7 @@ import {
   Button,
   EmptyState,
   InlineError,
+  MenuDeAcciones,
   Skeleton,
   SkeletonText,
 } from '../../components';
@@ -209,20 +210,19 @@ function FilaDeVeterinario({
           </View>
         </View>
       ) : (
-        <View style={estilos.acciones}>
-          {/*
-            La ficha es donde se corrige la matrícula, que es lo que saca a la
-            cuenta del modo restringido (regla 2.1). Es una acción propia y no
-            la tarjeta entera: al lado hay una baja, y una tarjeta que navega
-            entera se toca sin querer justo cuando se apunta a la otra.
-          */}
-          <Button variant="secondary" size="sm" iconLeft="pencil" onPress={onAbrirFicha}>
-            Ver ficha
-          </Button>
-          <Button variant="ghost" size="sm" iconLeft="archive" onPress={onPedirBaja}>
-            Dar de baja
-          </Button>
-        </View>
+        /*
+          Las dos acciones van detrás de los tres puntos y no a la vista: dos
+          botones por fila pesan lo mismo que el nombre, y con una baja entre
+          ellos la cercanía es el problema — se apunta a una y se toca la otra.
+          La baja además conserva su confirmación en la fila.
+        */
+        <MenuDeAcciones
+          accessibilityLabel={`Acciones de ${veterinario.nombre}`}
+          acciones={[
+            { label: 'Ver ficha', icono: 'pencil', onPress: onAbrirFicha },
+            { label: 'Dar de baja', icono: 'archive', peligro: true, onPress: onPedirBaja },
+          ]}
+        />
       )}
     </View>
   );

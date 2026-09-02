@@ -39,3 +39,4 @@ export {
   iconoDeContentType,
   type RectanguloEnPantalla,
 } from './VisorDeArchivo';
+export { MenuDeAcciones, type AccionDeMenu } from './MenuDeAcciones';
