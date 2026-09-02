@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { ActualizarTutorEntrada, TipoDocumento } from '../../api/tutor';
-import { Badge, Button, InlineError, Input, Select, Skeleton } from '../../components';
+import {
+  Badge,
+  Button,
+  DialogoDeConfirmacion,
+  InlineError,
+  Input,
+  Select,
+  Skeleton,
+} from '../../components';
 import { CampoDeDireccion, cambioDeDireccion, direccionDeFicha } from '../direccion';
 import type { Direccion } from '../direccion';
 import { mensajeDeError } from '../../lib/errores';
@@ -157,45 +165,30 @@ export function FichaDeTutor({ tutorId }: { tutorId: string }) {
             >
               Guardar cambios
             </Button>
-            {!confirmando ? (
-              <Button variant="ghost" iconLeft="archive" onPress={() => setConfirmando(true)}>
-                Dar de baja
-              </Button>
-            ) : null}
+            <Button
+              variant="ghost"
+              iconLeft="archive"
+              onPress={() => {
+                darDeBaja.reset();
+                setConfirmando(true);
+              }}
+            >
+              Dar de baja
+            </Button>
           </View>
 
           {confirmando ? (
-            <View style={[tarjeta, estilos.bloque, { borderColor: t['--border-danger'] }]}>
-              <Text style={[texto('body-strong'), { color: t['--text-danger'] }]}>
-                Dar de baja esta ficha
-              </Text>
-              {/* Regla 2.4: se rechaza mientras tenga mascotas vigentes. Se
-                  anticipa el motivo en vez de dejar que el 409 lo explique. */}
-              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                Si todavía tiene mascotas activas en alguna clínica, el sistema lo va a rechazar:
-                dejarlas sin nadie a quien contactar no es una opción. Su cuenta de la app no se
-                borra.
-              </Text>
-              {darDeBaja.isError ? (
-                <InlineError
-                  compact
-                  title="No se pudo dar de baja"
-                  description={mensajeDeError(darDeBaja.error)}
-                />
-              ) : null}
-              <View style={estilos.acciones}>
-                <Button
-                  variant="danger"
-                  loading={darDeBaja.isPending}
-                  onPress={() => darDeBaja.mutate(tutorId)}
-                >
-                  Dar de baja
-                </Button>
-                <Button variant="ghost" onPress={() => setConfirmando(false)}>
-                  Cancelar
-                </Button>
-              </View>
-            </View>
+            <DialogoDeConfirmacion
+              titulo="¿Dar de baja esta ficha?"
+              /* Regla 2.4: se rechaza mientras tenga mascotas vigentes. Se
+                 anticipa el motivo en vez de dejar que el 409 lo explique. */
+              descripcion="Si todavía tiene mascotas activas en alguna clínica, el sistema lo va a rechazar: dejarlas sin nadie a quien contactar no es una opción. Su cuenta de la app no se borra."
+              etiquetaConfirmar="Dar de baja"
+              enviando={darDeBaja.isPending}
+              error={darDeBaja.isError ? mensajeDeError(darDeBaja.error) : undefined}
+              onCancelar={() => setConfirmando(false)}
+              onConfirmar={() => darDeBaja.mutate(tutorId)}
+            />
           ) : null}
         </View>
       </ScrollView>

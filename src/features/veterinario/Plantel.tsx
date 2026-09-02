@@ -7,6 +7,7 @@ import {
   Avatar,
   Badge,
   Button,
+  DialogoDeConfirmacion,
   EmptyState,
   InlineError,
   MenuDeAcciones,
@@ -40,6 +41,7 @@ export function Plantel() {
   const darDeBaja = useDarDeBajaVeterinario();
   const [abierto, setAbierto] = useState(false);
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const aDarDeBaja = plantel.data?.find((ficha) => ficha.id === confirmando);
 
   return (
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
@@ -68,14 +70,6 @@ export function Plantel() {
               error={crear.error ? mensajeDeError(crear.error) : undefined}
               onGuardar={(entrada) => crear.mutate(entrada, { onSuccess: () => setAbierto(false) })}
               onCancelar={() => setAbierto(false)}
-            />
-          ) : null}
-
-          {darDeBaja.isError ? (
-            <InlineError
-              compact
-              title="No se pudo dar de baja"
-              description={mensajeDeError(darDeBaja.error)}
             />
           ) : null}
 
@@ -123,22 +117,37 @@ export function Plantel() {
                   key={veterinario.id}
                   veterinario={veterinario}
                   esMovil={esMovil}
-                  confirmando={confirmando === veterinario.id}
-                  dandoDeBaja={darDeBaja.isPending}
                   onAbrirFicha={() =>
                     router.push(`/(clinica-admin)/veterinarios/${veterinario.id}`)
                   }
-                  onPedirBaja={() => setConfirmando(veterinario.id)}
-                  onCancelarBaja={() => setConfirmando(null)}
-                  onConfirmarBaja={() =>
-                    darDeBaja.mutate(veterinario.id, { onSuccess: () => setConfirmando(null) })
-                  }
+                  onPedirBaja={() => {
+                    darDeBaja.reset();
+                    setConfirmando(veterinario.id);
+                  }}
                 />
               ))}
             </View>
           )}
         </View>
       </ScrollView>
+
+      {/*
+        Un solo diálogo para todo el listado, montado acá y no en cada fila:
+        montar uno por fila dejaría tantos modales como personas en el plantel.
+      */}
+      {aDarDeBaja ? (
+        <DialogoDeConfirmacion
+          titulo={`¿Dar de baja a ${aDarDeBaja.nombre}?`}
+          descripcion="Se desactiva también su cuenta y deja de poder entrar. Lo que escribió queda donde está, con su firma: nada del historial se borra."
+          etiquetaConfirmar="Dar de baja"
+          enviando={darDeBaja.isPending}
+          error={darDeBaja.isError ? mensajeDeError(darDeBaja.error) : undefined}
+          onCancelar={() => setConfirmando(null)}
+          onConfirmar={() =>
+            darDeBaja.mutate(aDarDeBaja.id, { onSuccess: () => setConfirmando(null) })
+          }
+        />
+      ) : null}
     </View>
   );
 }
@@ -146,24 +155,11 @@ export function Plantel() {
 interface FilaProps {
   veterinario: Veterinario;
   esMovil: boolean;
-  confirmando: boolean;
-  dandoDeBaja: boolean;
   onAbrirFicha: () => void;
   onPedirBaja: () => void;
-  onCancelarBaja: () => void;
-  onConfirmarBaja: () => void;
 }
 
-function FilaDeVeterinario({
-  veterinario,
-  esMovil,
-  confirmando,
-  dandoDeBaja,
-  onAbrirFicha,
-  onPedirBaja,
-  onCancelarBaja,
-  onConfirmarBaja,
-}: FilaProps) {
+function FilaDeVeterinario({ veterinario, esMovil, onAbrirFicha, onPedirBaja }: FilaProps) {
   const { t, px, texto } = useTheme();
 
   return (
@@ -195,21 +191,7 @@ function FilaDeVeterinario({
         {veterinario.matricula ? `Matrícula ${veterinario.matricula}` : 'Sin matrícula'}
       </Badge>
 
-      {confirmando ? (
-        <View style={estilos.confirmacion}>
-          <Text style={[texto('body-sm'), { color: t['--text-danger'] }]}>
-            Se desactiva también su cuenta. Lo que escribió queda con su firma.
-          </Text>
-          <View style={estilos.acciones}>
-            <Button variant="danger" size="sm" loading={dandoDeBaja} onPress={onConfirmarBaja}>
-              Dar de baja
-            </Button>
-            <Button variant="ghost" size="sm" onPress={onCancelarBaja}>
-              Cancelar
-            </Button>
-          </View>
-        </View>
-      ) : (
+      {
         /*
           Las dos acciones van detrás de los tres puntos y no a la vista: dos
           botones por fila pesan lo mismo que el nombre, y con una baja entre
@@ -223,7 +205,7 @@ function FilaDeVeterinario({
             { label: 'Dar de baja', icono: 'archive', peligro: true, onPress: onPedirBaja },
           ]}
         />
-      )}
+      }
     </View>
   );
 }

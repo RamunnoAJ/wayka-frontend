@@ -40,3 +40,4 @@ export {
   type RectanguloEnPantalla,
 } from './VisorDeArchivo';
 export { MenuDeAcciones, type AccionDeMenu } from './MenuDeAcciones';
+export { DialogoDeConfirmacion } from './DialogoDeConfirmacion';
