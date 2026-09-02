@@ -28,6 +28,7 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['Paciente', 'src/api/paciente.ts', 'Paciente'],
     ['PacienteEnLaCartera', 'src/api/paciente.ts', 'PacienteEnLaCartera'],
     ['Tutor', 'src/api/tutor.ts', 'Tutor'],
+    ['TutorEnElPadron', 'src/api/tutor.ts', 'TutorEnElPadron'],
     ['Veterinario', 'src/api/veterinario.ts', 'Veterinario'],
     ['Clinica', 'src/api/clinica.ts', 'Clinica'],
     ['Cita', 'src/api/cita.ts', 'Cita'],

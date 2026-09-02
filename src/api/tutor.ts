@@ -92,6 +92,33 @@ export function listarTutores(filtros: FiltrosDeTutores = {}): Promise<Tutor[]> 
   return http.get<Tutor[]>('/tutores', { params: { ...filtros } });
 }
 
+/**
+ * Lo que el clínica_admin ve de una persona del padrón: cómo se llama, cómo
+ * contactarla, y si la ficha ya tiene el documento cargado o le falta. El número
+ * no sale nunca — el booleano alcanza para saber si la ficha está completa sin
+ * exponerlo.
+ *
+ * Es una proyección y no una ficha recortada: el backend no selecciona el resto
+ * de las columnas.
+ */
+export interface TutorEnElPadron {
+  id: string;
+  nombre: string;
+  contacto: string;
+  tiene_documento: boolean;
+}
+
+/**
+ * El padrón: cómo el mostrador resuelve si la persona que llama ya está, antes
+ * de darle de alta la mascota (proceso 4.1).
+ *
+ * **No se acota por clínica**, igual que `listarTutores`: antes del alta no hay
+ * ningún vínculo contra el cual acotar. Lo que cambia es la proyección.
+ */
+export function listarPadron(filtros: FiltrosDeTutores = {}): Promise<TutorEnElPadron[]> {
+  return http.get<TutorEnElPadron[]>('/padron', { params: { ...filtros } });
+}
+
 export function obtenerTutor(tutorId: string): Promise<Tutor> {
   return http.get<Tutor>(`/tutores/${tutorId}`);
 }

@@ -9,7 +9,18 @@ import {
   type ActualizarCitaEntrada,
   type FiltrosDeAgenda,
 } from '../../api/cita';
-import { listarCartera, type PacienteEnLaCartera } from '../../api/paciente';
+import {
+  crearPaciente,
+  listarCartera,
+  type CrearPacienteEntrada,
+  type PacienteEnLaCartera,
+} from '../../api/paciente';
+import {
+  crearTutor,
+  listarPadron,
+  type CrearTutorEntrada,
+  type TutorEnElPadron,
+} from '../../api/tutor';
 
 export const CLAVES = {
   agenda: (filtros: FiltrosDeAgenda) => ['citas', 'alcance', filtros] as const,
@@ -70,6 +81,52 @@ export function useAgendarDesdeLaAgenda() {
       crearCita(pacienteId, entrada),
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['citas'] });
+      void cliente.invalidateQueries({ queryKey: ['tablero'] });
+    },
+  });
+}
+
+/**
+ * El padrón: cómo el mostrador resuelve si la persona que llama ya está.
+ *
+ * No se acota por clínica —antes del alta no hay vínculo contra el cual acotar—,
+ * y sale en proyección reducida: nombre, contacto y si la ficha ya tiene
+ * documento. Igual que la cartera, `enabled` cuelga de que haya algo escrito.
+ */
+export function usePadron(busqueda: string): UseQueryResult<TutorEnElPadron[]> {
+  return useQuery({
+    queryKey: ['padron', busqueda] as const,
+    queryFn: () => listarPadron({ busqueda }),
+    enabled: busqueda.trim().length > 0,
+  });
+}
+
+/**
+ * Da de alta la ficha del tutor desde el mostrador, con lo único que el rol
+ * escribe: nombre, contacto y consentimiento. Documento y dirección los completa
+ * el veterinario cuando atiende.
+ */
+export function useCrearTutorDesdeElMostrador() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: CrearTutorEntrada) => crearTutor(entrada),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ['padron'] });
+    },
+  });
+}
+
+/**
+ * Da de alta la mascota. El vínculo con la clínica lo crea el backend en la
+ * misma operación, que es lo que la hace aparecer en la cartera: por eso se
+ * invalida también, y no solo el tablero.
+ */
+export function useDarDeAltaDesdeElMostrador() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (entrada: CrearPacienteEntrada) => crearPaciente(entrada),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ['cartera'] });
       void cliente.invalidateQueries({ queryKey: ['tablero'] });
     },
   });

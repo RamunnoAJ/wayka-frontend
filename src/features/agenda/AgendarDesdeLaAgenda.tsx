@@ -11,6 +11,7 @@ import { useGrilla, useMiClinica } from '../clinica';
 import { FormularioDeCita } from '../paciente/FormularioDeCita';
 import { usePlantel } from '../veterinario/queries';
 
+import { AltaDesdeElMostrador } from './AltaDesdeElMostrador';
 import { useAgendarDesdeLaAgenda, useCartera } from './queries';
 
 /**
@@ -23,6 +24,10 @@ import { useAgendarDesdeLaAgenda, useCartera } from './queries';
  * Elegir primero la mascota y no la hora no es un capricho de orden: la grilla
  * depende de la clínica que la atiende, y sin mascota no hay contra qué
  * validar.
+ *
+ * Si la mascota todavía no está, se la da de alta acá mismo
+ * (`AltaDesdeElMostrador`) y el turno sigue en el mismo flujo: el cliente nuevo
+ * que llama es justamente el que más necesita el turno.
  */
 interface Props {
   onCerrar: () => void;
@@ -34,6 +39,7 @@ export function AgendarDesdeLaAgenda({ onCerrar }: Props) {
 
   const [busqueda, setBusqueda] = useState('');
   const [elegida, setElegida] = useState<PacienteEnLaCartera | null>(null);
+  const [dandoDeAlta, setDandoDeAlta] = useState(false);
 
   const cartera = useCartera(busqueda);
   const clinica = useMiClinica();
@@ -62,7 +68,16 @@ export function AgendarDesdeLaAgenda({ onCerrar }: Props) {
             },
           ]}
         >
-          {!elegida ? (
+          {dandoDeAlta ? (
+            <AltaDesdeElMostrador
+              nombreDeLaMascota={busqueda.trim()}
+              onDadaDeAlta={(paciente) => {
+                setDandoDeAlta(false);
+                setElegida(paciente);
+              }}
+              onCancelar={() => setDandoDeAlta(false)}
+            />
+          ) : !elegida ? (
             <>
               <View style={estilos.titulo}>
                 <Text style={[texto('h4'), { color: t['--text-strong'] }]}>¿Para quién?</Text>
@@ -92,8 +107,7 @@ export function AgendarDesdeLaAgenda({ onCerrar }: Props) {
                 />
               ) : cartera.data.length === 0 ? (
                 <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                  Ninguna mascota de la clínica se llama así. Si es la primera vez que viene, la da
-                  de alta el veterinario.
+                  Ninguna mascota de la clínica se llama así.
                 </Text>
               ) : (
                 <ScrollView style={estilos.scroll}>
@@ -124,8 +138,16 @@ export function AgendarDesdeLaAgenda({ onCerrar }: Props) {
               )}
 
               <View style={estilos.acciones}>
-                <Button variant="secondary" onPress={onCerrar}>
+                <Button variant="ghost" onPress={onCerrar}>
                   Cancelar
+                </Button>
+                {/*
+                  Siempre visible, y no solo cuando la búsqueda no encuentra
+                  nada: la mascota puede estar en el sistema con otro nombre, o
+                  el que aparece puede no ser el que llama.
+                */}
+                <Button variant="secondary" iconLeft="plus" onPress={() => setDandoDeAlta(true)}>
+                  Es nueva: darla de alta
                 </Button>
               </View>
             </>
