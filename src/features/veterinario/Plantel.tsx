@@ -18,6 +18,9 @@ import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
 
+import { estaAusenteAhora, FormularioDeAusencia, useAusencias } from '../ausencias';
+import { useMiClinica } from '../clinica';
+
 import { AvisoDeMatriculas } from './AvisoDeMatriculas';
 import { FormularioDeVeterinario } from './FormularioDeVeterinario';
 import { useCrearVeterinario, useDarDeBajaVeterinario, usePlantel } from './queries';
@@ -41,7 +44,16 @@ export function Plantel() {
   const darDeBaja = useDarDeBajaVeterinario();
   const [abierto, setAbierto] = useState(false);
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [cargandoAusencia, setCargandoAusencia] = useState<string | null>(null);
   const aDarDeBaja = plantel.data?.find((ficha) => ficha.id === confirmando);
+  const aAusentar = plantel.data?.find((ficha) => ficha.id === cargandoAusencia);
+
+  // Quién no está hoy. Es la mirada transversal que se perdió al sacar la
+  // sección de Ausencias: la lista de cada persona vive en su ficha, pero "quién
+  // falta hoy" se pregunta mirando el plantel entero.
+  const ausencias = useAusencias();
+  const clinica = useMiClinica();
+  const ausentes = estaAusenteAhora(ausencias.data);
 
   return (
     <View style={[estilos.raiz, { backgroundColor: t['--surface-page'] }]}>
@@ -117,9 +129,12 @@ export function Plantel() {
                   key={veterinario.id}
                   veterinario={veterinario}
                   esMovil={esMovil}
+                  ausenteHasta={ausentes.get(veterinario.id)?.hasta}
+                  zonaHoraria={clinica.data?.zona_horaria}
                   onAbrirFicha={() =>
                     router.push(`/(clinica-admin)/veterinarios/${veterinario.id}`)
                   }
+                  onCargarAusencia={() => setCargandoAusencia(veterinario.id)}
                   onPedirBaja={() => {
                     darDeBaja.reset();
                     setConfirmando(veterinario.id);
@@ -135,6 +150,15 @@ export function Plantel() {
         Un solo diálogo para todo el listado, montado acá y no en cada fila:
         montar uno por fila dejaría tantos modales como personas en el plantel.
       */}
+      {aAusentar ? (
+        <FormularioDeAusencia
+          veterinarioId={aAusentar.id}
+          nombre={aAusentar.nombre}
+          zonaHoraria={clinica.data?.zona_horaria}
+          onCerrar={() => setCargandoAusencia(null)}
+        />
+      ) : null}
+
       {aDarDeBaja ? (
         <DialogoDeConfirmacion
           titulo={`¿Dar de baja a ${aDarDeBaja.nombre}?`}
@@ -155,11 +179,23 @@ export function Plantel() {
 interface FilaProps {
   veterinario: Veterinario;
   esMovil: boolean;
+  /** Con valor, no está hoy y la fila lo dice hasta cuándo. */
+  ausenteHasta?: Date;
+  zonaHoraria: string | undefined;
   onAbrirFicha: () => void;
+  onCargarAusencia: () => void;
   onPedirBaja: () => void;
 }
 
-function FilaDeVeterinario({ veterinario, esMovil, onAbrirFicha, onPedirBaja }: FilaProps) {
+function FilaDeVeterinario({
+  veterinario,
+  esMovil,
+  ausenteHasta,
+  zonaHoraria,
+  onAbrirFicha,
+  onCargarAusencia,
+  onPedirBaja,
+}: FilaProps) {
   const { t, px, texto } = useTheme();
 
   return (
@@ -191,6 +227,18 @@ function FilaDeVeterinario({ veterinario, esMovil, onAbrirFicha, onPedirBaja }: 
         {veterinario.matricula ? `Matrícula ${veterinario.matricula}` : 'Sin matrícula'}
       </Badge>
 
+      {/* Hoy no está: la agenda no le ofrece turnos y sus citas del rango ya
+          quedaron sin profesional. */}
+      {ausenteHasta ? (
+        <Badge tone="warning" icon="calendar-clock">
+          {`Ausente hasta el ${new Intl.DateTimeFormat('es-AR', {
+            day: 'numeric',
+            month: 'short',
+            timeZone: zonaHoraria,
+          }).format(ausenteHasta)}`}
+        </Badge>
+      ) : null}
+
       {
         /*
           Las dos acciones van detrás de los tres puntos y no a la vista: dos
@@ -202,6 +250,9 @@ function FilaDeVeterinario({ veterinario, esMovil, onAbrirFicha, onPedirBaja }: 
           accessibilityLabel={`Acciones de ${veterinario.nombre}`}
           acciones={[
             { label: 'Ver ficha', icono: 'pencil', onPress: onAbrirFicha },
+            // Una ausencia es de una persona: se carga desde su fila, que es
+            // donde se la busca.
+            { label: 'Cargar ausencia', icono: 'calendar-clock', onPress: onCargarAusencia },
             { label: 'Dar de baja', icono: 'archive', peligro: true, onPress: onPedirBaja },
           ]}
         />

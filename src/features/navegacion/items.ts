@@ -59,49 +59,35 @@ const VETERINARIO: ItemDeNavegacion[] = [
 // El clínica_admin no tiene "Pacientes" ni "Agenda" y no es un olvido: su rol
 // alcanza datos administrativos, no las mascotas atendidas ni su calendario.
 const CLINICA_ADMIN: ItemDeNavegacion[] = [
-  // El panel es solo el tablero: lo único de la sección que se mira todos los
-  // días. Lo demás se abre cuando hay algo que cambiar, y por eso son secciones
-  // y no bloques de una misma pantalla.
+  // El panel es solo el tablero: lo único que se mira todos los días. Después la
+  // agenda, que es donde se reparte lo que el tablero cuenta sin repartir.
   {
     href: '/(clinica-admin)/panel',
     prefijo: '/panel',
     label: 'Panel',
     icono: 'clipboard-check',
   },
-  // La agenda va segunda, después del tablero: el tablero dice cuánto hay sin
-  // repartir y esta es la pantalla donde se reparte.
   {
     href: '/(clinica-admin)/agenda',
     prefijo: '/agenda',
     label: 'Agenda',
     icono: 'calendar-days',
   },
-  {
-    href: '/(clinica-admin)/horario',
-    prefijo: '/horario',
-    label: 'Horario',
-    icono: 'calendar-check',
-  },
-  // Aparte del horario aunque las dos definan quién atiende cuándo: el horario
-  // se configura una vez y una ausencia se carga cada semana, muchas veces con
-  // apuro.
-  {
-    href: '/(clinica-admin)/ausencias',
-    prefijo: '/ausencias',
-    label: 'Ausencias',
-    icono: 'calendar-clock',
-  },
+  // Las ausencias no tienen sección: se cargan desde la fila de la persona y se
+  // listan en su ficha, porque una ausencia es de alguien.
   {
     href: '/(clinica-admin)/veterinarios',
     prefijo: '/veterinarios',
     label: 'Plantel',
     icono: 'user-round',
   },
+  // Ajustes junta lo que comparte frecuencia: los datos de la clínica y el
+  // horario se configuran una vez y casi no se vuelven a tocar.
   {
-    href: '/(clinica-admin)/mi-clinica',
-    prefijo: '/mi-clinica',
-    label: 'Mi clínica',
-    icono: 'building-2',
+    href: '/(clinica-admin)/ajustes',
+    prefijo: '/ajustes',
+    label: 'Ajustes',
+    icono: 'settings',
   },
 ];
 

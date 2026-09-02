@@ -35,18 +35,17 @@ describe('secciones del clínica_admin', () => {
   const ADMIN = NAVEGACION_POR_ROL[TIPO_USUARIO.CLINICA_ADMIN];
 
   /**
-   * El panel es solo el tablero. Lo demás son secciones y no bloques de la misma
-   * pantalla: mezclar lo que se mira todos los días con formularios que se tocan
-   * una vez enterraba el tablero abajo del scroll (Alcance de Plataformas, 3.2).
+   * El corte es por frecuencia: el tablero y la agenda se miran todos los días,
+   * el plantel cada tanto, y Ajustes junta lo que se configura una vez. Las
+   * ausencias no tienen sección — se cargan desde la fila de la persona, porque
+   * una ausencia es de alguien (Alcance de Plataformas, 3.2).
    */
-  it('separa el tablero de lo que se configura', () => {
+  it('separa lo que se mira a diario de lo que se configura una vez', () => {
     expect(ADMIN.map((item) => item.prefijo)).toEqual([
       '/panel',
       '/agenda',
-      '/horario',
-      '/ausencias',
       '/veterinarios',
-      '/mi-clinica',
+      '/ajustes',
     ]);
   });
 
