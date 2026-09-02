@@ -3,7 +3,15 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { CoTutor, VinculoConClinica } from '../../api/acceso-a-paciente';
 import type { Invitacion } from '../../api/invitacion';
-import { Avatar, Badge, Button, EmptyState, InlineError, SkeletonText } from '../../components';
+import {
+  Avatar,
+  Badge,
+  Button,
+  EmptyState,
+  InlineError,
+  MenuDeAcciones,
+  SkeletonText,
+} from '../../components';
 import { mensajeDeError } from '../../lib/errores';
 import { useTheme } from '../../theme';
 
@@ -210,9 +218,17 @@ function FilaDeClinica({
         ) : null}
       </View>
       {administra ? (
-        <Button variant="ghost" size="sm" onPress={onRevocar}>
-          Quitar
-        </Button>
+        <MenuDeAcciones
+          accessibilityLabel={`Acciones de ${clinica.nombre}`}
+          acciones={[
+            {
+              label: 'Que deje de atenderla',
+              icono: 'archive',
+              peligro: true,
+              onPress: onRevocar,
+            },
+          ]}
+        />
       ) : null}
     </View>
   );
@@ -249,14 +265,22 @@ function FilaDeCoTutor({
         <EtiquetaDeNivel nivel={coTutor.nivel} />
       </View>
       {administra ? (
-        <View style={estilos.acciones}>
-          <Button variant="ghost" size="sm" loading={cambiandoNivel} onPress={onCambiarNivel}>
-            {coTutor.nivel === 'edicion' ? 'Solo mirar' : 'Dejar editar'}
-          </Button>
-          <Button variant="ghost" size="sm" onPress={onRevocar}>
-            Quitar
-          </Button>
-        </View>
+        /*
+          Dos acciones y una de ellas quita el acceso: juntas en la fila, la
+          distancia entre cambiar el nivel y revocar es de unos píxeles.
+        */
+        <MenuDeAcciones
+          accessibilityLabel={`Acciones de ${coTutor.nombre}`}
+          acciones={[
+            {
+              label: coTutor.nivel === 'edicion' ? 'Dejar que solo mire' : 'Dejar que edite',
+              icono: 'pencil',
+              deshabilitada: cambiandoNivel,
+              onPress: onCambiarNivel,
+            },
+            { label: 'Quitarle el acceso', icono: 'archive', peligro: true, onPress: onRevocar },
+          ]}
+        />
       ) : null}
     </View>
   );
@@ -287,9 +311,10 @@ function FilaDeInvitacion({
         </Text>
         <Badge tone="warning">Sin aceptar</Badge>
       </View>
-      <Button variant="ghost" size="sm" onPress={onAnular}>
-        Cancelar
-      </Button>
+      <MenuDeAcciones
+        accessibilityLabel={`Acciones de la invitación a ${invitacion.email}`}
+        acciones={[{ label: 'Anular la invitación', icono: 'x', peligro: true, onPress: onAnular }]}
+      />
     </View>
   );
 }

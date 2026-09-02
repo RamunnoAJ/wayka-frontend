@@ -4,8 +4,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { Ausencia, CrearAusenciaEntrada } from '../../api/ausencia';
 import {
   Button,
+  DialogoDeConfirmacion,
   InlineError,
   Input,
+  MenuDeAcciones,
   Select,
   Skeleton,
   type OpcionDeSelect,
@@ -58,6 +60,7 @@ export function Ausencias({ zonaHoraria }: Props) {
   const [desdeHora, setDesdeHora] = useState('09:00');
   const [hastaDia, setHastaDia] = useState(hoy);
   const [hastaHora, setHastaHora] = useState('20:00');
+  const [aDarDeBaja, setADarDeBaja] = useState<Ausencia | null>(null);
 
   const nombrePorId = new Map((plantel.data ?? []).map((ficha) => [ficha.id, ficha.nombre]));
   const opcionesDePlantel: OpcionDeSelect[] = (plantel.data ?? []).map((ficha) => ({
@@ -232,19 +235,31 @@ export function Ausencias({ zonaHoraria }: Props) {
               ausencia={ausencia}
               nombre={nombrePorId.get(ausencia.veterinario_id) ?? 'Del plantel'}
               zonaHoraria={zonaHoraria}
-              dandoDeBaja={baja.isPending}
-              onDarDeBaja={() => baja.mutate(ausencia.id)}
+              onDarDeBaja={() => {
+                baja.reset();
+                setADarDeBaja(ausencia);
+              }}
             />
           ))
         )}
-        {baja.isError ? (
-          <InlineError
-            compact
-            title="No se pudo dar de baja"
-            description={mensajeDeError(baja.error)}
-          />
-        ) : null}
       </View>
+
+      {/*
+        La baja no reasigna las citas que la ausencia desasignó: siguen sin
+        profesional. Es lo contrario de lo que cualquiera esperaría, así que el
+        diálogo lo dice antes y no después.
+      */}
+      {aDarDeBaja ? (
+        <DialogoDeConfirmacion
+          titulo="¿Dar de baja esta ausencia?"
+          descripcion="El profesional vuelve a estar disponible para turnos nuevos. Las citas que se desasignaron al cargarla no vuelven solas: siguen sin profesional, para repartir."
+          etiquetaConfirmar="Dar de baja"
+          enviando={baja.isPending}
+          error={baja.isError ? mensajeDeError(baja.error) : undefined}
+          onCancelar={() => setADarDeBaja(null)}
+          onConfirmar={() => baja.mutate(aDarDeBaja.id, { onSuccess: () => setADarDeBaja(null) })}
+        />
+      ) : null}
     </View>
   );
 }
@@ -253,11 +268,10 @@ interface FilaProps {
   ausencia: Ausencia;
   nombre: string;
   zonaHoraria: string | undefined;
-  dandoDeBaja: boolean;
   onDarDeBaja: () => void;
 }
 
-function FilaDeAusencia({ ausencia, nombre, zonaHoraria, dandoDeBaja, onDarDeBaja }: FilaProps) {
+function FilaDeAusencia({ ausencia, nombre, zonaHoraria, onDarDeBaja }: FilaProps) {
   const { t, texto } = useTheme();
   const formato = new Intl.DateTimeFormat('es-AR', {
     dateStyle: 'short',
@@ -275,14 +289,10 @@ function FilaDeAusencia({ ausencia, nombre, zonaHoraria, dandoDeBaja, onDarDeBaj
           {`${formato.format(new Date(ausencia.desde))} → ${formato.format(new Date(ausencia.hasta))}`}
         </Text>
       </View>
-      {/*
-        Dar de baja no devuelve las citas a quien las tenía: siguen sin
-        profesional. Se dice acá porque es lo contrario de lo que cualquiera
-        esperaría.
-      */}
-      <Button variant="ghost" size="sm" loading={dandoDeBaja} onPress={onDarDeBaja}>
-        Dar de baja
-      </Button>
+      <MenuDeAcciones
+        accessibilityLabel={`Acciones de la ausencia de ${nombre}`}
+        acciones={[{ label: 'Dar de baja', icono: 'archive', peligro: true, onPress: onDarDeBaja }]}
+      />
     </View>
   );
 }
