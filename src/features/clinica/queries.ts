@@ -47,6 +47,9 @@ export function useActualizarClinica(clinicaId: string) {
     mutationFn: (entrada: ActualizarClinicaEntrada) => actualizarClinica(clinicaId, entrada),
     onSuccess: (clinica) => {
       cliente.setQueryData(CLAVES.clinica(clinicaId), clinica);
+      // La grilla lleva su propia copia de la duración del turno: sin esto, el
+      // editor de horario seguiría validando los tramos contra la anterior.
+      void cliente.invalidateQueries({ queryKey: CLAVES.grilla(clinicaId) });
     },
   });
 }

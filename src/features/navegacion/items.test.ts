@@ -30,3 +30,33 @@ describe('a dónde lleva tocar una sección', () => {
     expect(destinoAlTocar(AGENDA, '/pacientes')).toBe(AGENDA.href);
   });
 });
+
+describe('secciones del clínica_admin', () => {
+  const ADMIN = NAVEGACION_POR_ROL[TIPO_USUARIO.CLINICA_ADMIN];
+
+  /**
+   * El panel es solo el tablero. Lo demás son secciones y no bloques de la misma
+   * pantalla: mezclar lo que se mira todos los días con formularios que se tocan
+   * una vez enterraba el tablero abajo del scroll (Alcance de Plataformas, 3.2).
+   */
+  it('separa el tablero de lo que se configura', () => {
+    expect(ADMIN.map((item) => item.prefijo)).toEqual([
+      '/panel',
+      '/horario',
+      '/ausencias',
+      '/veterinarios',
+      '/mi-clinica',
+    ]);
+  });
+
+  /**
+   * El rol alcanza datos administrativos y conteos, no las mascotas atendidas ni
+   * su calendario: que esas secciones no estén no es un olvido.
+   */
+  it('no ofrece pacientes ni agenda clínica', () => {
+    const prefijos = ADMIN.map((item) => item.prefijo);
+    expect(prefijos).not.toContain('/pacientes');
+    expect(prefijos).not.toContain('/citas');
+    expect(prefijos).not.toContain('/atenciones');
+  });
+});

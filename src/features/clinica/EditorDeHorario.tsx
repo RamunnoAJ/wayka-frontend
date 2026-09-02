@@ -14,7 +14,12 @@ import { sombra, useTheme } from '../../theme';
 
 import { horaDeMinutos, minutosDeHora } from './grilla';
 import { estaCerradaTodaLaSemana, validarFranjas } from './horario';
-import { useEscribirGrilla, useGrilla, usePrevisualizarGrilla } from './queries';
+import {
+  useActualizarClinica,
+  useEscribirGrilla,
+  useGrilla,
+  usePrevisualizarGrilla,
+} from './queries';
 
 /**
  * Horario de atención de la clínica (Alcance de Plataformas, 3.2.3).
@@ -28,6 +33,11 @@ const HORAS: OpcionDeSelect[] = Array.from({ length: 24 * 4 }, (_, i) => {
   return { value: hora, label: hora };
 });
 
+const DURACIONES: OpcionDeSelect[] = [15, 20, 30, 45, 60].map((minutos) => ({
+  value: String(minutos),
+  label: `${minutos} min`,
+}));
+
 interface Props {
   clinicaId: string;
 }
@@ -37,6 +47,7 @@ export function EditorDeHorario({ clinicaId }: Props) {
   const consulta = useGrilla(clinicaId);
   const guardar = useEscribirGrilla(clinicaId);
   const previsualizar = usePrevisualizarGrilla(clinicaId);
+  const guardarDuracion = useActualizarClinica(clinicaId);
 
   // El borrador arranca en null y se siembra con lo del servidor recién cuando
   // se toca algo: así un refetch no pisa lo que la persona está editando.
@@ -121,8 +132,37 @@ export function EditorDeHorario({ clinicaId }: Props) {
           HORARIO DE ATENCIÓN
         </Text>
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-          {`Turnos de ${duracion} min. Un día sin ningún tramo es un día cerrado, y dos tramos con un hueco en el medio son el corte de mediodía.`}
+          Un día sin ningún tramo es un día cerrado, y dos tramos con un hueco en el medio son el
+          corte de mediodía.
         </Text>
+
+        {/*
+          La duración va acá y no con los datos administrativos: los dos definen
+          la grilla y se validan uno contra el otro. Se guarda sola al elegirla,
+          porque los tramos de abajo se validan contra la duración **guardada** —
+          arrastrarla en el mismo borrador dejaría el editor midiendo con una
+          regla que el servidor todavía no conoce.
+        */}
+        <View style={estilos.duracion}>
+          <View style={estilos.campo}>
+            <Select
+              label="Duración del turno"
+              options={DURACIONES}
+              value={String(duracion)}
+              onChange={(valor) =>
+                guardarDuracion.mutate({ duracion_turno_minutos: Number(valor) })
+              }
+            />
+          </View>
+        </View>
+
+        {guardarDuracion.isError ? (
+          <InlineError
+            compact
+            title="No se pudo cambiar la duración del turno"
+            description={mensajeDeError(guardarDuracion.error)}
+          />
+        ) : null}
 
         {DIAS_DE_LA_SEMANA.map((dia) => {
           const tramos = delDia(dia);
@@ -301,5 +341,6 @@ const estilos = StyleSheet.create({
   tramo: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 },
   campo: { flex: 1, minWidth: 140 },
   turnos: { gap: 2 },
+  duracion: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   acciones: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center' },
 });

@@ -3,14 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { ActualizarClinicaEntrada, Clinica } from '../../api/clinica';
 
-import {
-  Button,
-  InlineError,
-  Input,
-  Select,
-  Skeleton,
-  type OpcionDeSelect,
-} from '../../components';
+import { Button, InlineError, Input, Skeleton } from '../../components';
 import { CampoDeDireccion, cambioDeDireccion, direccionDeFicha } from '../direccion';
 import type { Direccion } from '../direccion';
 import { mensajeDeError } from '../../lib/errores';
@@ -19,19 +12,13 @@ import { sombra, useTheme } from '../../theme';
 import { useActualizarClinica, useClinica } from './queries';
 
 /**
- * Datos administrativos de la clínica y la duración de su turno (Alcance de
- * Plataformas, 3.2.5).
+ * Datos administrativos de la clínica (Alcance de Plataformas, 3.2.5).
  *
- * El horario de atención **no se edita acá**: son las franjas, se escriben
- * enteras y tienen su propio editor (`EditorDeHorario`). La duración del turno
- * sí, porque es de la clínica y no de la franja — cuánto dura atender a un
- * paciente no cambia porque sea martes a la mañana o jueves a la tarde.
+ * Ni el horario de atención ni la duración del turno se editan acá: los dos
+ * definen la grilla, se validan uno contra el otro —un turno que no divide un
+ * tramo— y por eso viven juntos en la pantalla de Horario. Un control acá y el
+ * otro allá dejaría un error incorregible sin cambiar de pantalla.
  */
-const DURACIONES: OpcionDeSelect[] = [15, 20, 30, 45, 60].map((minutos) => ({
-  value: String(minutos),
-  label: `${minutos} min`,
-}));
-
 interface FormularioProps {
   clinicaId: string;
   /** Texto del botón: cambia entre el panel y la puesta en marcha. */
@@ -80,11 +67,8 @@ export function FormularioDeClinica({
   const borrador: ActualizarClinicaEntrada = {
     nombre: consulta.data.nombre,
     contacto: consulta.data.contacto,
-    duracion_turno_minutos: consulta.data.duracion_turno_minutos,
     ...tocado,
   };
-
-  const duracion = borrador.duracion_turno_minutos ?? 0;
 
   const direccion = direccionTocada ?? direccionDeFicha(consulta.data);
   // Una clínica sin domicilio no se puede visitar: a diferencia de la ficha de
@@ -127,27 +111,6 @@ export function FormularioDeClinica({
               label="Contacto"
               value={borrador.contacto ?? ''}
               onChangeText={(valor) => cambiar({ contacto: valor })}
-            />
-          </View>
-        </View>
-      </View>
-
-      <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-          DURACIÓN DEL TURNO
-        </Text>
-        <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-          Cuánto dura atender a un paciente acá. Junto con el horario de atención define la grilla
-          con la que agenda todo el equipo, así que cambiarla cambia qué horas son válidas.
-        </Text>
-
-        <View style={estilos.fila}>
-          <View style={estilos.campo}>
-            <Select
-              label="Duración del turno"
-              options={DURACIONES}
-              value={String(duracion)}
-              onChange={(valor) => cambiar({ duracion_turno_minutos: Number(valor) })}
             />
           </View>
         </View>
