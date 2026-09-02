@@ -143,6 +143,25 @@ describe('AgendaDeLaClinica', () => {
   });
 
   /**
+   * El veterinario agenda desde la ficha de la mascota, donde ya está parado; el
+   * clínica_admin no tiene ficha a la que entrar, así que agenda desde la agenda
+   * buscando en la cartera.
+   */
+  it('le ofrece agendar al clínica_admin y no al veterinario', async () => {
+    mockSesion = () => ({
+      sesion: { usuario: { veterinario_id: null, tipo_usuario: 'clinica_admin' } },
+    });
+    const comoAdmin = await render(<AgendaDeLaClinica />);
+    expect(comoAdmin.getByText('Agendar turno')).toBeOnTheScreen();
+
+    mockSesion = () => ({
+      sesion: { usuario: { veterinario_id: 'vet-1', tipo_usuario: 'veterinario' } },
+    });
+    const comoVeterinario = await render(<AgendaDeLaClinica onAbrirPaciente={jest.fn()} />);
+    expect(comoVeterinario.queryByText('Agendar turno')).toBeNull();
+  });
+
+  /**
    * Sin handler la fila no lleva a ningún lado: el admin no alcanza la ficha del
    * paciente, y un toque que termina en 403 es peor que ninguno.
    */

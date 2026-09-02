@@ -36,7 +36,9 @@ import { useAsentarAtencion } from '../consultas';
 import { horaCorta, hoyEnLaClinica } from '../paciente/formato';
 import { usePlantel } from '../veterinario/queries';
 
+import { AgendarDesdeLaAgenda } from './AgendarDesdeLaAgenda';
 import { AsignarProfesional } from './AsignarProfesional';
+import { ReagendarDesdeLaAgenda } from './ReagendarDesdeLaAgenda';
 import { useAgenda } from './queries';
 
 /**
@@ -141,6 +143,11 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
   // clínica_admin lee la agenda y la reparte, no la cierra (Reglas de Negocio,
   // 3.2). El backend lo rechaza igual; ofrecer el botón sería prometerlo.
   const puedeAsentar = sesion?.usuario.tipo_usuario === TIPO_USUARIO.VETERINARIO;
+  // El veterinario agenda desde la ficha de la mascota, que es donde está
+  // parado; el clínica_admin no tiene ficha a la que entrar, así que agenda
+  // desde acá, buscando en la cartera.
+  const agendaDesdeAca = sesion?.usuario.tipo_usuario === TIPO_USUARIO.CLINICA_ADMIN;
+  const [agendando, setAgendando] = useState(false);
   const [profesional, setProfesional] = useState(miVeterinarioId ?? TODOS_LOS_PROFESIONALES);
 
   const filtros = useMemo(() => {
@@ -180,6 +187,11 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
                 dos turnos de la misma hora no se pisan.
               </Text>
             </View>
+            {agendaDesdeAca ? (
+              <Button iconLeft="calendar-plus" onPress={() => setAgendando(true)}>
+                Agendar turno
+              </Button>
+            ) : null}
           </View>
 
           <View style={estilos.filtros}>
@@ -242,6 +254,8 @@ export function AgendaDeLaClinica({ onAbrirPaciente }: AgendaProps) {
           )}
         </View>
       </ScrollView>
+
+      {agendando ? <AgendarDesdeLaAgenda onCerrar={() => setAgendando(false)} /> : null}
     </View>
   );
 }
@@ -287,6 +301,7 @@ function FilaDeAgenda({
   const colores = tono(t, cita.estado);
   const asentar = useAsentarAtencion(cita.paciente_id);
   const [asignando, setAsignando] = useState(false);
+  const [reagendando, setReagendando] = useState(false);
 
   return (
     <View
@@ -371,6 +386,14 @@ function FilaDeAgenda({
               icono: 'user-round',
               onPress: () => setAsignando(true),
             },
+            // Mover el turno desde acá y no desde la ficha del paciente: el
+            // clínica_admin no la alcanza, y al veterinario le costaba salir de
+            // la agenda y volver.
+            {
+              label: 'Reagendar',
+              icono: 'calendar-clock',
+              onPress: () => setReagendando(true),
+            },
           ]}
         />
       ) : null}
@@ -381,6 +404,14 @@ function FilaDeAgenda({
           nombreDelPaciente={paciente_nombre}
           zonaHoraria={zona_horaria}
           onCerrar={() => setAsignando(false)}
+        />
+      ) : null}
+
+      {reagendando ? (
+        <ReagendarDesdeLaAgenda
+          cita={cita}
+          nombreDelPaciente={paciente_nombre}
+          onCerrar={() => setReagendando(false)}
         />
       ) : null}
     </View>

@@ -2,10 +2,14 @@ import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tan
 
 import {
   actualizarCita,
+  crearCita,
   listarCitasDelAlcance,
   type CitaConPaciente,
+  type CrearCitaEntrada,
+  type ActualizarCitaEntrada,
   type FiltrosDeAgenda,
 } from '../../api/cita';
+import { listarCartera, type PacienteEnLaCartera } from '../../api/paciente';
 
 export const CLAVES = {
   agenda: (filtros: FiltrosDeAgenda) => ['citas', 'alcance', filtros] as const,
@@ -36,6 +40,49 @@ export function useAsignarProfesional() {
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['citas'] });
       void cliente.invalidateQueries({ queryKey: ['tablero'] });
+    },
+  });
+}
+
+/**
+ * La cartera de la clínica, para poder nombrar la mascota al agendar. Es una
+ * proyección: nombre, especie y a quién llamar, sin abrir ninguna ficha.
+ *
+ * `enabled` cuelga de que haya algo escrito: sin búsqueda la lista entera no le
+ * sirve a nadie, y con una cartera grande sería un viaje por cada apertura.
+ */
+export function useCartera(busqueda: string): UseQueryResult<PacienteEnLaCartera[]> {
+  return useQuery({
+    queryKey: ['cartera', busqueda] as const,
+    queryFn: () => listarCartera({ busqueda }),
+    enabled: busqueda.trim().length > 0,
+  });
+}
+
+/**
+ * Agenda un turno desde la agenda de la clínica. La cita nace en la clínica del
+ * actor: no se manda, la resuelve el backend.
+ */
+export function useAgendarDesdeLaAgenda() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: ({ pacienteId, entrada }: { pacienteId: string; entrada: CrearCitaEntrada }) =>
+      crearCita(pacienteId, entrada),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ['citas'] });
+      void cliente.invalidateQueries({ queryKey: ['tablero'] });
+    },
+  });
+}
+
+/** Reagenda: mueve la hora, y de paso puede cambiar el aviso al tutor. */
+export function useReagendarDesdeLaAgenda() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: ({ citaId, cambios }: { citaId: string; cambios: ActualizarCitaEntrada }) =>
+      actualizarCita(citaId, cambios),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ['citas'] });
     },
   });
 }

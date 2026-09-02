@@ -26,6 +26,7 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
 
   const entidades: [string, string, string][] = [
     ['Paciente', 'src/api/paciente.ts', 'Paciente'],
+    ['PacienteEnLaCartera', 'src/api/paciente.ts', 'PacienteEnLaCartera'],
     ['Tutor', 'src/api/tutor.ts', 'Tutor'],
     ['Veterinario', 'src/api/veterinario.ts', 'Veterinario'],
     ['Clinica', 'src/api/clinica.ts', 'Clinica'],

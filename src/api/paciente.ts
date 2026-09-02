@@ -143,3 +143,27 @@ export function actualizarPaciente(
 export function darDeBajaPaciente(pacienteId: string): Promise<null> {
   return http.delete<null>(`${RUTA}/${pacienteId}`);
 }
+
+/**
+ * Lo que el clínica_admin ve de una mascota: cómo se llama, qué es, y a quién
+ * llamar. Ni fecha de nacimiento, ni sexo, ni peso, ni chip.
+ *
+ * Es una proyección y no una ficha recortada: la consulta del servidor no trae
+ * el resto de las columnas. Mismo criterio que `ClinicaPublica` en el directorio
+ * — lo que protege el dato no es el alcance sino la proyección.
+ */
+export interface PacienteEnLaCartera {
+  id: string;
+  nombre: string;
+  especie: string;
+  tutor_nombre: string;
+  tutor_contacto: string;
+}
+
+/**
+ * La cartera de la clínica. Existe porque agendar exige elegir una mascota, y
+ * sin poder nombrarla el mostrador no puede tomar un turno.
+ */
+export function listarCartera(filtros: FiltrosDePacientes = {}): Promise<PacienteEnLaCartera[]> {
+  return http.get<PacienteEnLaCartera[]>('/cartera', { params: { ...filtros } });
+}
