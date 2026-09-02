@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -96,6 +97,21 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
             { maxWidth: px('--content-max'), paddingHorizontal: px('--gutter-page') },
           ]}
         >
+          {/*
+            La barra lateral tiene "Plantel" y vuelve acá, pero eso hay que
+            saberlo: una pantalla a la que se entra desde una fila necesita la
+            salida donde se la busca, arriba a la izquierda.
+          */}
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft="arrow-left"
+            onPress={() => router.replace('/(clinica-admin)/veterinarios')}
+            style={estilos.volver}
+          >
+            Volver al plantel
+          </Button>
+
           <View style={estilos.titulo}>
             <Text style={[texto('h1'), { color: t['--text-strong'] }]}>{veterinario.nombre}</Text>
             <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
@@ -245,6 +261,7 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
 }
 
 const estilos = StyleSheet.create({
+  volver: { alignSelf: 'flex-start' },
   raiz: { flex: 1 },
   cargando: { padding: 32, gap: 12 },
   contenido: { width: '100%', alignSelf: 'center', paddingVertical: 32, gap: 20 },

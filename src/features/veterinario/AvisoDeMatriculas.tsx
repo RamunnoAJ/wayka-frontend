@@ -67,7 +67,7 @@ export function AvisoDeMatriculas({ plantel }: { plantel: Veterinario[] }) {
             : `Les falta la matrícula: ${nombresDelAviso(faltan)}. Entran al sistema y ven las fichas, pero no pueden cargar ni editar eventos clínicos ni medicación.`}
         </Text>
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-          Se corrige desde su ficha, acá abajo.
+          Se carga desde «Ver ficha», en su fila del listado.
         </Text>
       </View>
     </View>

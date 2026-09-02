@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -123,6 +124,9 @@ export function Plantel() {
                   esMovil={esMovil}
                   confirmando={confirmando === veterinario.id}
                   dandoDeBaja={darDeBaja.isPending}
+                  onAbrirFicha={() =>
+                    router.push(`/(clinica-admin)/veterinarios/${veterinario.id}`)
+                  }
                   onPedirBaja={() => setConfirmando(veterinario.id)}
                   onCancelarBaja={() => setConfirmando(null)}
                   onConfirmarBaja={() =>
@@ -143,6 +147,7 @@ interface FilaProps {
   esMovil: boolean;
   confirmando: boolean;
   dandoDeBaja: boolean;
+  onAbrirFicha: () => void;
   onPedirBaja: () => void;
   onCancelarBaja: () => void;
   onConfirmarBaja: () => void;
@@ -153,6 +158,7 @@ function FilaDeVeterinario({
   esMovil,
   confirmando,
   dandoDeBaja,
+  onAbrirFicha,
   onPedirBaja,
   onCancelarBaja,
   onConfirmarBaja,
@@ -203,9 +209,20 @@ function FilaDeVeterinario({
           </View>
         </View>
       ) : (
-        <Button variant="ghost" size="sm" iconLeft="archive" onPress={onPedirBaja}>
-          Dar de baja
-        </Button>
+        <View style={estilos.acciones}>
+          {/*
+            La ficha es donde se corrige la matrícula, que es lo que saca a la
+            cuenta del modo restringido (regla 2.1). Es una acción propia y no
+            la tarjeta entera: al lado hay una baja, y una tarjeta que navega
+            entera se toca sin querer justo cuando se apunta a la otra.
+          */}
+          <Button variant="secondary" size="sm" iconLeft="pencil" onPress={onAbrirFicha}>
+            Ver ficha
+          </Button>
+          <Button variant="ghost" size="sm" iconLeft="archive" onPress={onPedirBaja}>
+            Dar de baja
+          </Button>
+        </View>
       )}
     </View>
   );
