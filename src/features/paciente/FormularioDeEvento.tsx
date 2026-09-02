@@ -7,6 +7,7 @@ import {
   TIPO_DE_EVENTO,
   type CampoEstructurado,
   type CrearEventoEntrada,
+  type EventoClinico,
   type SeveridadDeAlergia,
   type TipoDeEvento,
 } from '../../api/evento-clinico';
@@ -69,6 +70,13 @@ interface FormularioDeEventoProps {
   clinica?: Clinica;
   /** Cita preseleccionada, cuando se llega desde el calendario. */
   citaInicial?: string;
+  /**
+   * El evento que se está corrigiendo. Con esto el formulario edita en vez de
+   * cargar: siembra los campos y **fija el tipo**, que la API no deja cambiar
+   * (`ActualizarEventoEntrada` lo omite). Cambiar el tipo de un evento ya
+   * firmado sería reescribir qué se hizo, no corregir cómo se escribió.
+   */
+  valorInicial?: EventoClinico;
   onGuardar: (entrada: CrearEventoEntrada) => void;
   onCancelar: () => void;
 }
@@ -79,30 +87,45 @@ export function FormularioDeEvento({
   citas,
   clinica,
   citaInicial,
+  valorInicial,
   onGuardar,
   onCancelar,
 }: FormularioDeEventoProps) {
   const { t, texto } = useTheme();
+  const editando = Boolean(valorInicial);
   // El tiempo de carga es lo que decide si el veterinario vuelve al papel, y el
   // abandono dice si el formulario es largo o si no se entiende: con duración
   // alta es lo primero, con duración baja lo segundo (Telemetría de Producto, 5.1).
-  const cargaMedida = useCargaDeEventoMedida();
+  const cargaMedida = useCargaDeEventoMedida(!editando);
 
-  const [tipo, setTipo] = useState<TipoDeEvento>(TIPO_DE_EVENTO.CONSULTA);
-  const [fecha, setFecha] = useState(hoyEnLaClinica());
-  const [descripcion, setDescripcion] = useState('');
-  const [diagnostico, setDiagnostico] = useState('');
+  const [tipo, setTipo] = useState<TipoDeEvento>(valorInicial?.tipo ?? TIPO_DE_EVENTO.CONSULTA);
+  const [fecha, setFecha] = useState(valorInicial?.fecha ?? hoyEnLaClinica());
+  const [descripcion, setDescripcion] = useState(valorInicial?.descripcion ?? '');
+  const [diagnostico, setDiagnostico] = useState(valorInicial?.diagnostico ?? '');
   const [citaId, setCitaId] = useState(citaInicial ?? SIN_CITA);
 
   // Un estado por esquema, no uno compartido: cambiar de tipo no debería
   // arrastrar el lote de una vacuna al alérgeno de una alergia.
-  const [vacuna, setVacuna] = useState({ nombre_vacuna: '', lote: '', fecha_proxima_dosis: '' });
-  const [medicacion, setMedicacion] = useState({ nombre_droga: '', dosis: '', frecuencia: '' });
+  const estructuradoInicial = valorInicial?.campo_estructurado;
+  const [vacuna, setVacuna] = useState({
+    nombre_vacuna: textoDe(estructuradoInicial, 'nombre_vacuna'),
+    lote: textoDe(estructuradoInicial, 'lote'),
+    fecha_proxima_dosis: textoDe(estructuradoInicial, 'fecha_proxima_dosis'),
+  });
+  const [medicacion, setMedicacion] = useState({
+    nombre_droga: textoDe(estructuradoInicial, 'nombre_droga'),
+    dosis: textoDe(estructuradoInicial, 'dosis'),
+    frecuencia: textoDe(estructuradoInicial, 'frecuencia'),
+  });
   const [alergia, setAlergia] = useState<{
     alergeno: string;
     severidad: SeveridadDeAlergia;
     reaccion: string;
-  }>({ alergeno: '', severidad: 'moderada', reaccion: '' });
+  }>({
+    alergeno: textoDe(estructuradoInicial, 'alergeno'),
+    severidad: (textoDe(estructuradoInicial, 'severidad') || 'moderada') as SeveridadDeAlergia,
+    reaccion: textoDe(estructuradoInicial, 'reaccion'),
+  });
 
   const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha) && fecha <= hoyEnLaClinica();
 
@@ -173,7 +196,23 @@ export function FormularioDeEvento({
       <View style={estilos.raiz}>
         <View style={estilos.fila}>
           <View style={estilos.campoChico}>
-            <Select label="Tipo de evento" options={TIPOS} value={tipo} onChange={setTipo} />
+            {/*
+              Al corregir, el tipo no se toca: la API lo omite de la entrada
+              (`ActualizarEventoEntrada`), y cambiarlo sería reescribir qué se
+              hizo en vez de corregir cómo se escribió. Se muestra igual, porque
+              es la primera pregunta que se hace quien lee la pantalla.
+            */}
+            {editando ? (
+              <Input
+                label="Tipo de evento"
+                hint="No se cambia: para eso hay que dar de baja este y cargar otro."
+                value={TIPOS.find((opcion) => opcion.value === tipo)?.label ?? tipo}
+                editable={false}
+                onChangeText={() => {}}
+              />
+            ) : (
+              <Select label="Tipo de evento" options={TIPOS} value={tipo} onChange={setTipo} />
+            )}
           </View>
           <View style={estilos.campoChico}>
             <Input
@@ -319,7 +358,11 @@ export function FormularioDeEvento({
         ) : null}
 
         {error ? (
-          <InlineError compact title="No se pudo cargar el evento" description={error} />
+          <InlineError
+            compact
+            title={editando ? 'No se pudo guardar' : 'No se pudo cargar el evento'}
+            description={error}
+          />
         ) : null}
 
         <View style={estilos.acciones}>
@@ -339,7 +382,7 @@ export function FormularioDeEvento({
               });
             }}
           >
-            Cargar evento
+            {editando ? 'Guardar los cambios' : 'Cargar evento'}
           </Button>
           <Button variant="ghost" onPress={onCancelar}>
             Cancelar
@@ -393,3 +436,12 @@ const estilos = StyleSheet.create({
   estructurado: { borderWidth: 1, padding: 16, gap: 12 },
   acciones: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },
 });
+
+/**
+ * Lee un campo del `campo_estructurado`, que viaja como JSON sin forma fija: el
+ * esquema lo decide el tipo del evento, y acá alcanza con el texto.
+ */
+function textoDe(estructurado: CampoEstructurado | null | undefined, clave: string): string {
+  const valor = (estructurado as Record<string, unknown> | null | undefined)?.[clave];
+  return typeof valor === 'string' ? valor : '';
+}

@@ -21,7 +21,10 @@ import {
 import {
   camposDeAlergia,
   camposDeVacuna,
+  actualizarEventoClinico,
   crearEventoClinico,
+  darDeBajaEventoClinico,
+  type ActualizarEventoEntrada,
   listarEventosClinicos,
   TIPO_DE_EVENTO,
   type CrearEventoEntrada,
@@ -289,6 +292,43 @@ export function useCrearEvento(pacienteId: string) {
         cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
         cliente.invalidateQueries({ queryKey: ['citas'] });
       }
+    },
+  });
+}
+
+/**
+ * Corrige un evento ya firmado. **El tipo no viaja**: la API lo omite de la
+ * entrada, y cambiarlo sería reescribir qué se hizo en vez de corregir cómo se
+ * escribió.
+ *
+ * Cualquier veterinario de la clínica edita el evento de un colega; el autor no
+ * cambia nunca (Reglas de Negocio, 3.2).
+ */
+export function useActualizarEvento(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: ({ eventoId, entrada }: { eventoId: string; entrada: ActualizarEventoEntrada }) =>
+      actualizarEventoClinico(eventoId, entrada),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.eventos(pacienteId) });
+    },
+  });
+}
+
+/**
+ * Baja lógica de un evento. Nunca borra: deja de listarse y queda auditado, con
+ * su autoría intacta.
+ */
+export function useDarDeBajaEvento(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (eventoId: string) => darDeBajaEventoClinico(eventoId),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.eventos(pacienteId) });
+      // La baja de un evento que cumplía una cita puede devolverla a pendiente
+      // (Reglas de Negocio, 4.21): el calendario no se entera solo.
+      cliente.invalidateQueries({ queryKey: CLAVES.citas(pacienteId) });
+      cliente.invalidateQueries({ queryKey: ['citas'] });
     },
   });
 }

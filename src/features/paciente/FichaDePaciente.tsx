@@ -2,9 +2,17 @@ import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import type { EventoClinico } from '../../api/evento-clinico';
 import { estaDadoDeBaja } from '../../api/paciente';
 import { useGrilla } from '../clinica/queries';
-import { Button, IconButton, InlineError, Tabs, type ItemDeTab } from '../../components';
+import {
+  Button,
+  DialogoDeConfirmacion,
+  IconButton,
+  InlineError,
+  Tabs,
+  type ItemDeTab,
+} from '../../components';
 import { useAnchoDeVentana } from '../../hooks/useAnchoDeVentana';
 import { useSesion } from '../../hooks/useSesion';
 import { mensajeDeError } from '../../lib/errores';
@@ -32,6 +40,7 @@ import {
   useCitas,
   useCrearCita,
   useCrearMedicacion,
+  useDarDeBajaEvento,
   useEventosClinicos,
   useMedicaciones,
   useMiFichaDeVeterinario,
@@ -85,11 +94,13 @@ export function FichaDePaciente({
 
   const [pestania, setPestania] = useState<Pestania>(pestaniaInicial);
   const [confirmandoDesvinculo, setConfirmandoDesvinculo] = useState(false);
+  const [eventoADarDeBaja, setEventoADarDeBaja] = useState<EventoClinico | null>(null);
   const dejarDeAtender = useRevocarClinica(pacienteId);
 
   const paciente = usePaciente(pacienteId);
   const tutor = useTutor(paciente.data?.tutor_id);
   const eventos = useEventosClinicos(pacienteId);
+  const darDeBajaEvento = useDarDeBajaEvento(pacienteId);
   const medicaciones = useMedicaciones(pacienteId);
   const citas = useCitas(pacienteId);
   const adjuntos = useAdjuntos(pacienteId);
@@ -182,6 +193,27 @@ export function FichaDePaciente({
           }
         />
       ) : null}
+      {/*
+        Dar de baja un evento no lo borra: deja de listarse, conserva su autoría
+        y queda auditado. El diálogo lo dice, porque "dar de baja" suena a que
+        el dato se pierde.
+      */}
+      {eventoADarDeBaja ? (
+        <DialogoDeConfirmacion
+          titulo="¿Dar de baja este evento?"
+          descripcion="Deja de aparecer en el historial. No se borra: conserva la firma de quien lo escribió y queda registrado quién lo retiró. Si cumplía una cita, esa cita puede volver a quedar pendiente."
+          etiquetaConfirmar="Dar de baja"
+          enviando={darDeBajaEvento.isPending}
+          error={darDeBajaEvento.isError ? mensajeDeError(darDeBajaEvento.error) : undefined}
+          onCancelar={() => setEventoADarDeBaja(null)}
+          onConfirmar={() =>
+            darDeBajaEvento.mutate(eventoADarDeBaja.id, {
+              onSuccess: () => setEventoADarDeBaja(null),
+            })
+          }
+        />
+      ) : null}
+
       {deBaja ? <AvisoDePacienteDeBaja /> : null}
       {sinMatricula ? <AvisoSinMatricula /> : null}
 
@@ -246,6 +278,13 @@ export function FichaDePaciente({
           bloqueado={bloqueado}
           motivoBloqueo={motivoBloqueo}
           onCargarEvento={() => accionDePestania('historial')}
+          onEditarEvento={(evento) =>
+            router.push(`/(veterinario)/pacientes/${pacienteId}/evento-clinico/${evento.id}`)
+          }
+          onDarDeBajaEvento={(evento) => {
+            darDeBajaEvento.reset();
+            setEventoADarDeBaja(evento);
+          }}
         />
       ) : null}
 

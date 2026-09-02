@@ -153,3 +153,56 @@ describe('lo que el formulario deja medido', () => {
     );
   });
 });
+
+/**
+ * Corregir un evento ya firmado no es cargarlo de nuevo: los campos vienen
+ * sembrados y el tipo queda fijo, porque la API lo omite de la entrada y
+ * cambiarlo sería reescribir qué se hizo en vez de corregir cómo se escribió.
+ */
+describe('FormularioDeEvento al corregir', () => {
+  const EVENTO = {
+    id: 'ec-1',
+    paciente_id: 'p-1',
+    veterinario_id: 'v-1',
+    tipo: 'vacuna' as const,
+    fecha: '2026-05-04',
+    descripcion: 'Refuerzo antirrábico anual.',
+    diagnostico: null,
+    campo_estructurado: {
+      nombre_vacuna: 'Antirrábica',
+      lote: 'AR-8840',
+      fecha_proxima_dosis: '2027-04-29',
+    },
+    created_at: '',
+    updated_at: '',
+  };
+
+  it('siembra lo que ya estaba escrito', async () => {
+    const { getByDisplayValue } = await render(
+      <FormularioDeEvento {...propsBase()} valorInicial={EVENTO} />,
+    );
+
+    expect(getByDisplayValue('Refuerzo antirrábico anual.')).toBeOnTheScreen();
+    expect(getByDisplayValue('2026-05-04')).toBeOnTheScreen();
+    // Y el campo estructurado de su tipo, que es lo que más cuesta reescribir.
+    expect(getByDisplayValue('Antirrábica')).toBeOnTheScreen();
+    expect(getByDisplayValue('AR-8840')).toBeOnTheScreen();
+  });
+
+  it('no deja cambiar el tipo', async () => {
+    const { getByLabelText } = await render(
+      <FormularioDeEvento {...propsBase()} valorInicial={EVENTO} />,
+    );
+
+    expect(getByLabelText('Tipo de evento').props.editable).toBe(false);
+  });
+
+  it('cambia el verbo del botón: se guarda, no se carga', async () => {
+    const { getByText, queryByText } = await render(
+      <FormularioDeEvento {...propsBase()} valorInicial={EVENTO} />,
+    );
+
+    expect(getByText('Guardar los cambios')).toBeOnTheScreen();
+    expect(queryByText('Cargar evento')).toBeNull();
+  });
+});
