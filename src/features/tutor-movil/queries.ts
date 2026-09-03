@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 
-import { listarAdjuntos, type Adjunto } from '../../api/adjunto';
+import { listarAdjuntos, subirAdjunto, TIPO_DE_ADJUNTO, type Adjunto } from '../../api/adjunto';
 import { listarCitasDelAlcance, type CitaConPaciente } from '../../api/cita';
 import { listarEventosClinicos, type EventoClinico } from '../../api/evento-clinico';
 import { listarMedicaciones, type Medicacion } from '../../api/medicacion';
@@ -12,6 +12,7 @@ import {
 } from '../../api/paciente';
 import { obtenerTutor, type Tutor } from '../../api/tutor';
 import { useSesion } from '../../hooks/useSesion';
+import type { ArchivoElegido } from '../../lib/archivos';
 import { hayCopiaLocal } from '../../lib/base-local';
 import {
   hayAjenasPurgadas,
@@ -85,6 +86,31 @@ export function useAgregarMiMascota() {
     mutationFn: (entrada: CrearPacienteEntrada) => crearPaciente(entrada),
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['pacientes'] });
+      void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
+    },
+  });
+}
+
+/**
+ * La foto que el tutor eligió en el alta, subida con la mascota ya creada y
+ * marcada como su foto de perfil (Reglas de Negocio, 4.17).
+ *
+ * **No es parte del alta y no puede serlo**: cuelga de un `paciente_id` que
+ * hasta que el alta no termina no existe. Que falle deja a la mascota dada de
+ * alta sin foto, que es un estado válido — quien llama decide qué dice la
+ * pantalla, y no revierte nada.
+ */
+export function useSubirFotoDePerfil() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: ({ pacienteId, archivo }: { pacienteId: string; archivo: ArchivoElegido }) =>
+      subirAdjunto(pacienteId, {
+        archivo,
+        tipo: TIPO_DE_ADJUNTO.FOTO,
+        es_foto_perfil: true,
+      }),
+    onSuccess: (_adjunto, { pacienteId }) => {
+      void cliente.invalidateQueries({ queryKey: ['adjuntos', pacienteId] });
       void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
     },
   });

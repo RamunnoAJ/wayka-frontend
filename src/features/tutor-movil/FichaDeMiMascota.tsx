@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { camposDeAlergia, camposDeVacuna, TIPO_DE_EVENTO } from '../../api/evento-clinico';
+import { fotoDePerfilDe } from '../../api/adjunto';
 import { partirPorVigencia } from '../../api/medicacion';
 import { puedeAdministrar, puedeEditar } from '../../api/paciente';
 import {
@@ -21,7 +22,7 @@ import { sombra, useTheme } from '../../theme';
 import { capitalizar, edad, fechaConPrecision, fechaCorta, peso } from '../paciente/formato';
 import { MarcaDeOrigen } from '../paciente/MarcaDeOrigen';
 import { useGuardarPesoDelTutor } from '../sincronizacion';
-import { derivarAdjuntos, useRetirarAdjunto } from '../paciente/queries';
+import { derivarAdjuntos, useMarcarFotoDePerfil, useRetirarAdjunto } from '../paciente/queries';
 import {
   useAdjuntosDeMiMascota,
   useHistorialDeMiMascota,
@@ -60,6 +61,7 @@ export function FichaDeMiMascota({
   const adjuntos = useAdjuntosDeMiMascota(pacienteId);
   const guardarPeso = useGuardarPesoDelTutor(paciente.data);
   const retirar = useRetirarAdjunto(pacienteId);
+  const marcarFoto = useMarcarFotoDePerfil(pacienteId);
   const { sesion } = useSesion();
 
   const [editandoPeso, setEditandoPeso] = useState(false);
@@ -83,6 +85,11 @@ export function FichaDeMiMascota({
   const mascota = paciente.data;
   const puedeEscribir = puedeEditar(mascota);
   const { generales } = derivarAdjuntos(adjuntos.data?.adjuntos);
+  // Sin la URL prefirmada no hay nada que dibujar: la copia local guarda los
+  // metadatos y no el archivo, así que sin conexión la ficha vuelve al ícono.
+  const fotoDePerfil = adjuntos.data?.soloMetadatos
+    ? undefined
+    : fotoDePerfilDe(adjuntos.data?.adjuntos);
   const alergias = (eventos.data ?? []).filter((e) => e.tipo === TIPO_DE_EVENTO.ALERGIA);
   const { activas, historicas } = partirPorVigencia(medicaciones.data ?? []);
   const pesoValido = Number(pesoNuevo.replace(',', '.')) > 0;
@@ -100,7 +107,15 @@ export function FichaDeMiMascota({
       <ScrollView>
         <View style={[estilos.contenido, { paddingHorizontal: px('--gutter-mobile') }]}>
           <View style={[tarjeta, sombra('--shadow-sm'), estilos.identidad]}>
-            <Avatar name={mascota.nombre} species={mascota.especie} size="xl" />
+            {/* La foto que el tutor eligió encabeza la ficha. Sin foto se
+                muestra el ícono de la especie: rellenarlo con algo que finja
+                ser una foto sería peor que la ausencia. */}
+            <Avatar
+              name={mascota.nombre}
+              species={mascota.especie}
+              size="xl"
+              src={fotoDePerfil?.archivo_url || undefined}
+            />
             <View style={estilos.flexible}>
               <Text style={[texto('h1'), { color: t['--text-strong'] }]}>{mascota.nombre}</Text>
               <Text style={[texto('body'), { color: t['--text-muted'] }]}>
@@ -344,6 +359,7 @@ export function FichaDeMiMascota({
             soloMetadatos={adjuntos.data?.soloMetadatos ?? false}
             puedeEscribir={puedeEscribir}
             onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
+            onUsarComoFoto={puedeEscribir ? (adjunto) => marcarFoto.mutate(adjunto.id) : undefined}
           />
         </View>
       </ScrollView>

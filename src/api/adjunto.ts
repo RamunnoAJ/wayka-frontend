@@ -34,6 +34,12 @@ export interface Adjunto {
    * identificador estable ni sirve para compartir: no persistirla ni cachearla.
    */
   archivo_url: string;
+  /**
+   * Si es el archivo que la aplicación muestra como foto de la mascota. Como
+   * máximo uno vigente por paciente: marcar otro desmarca a este en el mismo
+   * pedido (Reglas de Negocio, 4.14), así que no hay que desmarcarlo antes.
+   */
+  es_foto_perfil: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -68,6 +74,12 @@ export interface SubirAdjuntoEntrada {
    * la mascota. Tiene que ser un evento del mismo paciente.
    */
   evento_id?: string;
+  /**
+   * Deja la foto subida como foto de la mascota, que es lo que hace el alta
+   * cuando el tutor elige una imagen antes de guardar (Reglas de Negocio,
+   * 4.17). Solo con `tipo: 'foto'` — el backend rechaza lo demás.
+   */
+  es_foto_perfil?: boolean;
   /** Corta la subida en curso: es lo que hace el botón de cancelar. */
   signal?: AbortSignal;
 }
@@ -83,7 +95,7 @@ export interface SubirAdjuntoEntrada {
  */
 export function subirAdjunto(
   pacienteId: string,
-  { archivo, tipo, evento_id, signal }: SubirAdjuntoEntrada,
+  { archivo, tipo, evento_id, es_foto_perfil, signal }: SubirAdjuntoEntrada,
 ): Promise<Adjunto> {
   const formulario = new FormData();
 
@@ -94,6 +106,7 @@ export function subirAdjunto(
   // se come el cierre de la conexión y lo ve como una caída de red.
   formulario.append('tipo', tipo);
   if (evento_id) formulario.append('evento_id', evento_id);
+  if (es_foto_perfil) formulario.append('es_foto_perfil', 'true');
 
   // En web el picker ya entregó un `File`, que es lo que la plataforma sabe
   // serializar. En nativo no existe: el `FormData` de React Native acepta
@@ -128,6 +141,28 @@ export function subirAdjunto(
  */
 export function obtenerAdjunto(adjuntoId: string): Promise<Adjunto> {
   return http.get<Adjunto>(`/adjuntos/${adjuntoId}`);
+}
+
+/**
+ * Deja este adjunto como foto de la mascota y desmarca a la que estuviera
+ * marcada, en la misma transacción del backend.
+ *
+ * No es una edición del adjunto —que sigue sin admitirlas—: lo que cambia es
+ * cuál de todos muestra la ficha, y por eso es una ruta propia y no un PATCH
+ * del recurso. Retirar la marcada deja a la mascota sin foto: no se elige una
+ * sucesora sola.
+ */
+export function marcarFotoDePerfil(adjuntoId: string): Promise<null> {
+  return http.put<null>(`/adjuntos/${adjuntoId}/foto-perfil`);
+}
+
+/**
+ * La foto de perfil vigente de una mascota, si tiene. Se busca en el listado de
+ * adjuntos y no en la ficha del paciente: la foto es un adjunto marcado y no un
+ * campo del Paciente (Modelo de Datos, 4.8).
+ */
+export function fotoDePerfilDe(adjuntos: Adjunto[] | undefined): Adjunto | undefined {
+  return adjuntos?.find((adjunto) => adjunto.es_foto_perfil);
 }
 
 /** Baja lógica: **no borra el objeto del bucket** (regla 2.4). */

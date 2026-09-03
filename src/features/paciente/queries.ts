@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tan
 
 import {
   listarAdjuntos,
+  marcarFotoDePerfil,
   obtenerAdjunto,
   partirPorPertenencia,
   retirarAdjunto,
@@ -380,6 +381,23 @@ export function useSubirAdjunto(pacienteId: string) {
     mutationFn: (entrada: SubirAdjuntoEntrada) => subirAdjunto(pacienteId, entrada),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+    },
+  });
+}
+
+/**
+ * Deja un adjunto como foto de la mascota. Desmarcar la anterior lo hace el
+ * backend en el mismo pedido, así que acá no hay dos mutaciones que coordinar:
+ * lo único que queda es refrescar el listado, que es de donde la ficha saca cuál
+ * es la vigente.
+ */
+export function useMarcarFotoDePerfil(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (adjuntoId: string) => marcarFotoDePerfil(adjuntoId),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+      void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
     },
   });
 }

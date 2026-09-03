@@ -82,9 +82,44 @@ describe('CargaDeAntecedentes', () => {
       <CargaDeAntecedentes pacienteId="p-1" enOnboarding onTerminar={onTerminar} />,
     );
 
-    await fireEvent.press(getByText('Ahora no, saltear este paso'));
+    await fireEvent.press(getByText('Ahora no'));
 
     expect(onTerminar).toHaveBeenCalled();
+  });
+
+  // Un "lo hago después" a secas deja la decisión sin la mitad que importa:
+  // cargarlo se puede en cualquier momento, y hasta que no esté cargado una
+  // urgencia empieza a ciegas.
+  it('la salida del onboarding dice qué se pierde por saltear, con el nombre de la mascota', async () => {
+    cargaFalsa();
+    const { getByText } = await render(
+      <CargaDeAntecedentes
+        pacienteId="p-1"
+        nombreDeMascota="Malbec"
+        enOnboarding
+        onTerminar={jest.fn()}
+      />,
+    );
+
+    expect(getByText(/urgencia antes.*sin saber nada de Malbec/i)).toBeOnTheScreen();
+  });
+
+  // La foto es un paso aparte del alta y su fracaso no la revierte: lo único
+  // que hace falta es decirlo (Reglas de Negocio, 4.17).
+  it('avisa que la foto no se subió, sin dar la mascota por perdida', async () => {
+    cargaFalsa();
+    const { getByText } = await render(
+      <CargaDeAntecedentes
+        pacienteId="p-1"
+        nombreDeMascota="Malbec"
+        enOnboarding
+        fotoQueNoSubio
+        onTerminar={jest.fn()}
+      />,
+    );
+
+    expect(getByText('La foto no se subió')).toBeOnTheScreen();
+    expect(getByText(/Malbec quedó cargada igual/i)).toBeOnTheScreen();
   });
 
   it('desde la ficha la salida es simplemente volver', async () => {
@@ -158,7 +193,7 @@ describe('CargaDeAntecedentes', () => {
     await waitFor(() => expect(getByText('Listo, terminar')).toBeOnTheScreen());
     await fireEvent.press(getByText('Listo, terminar'));
 
-    await waitFor(() => expect(getByText('Esto quedó cargado')).toBeOnTheScreen());
+    await waitFor(() => expect(getByText('Armaste la ficha')).toBeOnTheScreen());
     expect(onTerminar).not.toHaveBeenCalled();
     expect(getByText('Quitar')).toBeOnTheScreen();
 
@@ -175,9 +210,9 @@ describe('CargaDeAntecedentes', () => {
       <CargaDeAntecedentes pacienteId="p-1" enOnboarding onTerminar={onTerminar} />,
     );
 
-    await fireEvent.press(getByText('Ahora no, saltear este paso'));
+    await fireEvent.press(getByText('Ahora no'));
 
     expect(onTerminar).toHaveBeenCalled();
-    expect(queryByText('Esto quedó cargado')).toBeNull();
+    expect(queryByText('Armaste la ficha')).toBeNull();
   });
 });

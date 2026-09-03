@@ -1,5 +1,6 @@
 import { waitFor } from '@testing-library/react-native';
 
+import type { Adjunto } from '../../api/adjunto';
 import type { Paciente } from '../../api/paciente';
 import { render } from '../../pruebas/render';
 import * as consultasDePaciente from '../paciente/queries';
@@ -44,6 +45,24 @@ function conNivel(nivel: Paciente['nivel_de_acceso']) {
     mutate: jest.fn(),
     isPending: false,
   } as never);
+}
+
+/** Un adjunto cualquiera de la mascota, con lo que la ficha lee de él. */
+function adjunto(extra: Partial<Adjunto> = {}): Adjunto {
+  return {
+    id: 'a-1',
+    paciente_id: 'p-1',
+    subido_por_usuario_id: 'u-1',
+    tipo: 'foto',
+    nombre_archivo: 'luna.png',
+    content_type: 'image/png',
+    tamano_bytes: 2048,
+    archivo_url: 'https://bucket.test/luna.png?firma=valida',
+    es_foto_perfil: false,
+    created_at: '2026-01-01T12:00:00Z',
+    updated_at: '2026-01-01T12:00:00Z',
+    ...extra,
+  };
 }
 
 afterEach(() => jest.restoreAllMocks());
@@ -134,5 +153,74 @@ describe('FichaDeMiMascota', () => {
 
     await waitFor(() => expect(getByText('Luna')).toBeTruthy());
     expect(getByText('Tipo de archivo')).toBeTruthy();
+  });
+
+  // La foto es un adjunto marcado y no un campo del Paciente (Modelo de Datos,
+  // 4.8): la ficha la busca en el listado de adjuntos.
+  it('la foto marcada encabeza la ficha', async () => {
+    conNivel('dueno');
+    jest.spyOn(consultas, 'useAdjuntosDeMiMascota').mockReturnValue(
+      consultaResuelta({
+        adjuntos: [adjunto(), adjunto({ id: 'a-2', es_foto_perfil: true })],
+        soloMetadatos: false,
+      }),
+    );
+
+    const { getByLabelText, getByText } = await render(
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(getByText('Luna')).toBeTruthy());
+    expect(getByLabelText('Luna')).toBeTruthy();
+  });
+
+  // Sin foto la ficha no rellena con algo que finja serlo: queda el ícono de la
+  // especie, que no promete nada.
+  it('sin foto marcada la ficha no muestra ninguna', async () => {
+    conNivel('dueno');
+    jest
+      .spyOn(consultas, 'useAdjuntosDeMiMascota')
+      .mockReturnValue(consultaResuelta({ adjuntos: [adjunto()], soloMetadatos: false }));
+
+    const { queryByLabelText, getByText } = await render(
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(getByText('Luna')).toBeTruthy());
+    expect(queryByLabelText('Luna')).toBeNull();
+  });
+
+  // Sin conexión los metadatos están y la URL prefirmada no: dibujar la foto
+  // sería pedirle a la ficha un archivo que no puede traer.
+  it('sin conexión la ficha no intenta mostrar la foto', async () => {
+    conNivel('dueno');
+    jest.spyOn(consultas, 'useAdjuntosDeMiMascota').mockReturnValue(
+      consultaResuelta({
+        adjuntos: [adjunto({ es_foto_perfil: true, archivo_url: '' })],
+        soloMetadatos: true,
+      }),
+    );
+
+    const { queryByLabelText, getByText } = await render(
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(getByText('Luna')).toBeTruthy());
+    expect(queryByLabelText('Luna')).toBeNull();
   });
 });

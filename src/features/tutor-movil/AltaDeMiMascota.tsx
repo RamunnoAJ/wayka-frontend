@@ -3,8 +3,12 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { CrearPacienteEntrada } from '../../api/paciente';
 import { Button, InlineError, Input, Select } from '../../components';
+import type { ArchivoElegido } from '../../lib/archivos';
 import { useTheme } from '../../theme';
 import { aIso } from '../paciente/formato';
+
+import { PASO_DEL_ONBOARDING, ProgresoDelOnboarding } from './ProgresoDelOnboarding';
+import { SelectorDeFotoDePerfil } from './SelectorDeFotoDePerfil';
 
 /**
  * Alta de una mascota por su dueño (proceso 4.17).
@@ -33,7 +37,12 @@ export function AltaDeMiMascota({
 }: {
   enviando: boolean;
   error?: string;
-  onGuardar: (entrada: CrearPacienteEntrada) => void;
+  /**
+   * La foto viaja aparte de la entrada porque **se sube después**: cuelga de un
+   * paciente_id que hasta que el alta no termina no existe (Reglas de Negocio,
+   * 4.17). Que falle no revierte el alta.
+   */
+  onGuardar: (entrada: CrearPacienteEntrada, foto: ArchivoElegido | null) => void;
   onCancelar: () => void;
 }) {
   const { t, px, texto } = useTheme();
@@ -44,6 +53,7 @@ export function AltaDeMiMascota({
   const [sexo, setSexo] = useState('macho');
   const [nacimiento, setNacimiento] = useState('');
   const [peso, setPeso] = useState('');
+  const [foto, setFoto] = useState<ArchivoElegido | null>(null);
 
   const pesoNumero = Number(peso.replace(',', '.'));
   const nacimientoValido = /^\d{4}-\d{2}-\d{2}$/.test(nacimiento) && nacimiento <= aIso(new Date());
@@ -59,6 +69,19 @@ export function AltaDeMiMascota({
             Va a quedar a tu nombre. Después vas a poder compartirla con tu veterinaria y con quien
             la cuide con vos.
           </Text>
+
+          {/* Arranca reconociendo el registro que el tutor ya hizo: empezar en
+              cero sería cobrarle dos veces el mismo paso. */}
+          <ProgresoDelOnboarding
+            paso={PASO_DEL_ONBOARDING.DATOS}
+            leyenda="Ya creaste tu cuenta. Falta poco para tener su ficha."
+          />
+
+          <SelectorDeFotoDePerfil
+            nombre={nombre.trim() || undefined}
+            archivo={foto}
+            onElegir={setFoto}
+          />
 
           <Input
             label="Nombre"
@@ -106,14 +129,17 @@ export function AltaDeMiMascota({
               disabled={!completo}
               loading={enviando}
               onPress={() =>
-                onGuardar({
-                  nombre: nombre.trim(),
-                  especie,
-                  raza: raza.trim(),
-                  sexo,
-                  fecha_nacimiento: nacimiento,
-                  peso_actual: pesoNumero,
-                })
+                onGuardar(
+                  {
+                    nombre: nombre.trim(),
+                    especie,
+                    raza: raza.trim(),
+                    sexo,
+                    fecha_nacimiento: nacimiento,
+                    peso_actual: pesoNumero,
+                  },
+                  foto,
+                )
               }
             >
               Agregar

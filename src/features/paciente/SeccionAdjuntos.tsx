@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import type { Adjunto } from '../../api/adjunto';
 import {
+  Badge,
   Button,
   EmptyState,
   Icon,
@@ -53,6 +54,16 @@ interface AdjuntosProps {
    */
   puedeEscribir?: boolean;
   onRetirar: (adjunto: Adjunto) => void;
+  /**
+   * Deja este archivo como foto de la mascota. Sin la función, la acción no se
+   * ofrece: la ficha del veterinario lista los mismos adjuntos y ahí elegir la
+   * foto de la mascota no es una decisión suya.
+   *
+   * Solo sobre imágenes, y sobre cualquiera de las que estén — no solo las
+   * propias, al revés que retirar: marcar no toca el archivo de nadie, decide
+   * qué muestra la ficha de una mascota que el tutor sí alcanza.
+   */
+  onUsarComoFoto?: (adjunto: Adjunto) => void;
 }
 
 export function SeccionAdjuntos({
@@ -68,6 +79,7 @@ export function SeccionAdjuntos({
   soloMetadatos = false,
   puedeEscribir = true,
   onRetirar,
+  onUsarComoFoto,
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
 
@@ -170,6 +182,25 @@ export function SeccionAdjuntos({
                   <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
                     {`${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(adjunto.created_at.slice(0, 10))}`}
                   </Text>
+                  {adjunto.es_foto_perfil ? (
+                    <Badge tone="success" icon="check" size="sm">
+                      Foto de la mascota
+                    </Badge>
+                  ) : onUsarComoFoto && esImagen(adjunto) && puedeEscribir && !soloMetadatos ? (
+                    /* Marcar una desmarca la anterior sin preguntar: hay una
+                       sola, y la anterior no se borra — deja de ser la que se
+                       muestra (Reglas de Negocio, 4.14). */
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft="image"
+                      disabled={bloqueado}
+                      accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
+                      onPress={() => onUsarComoFoto(adjunto)}
+                    >
+                      Usar como foto
+                    </Button>
+                  ) : null}
                   {propio && puedeEscribir && !soloMetadatos ? (
                     <Button
                       variant="ghost"
@@ -207,6 +238,14 @@ export function SeccionAdjuntos({
       ) : null}
     </Seccion>
   );
+}
+
+/**
+ * Solo una imagen puede ser la foto de la mascota: marcar un PDF dejaría a la
+ * ficha sin nada que mostrar, y el backend lo rechaza igual.
+ */
+function esImagen(adjunto: Adjunto): boolean {
+  return adjunto.content_type.startsWith('image/');
 }
 
 /** Alto de la banda de la miniatura dentro de la tarjeta. */

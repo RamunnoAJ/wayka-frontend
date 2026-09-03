@@ -23,6 +23,7 @@ import {
   type AntecedenteACargar,
   type ClaseDeAntecedente,
 } from './FormularioDeAntecedente';
+import { PASO_DEL_ONBOARDING, ProgresoDelOnboarding } from './ProgresoDelOnboarding';
 import {
   useCargarAntecedenteDelTutor,
   useRetirarAntecedenteDelTutor,
@@ -50,6 +51,14 @@ interface TarjetaDeClase {
   titulo: string;
   ejemplo: string;
   icono: NombreDeIcono;
+  /**
+   * La vacuna viene destacada: es el antecedente que más tutores tienen a mano
+   * —la libreta— y por eso encabeza y se marca. En un menú de cuatro tarjetas
+   * un valor por defecto es esto y no una selección previa: nada está elegido
+   * hasta que el tutor toca, y abrir el formulario de vacuna sin que lo haya
+   * pedido le cobraría un paso al que viene con una alergia.
+   */
+  destacada?: boolean;
 }
 
 /**
@@ -63,6 +72,7 @@ const CLASES: TarjetaDeClase[] = [
     titulo: 'Una vacuna',
     ejemplo: 'Las que figuran en la libreta',
     icono: 'syringe',
+    destacada: true,
   },
   {
     clase: CLASE_DE_ANTECEDENTE.ALERGIA,
@@ -99,6 +109,12 @@ interface CargaProps {
    * Desde la ficha es simplemente volver.
    */
   enOnboarding?: boolean;
+  /**
+   * La foto que el tutor eligió en el alta no llegó a subirse. La mascota quedó
+   * cargada igual (Reglas de Negocio, 4.17): lo único que hace falta es decirlo,
+   * en vez de dejarlo creer que la foto está.
+   */
+  fotoQueNoSubio?: boolean;
   onTerminar: () => void;
 }
 
@@ -125,6 +141,7 @@ export function CargaDeAntecedentes({
   pacienteId,
   nombreDeMascota,
   enOnboarding = false,
+  fotoQueNoSubio = false,
   onTerminar,
 }: CargaProps) {
   const { t, px, texto } = useTheme();
@@ -196,6 +213,18 @@ export function CargaDeAntecedentes({
   return (
     <ScrollView contentContainerStyle={estilos.pantalla}>
       <View style={estilos.encabezado}>
+        {enOnboarding ? (
+          <ProgresoDelOnboarding
+            paso={
+              momento === 'resumen' ? PASO_DEL_ONBOARDING.LISTO : PASO_DEL_ONBOARDING.ANTECEDENTES
+            }
+            leyenda={
+              momento === 'resumen'
+                ? `La ficha${deQuien} está armada.`
+                : 'La mascota ya está cargada. Esto es lo último.'
+            }
+          />
+        ) : null}
         <Text style={[texto('h3'), { color: t['--text-strong'] }]}>
           {TITULO_DEL_MOMENTO[momento](deQuien)}
         </Text>
@@ -203,6 +232,14 @@ export function CargaDeAntecedentes({
           {BAJADA_DEL_MOMENTO[momento]}
         </Text>
       </View>
+
+      {fotoQueNoSubio ? (
+        <InlineError
+          compact
+          title="La foto no se subió"
+          description={`${nombreDeMascota ?? 'La mascota'} quedó cargada igual. La foto se puede sumar cuando quieras, desde su ficha.`}
+        />
+      ) : null}
 
       {cargados.length > 0 && momento !== 'resumen' ? (
         <View
@@ -345,9 +382,16 @@ export function CargaDeAntecedentes({
                   <Icon name={opcion.icono} size={18} color={t['--color-primary-strong']} />
                 </View>
                 <View style={estilos.flexible}>
-                  <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                    {opcion.titulo}
-                  </Text>
+                  <View style={estilos.tituloDeClase}>
+                    <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+                      {opcion.titulo}
+                    </Text>
+                    {opcion.destacada ? (
+                      <Badge tone="info" size="sm">
+                        Lo más común
+                      </Badge>
+                    ) : null}
+                  </View>
                   <Text style={[texto('caption'), { color: t['--text-muted'] }]}>
                     {opcion.ejemplo}
                   </Text>
@@ -361,9 +405,16 @@ export function CargaDeAntecedentes({
             Sumar fotos de la libreta
           </Button>
 
-          <Button variant={cargados.length > 0 ? 'primary' : 'secondary'} onPress={terminar}>
-            {salida(enOnboarding, cargados.length)}
-          </Button>
+          <View style={estilos.salida}>
+            <Button variant={cargados.length > 0 ? 'primary' : 'secondary'} onPress={terminar}>
+              {salida(enOnboarding, cargados.length)}
+            </Button>
+            {enOnboarding && cargados.length === 0 ? (
+              <Text style={[texto('caption'), { color: t['--text-muted'] }]}>
+                {costoDeSaltear(nombreDeMascota)}
+              </Text>
+            ) : null}
+          </View>
         </>
       )}
     </ScrollView>
@@ -377,7 +428,18 @@ export function CargaDeAntecedentes({
  */
 function salida(enOnboarding: boolean, cargados: number): string {
   if (!enOnboarding) return 'Volver a la ficha';
-  return cargados > 0 ? 'Listo, terminar' : 'Ahora no, saltear este paso';
+  return cargados > 0 ? 'Listo, terminar' : 'Ahora no';
+}
+
+/**
+ * Lo que se pierde por saltear, y no un "lo hago después" a secas: es cierto que
+ * se puede cargar en cualquier momento, y también que hasta que no esté cargado
+ * un veterinario que la atienda de urgencia arranca sin saber nada. Decir solo
+ * lo primero deja la decisión sin la mitad que importa.
+ */
+function costoDeSaltear(nombreDeMascota?: string): string {
+  const deQuien = nombreDeMascota ?? 'tu mascota';
+  return `Se puede cargar cuando quieras. Pero si hay una urgencia antes, el veterinario que la atienda arranca sin saber nada de ${deQuien}.`;
 }
 
 function resumirCargado(antecedente: AntecedenteACargar, creado: AntecedenteCargado): Cargado {
@@ -405,7 +467,10 @@ const TITULO_DEL_MOMENTO: Record<Momento, (deQuien: string) => string> = {
   eligiendo: (deQuien) => `¿Qué sabés de antes${deQuien}?`,
   cargando: () => 'Cargar un antecedente',
   documentos: () => 'Fotos de la libreta',
-  resumen: () => 'Esto quedó cargado',
+  // "Armaste la ficha" y no "se guardaron los datos": lo que hay en la pantalla
+  // lo escribió el tutor, y nombrarlo como un guardado del sistema le saca
+  // justamente lo que lo hace suyo.
+  resumen: (deQuien) => `Armaste la ficha${deQuien}`,
 };
 
 const BAJADA_DEL_MOMENTO: Record<Momento, string> = {
@@ -426,5 +491,7 @@ const estilos = StyleSheet.create({
   tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderWidth: 1 },
   icono: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   acciones: { flexDirection: 'row', gap: 12, justifyContent: 'flex-end' },
+  salida: { gap: 6 },
+  tituloDeClase: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   flexible: { flex: 1, minWidth: 0 },
 });

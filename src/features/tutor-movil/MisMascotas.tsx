@@ -16,6 +16,7 @@ import { sombra, useTheme } from '../../theme';
 import { IndicadorDeSincronizacion } from '../sincronizacion';
 import { capitalizar, edad, peso } from '../paciente/formato';
 
+import { FichaDeEjemplo } from './FichaDeEjemplo';
 import { InvitacionesPendientes } from './InvitacionesPendientes';
 import { useAjenasPurgadas, useMisMascotas } from './queries';
 
@@ -64,16 +65,21 @@ export function MisMascotas({
               onRetry={() => mascotas.refetch()}
             />
           ) : (mascotas.data?.length ?? 0) === 0 ? (
-            <EmptyState
-              icon="paw-print"
-              title="Todavía no hay ninguna"
-              description="Cargá a tu mascota para tener su ficha y su historial en un solo lugar. Después vas a poder compartirla con tu veterinaria y con quien la cuide."
-              action={
-                <Button variant="primary" iconLeft="plus" onPress={onAgregar}>
-                  Agregar una mascota
-                </Button>
-              }
-            />
+            <View style={estilos.vacio}>
+              {/* Primero se muestra qué va a tener y recién después se le pide
+                  cargarla: es un ejemplo del cliente, no una mascota. */}
+              <FichaDeEjemplo />
+              <EmptyState
+                icon="paw-print"
+                title="Todavía no hay ninguna"
+                description="Cargá a tu mascota para tener su ficha y su historial en un solo lugar. Después vas a poder compartirla con tu veterinaria y con quien la cuide."
+                action={
+                  <Button variant="primary" iconLeft="plus" onPress={onAgregar}>
+                    Cargar mi mascota
+                  </Button>
+                }
+              />
+            </View>
           ) : (
             <View style={estilos.lista}>
               {mascotas.data?.map((mascota) => (
@@ -153,6 +159,7 @@ const estilos = StyleSheet.create({
     gap: 12,
   },
   lista: { gap: 12 },
+  vacio: { gap: 16 },
   marcas: { alignItems: 'flex-end', gap: 6 },
   aviso: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, borderWidth: 1, padding: 12 },
   tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, padding: 14 },

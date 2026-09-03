@@ -12,7 +12,11 @@ import { useMiMascota } from '../../../../src/features/tutor-movil/queries';
  * cambia adónde vuelve al terminar y cómo se nombra la salida.
  */
 export default function AntecedentesDeMiMascota() {
-  const { id, onboarding } = useLocalSearchParams<{ id: string; onboarding?: string }>();
+  const { id, onboarding, foto } = useLocalSearchParams<{
+    id: string;
+    onboarding?: string;
+    foto?: string;
+  }>();
   const mascota = useMiMascota(id);
 
   return (
@@ -21,6 +25,7 @@ export default function AntecedentesDeMiMascota() {
         pacienteId={id}
         nombreDeMascota={mascota.data?.nombre}
         enOnboarding={onboarding === '1'}
+        fotoQueNoSubio={foto === 'fallo'}
         onTerminar={() => router.replace(`/(tutor)/mascotas/${id}`)}
       />
     </EntradaDePantalla>
