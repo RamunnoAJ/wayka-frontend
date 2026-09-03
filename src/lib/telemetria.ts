@@ -60,10 +60,19 @@ let ultimoDespachoFallo = false;
 let sesionDeUso = nuevaSesionDeUso();
 
 function nuevaSesionDeUso(): string {
-  // `randomUUID` no está en todos los runtimes de React Native; el identificador
-  // solo tiene que ser único dentro de la ventana de retención, no criptográfico.
-  const azar = () => Math.random().toString(16).slice(2, 10);
-  return `${azar()}-${azar()}-${Date.now().toString(16)}`;
+  // **Tiene que ser un UUID de verdad**: el contrato declara `sesion_id` con
+  // formato uuid y el backend lo decodifica como tal, así que un identificador
+  // con otra forma hace fallar el lote entero con un 400 — y la telemetría, que
+  // nunca debe estorbar, se perdía completa sin que nadie se enterara.
+  //
+  // Se arma a mano porque `crypto.randomUUID` no está en todos los runtimes de
+  // React Native. No es criptográfico y no hace falta que lo sea: identifica un
+  // uso de la app dentro de la ventana de retención, no a una persona.
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (marca) => {
+    const azar = Math.floor(Math.random() * 16);
+    const digito = marca === 'x' ? azar : (azar % 4) + 8;
+    return digito.toString(16);
+  });
 }
 
 /** Se llama al cerrar sesión: el uso siguiente es otro, aunque el aparato sea el mismo. */

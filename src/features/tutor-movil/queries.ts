@@ -14,6 +14,7 @@ import { obtenerTutor, type Tutor } from '../../api/tutor';
 import { useSesion } from '../../hooks/useSesion';
 import type { ArchivoElegido } from '../../lib/archivos';
 import { hayCopiaLocal } from '../../lib/base-local';
+import { sincronizar } from '../sincronizacion/motor';
 import {
   hayAjenasPurgadas,
   leerAdjuntosDe,
@@ -83,7 +84,16 @@ export function useAjenasPurgadas(): boolean {
 export function useAgregarMiMascota() {
   const cliente = useQueryClient();
   return useMutation({
-    mutationFn: (entrada: CrearPacienteEntrada) => crearPaciente(entrada),
+    mutationFn: async (entrada: CrearPacienteEntrada) => {
+      const creada = await crearPaciente(entrada);
+      // El alta es en línea, pero en el dispositivo **las pantallas leen la
+      // copia local**: sin bajar el delta, la mascota recién creada no existe
+      // para la ficha ni para el listado, y abrirla daba "no se pudo abrir la
+      // ficha" sobre algo que sí se había guardado. Se espera la corrida porque
+      // lo que sigue es justamente abrirla.
+      if (hayCopiaLocal) await sincronizar().catch(() => undefined);
+      return creada;
+    },
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['pacientes'] });
       void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });

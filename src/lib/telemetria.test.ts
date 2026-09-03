@@ -49,6 +49,12 @@ it('el evento viaja con su momento y su sesión de uso, y sin actor', async () =
   expect(lote.plataforma).toBe('ios');
   expect(evento.ocurrido_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   expect(evento.sesion_id).toBeTruthy();
+  // El contrato lo declara con formato uuid y el backend lo decodifica como tal:
+  // con otra forma, el lote entero vuelve con 400 y la telemetría se pierde
+  // completa sin que nadie se entere.
+  expect(evento.sesion_id).toMatch(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
   expect(evento.propiedades).toEqual({ copia_caducada: false });
   expect(evento).not.toHaveProperty('usuario_id');
   expect(evento).not.toHaveProperty('intentos');

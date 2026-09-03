@@ -310,6 +310,11 @@ export function useCargarAntecedenteDelTutor(
           antecedente.clase === 'medicacion'
             ? await crearMedicacion(pacienteId, antecedente.entrada)
             : await crearEventoClinico(pacienteId, antecedente.entrada);
+        // Escribió en línea, pero en el dispositivo la ficha lee la copia local:
+        // sin bajar el delta, el antecedente recién cargado no aparece en el
+        // historial hasta la próxima corrida. No se espera —la pantalla ya
+        // muestra lo cargado con lo que devolvió el servidor—.
+        if (hayCopiaLocal) sincronizarAhora();
         return { id: creado.id, enCola: false };
       }
       const idMutacion =
