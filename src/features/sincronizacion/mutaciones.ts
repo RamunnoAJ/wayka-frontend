@@ -1,15 +1,18 @@
 import * as Crypto from 'expo-crypto';
 
 import type { Cita } from '../../api/cita';
+import type { CrearEventoEntrada } from '../../api/evento-clinico';
+import { ORIGEN_DE_CARGA, PRECISION_DE_FECHA } from '../../api/historial';
+import type { CrearMedicacionEntrada } from '../../api/medicacion';
 import type { Paciente } from '../../api/paciente';
 import type { Mutacion } from '../../api/sincronizacion';
 import type { ActualizarTutorEntrada, Tutor } from '../../api/tutor';
 
-import { encolar } from './almacen';
+import { encolar, encolarAlta } from './almacen';
 
 /**
- * Las cuatro escrituras que el tutor puede hacer sin conexión (regla 3.2). No
- * hay una por endpoint de la API: lo que no está acá no se escribe offline.
+ * Las escrituras que el tutor puede hacer sin conexión (regla 3.2). No hay una
+ * por endpoint de la API: lo que no está acá no se escribe offline.
  *
  * Cada una viaja como **intención** y no como el registro completo. Mandar el
  * objeto entero pisaría con valores viejos los campos que el tutor no tocó
@@ -27,6 +30,72 @@ function nueva(tipo: Mutacion['tipo'], entidadId: string, versionBase: string): 
     version_base: versionBase,
     ocurrido_en_cliente: new Date().toISOString(),
   };
+}
+
+/**
+ * Un antecedente cargado sin conexión (Reglas de Negocio, 4.23). Es la primera
+ * escritura **clínica** del tutor que entra a la cola y la primera **alta**, y
+ * por eso no usa `nueva()`: no hay registro previo cuyo `updated_at` mandar como
+ * versión base, y el `entidad_id` es la mascota y no el registro que se va a
+ * crear.
+ *
+ * El registro provisional que va a la copia local lleva `cargado_por = tutor` y
+ * la precisión declarada, que es lo que la ficha necesita para mostrarlo igual
+ * que a uno ya sincronizado: marcado como declarado por el tutor y con la fecha
+ * escrita como se declaró. Lo que no lleva es `usuario_id` —lo resuelve el
+ * servidor con el token— ni un `created_at` que nadie asignó todavía.
+ */
+export async function encolarAntecedenteClinico(
+  pacienteId: string,
+  entrada: CrearEventoEntrada,
+): Promise<string> {
+  const idMutacion = Crypto.randomUUID();
+  const mutacion: Mutacion = {
+    id_mutacion: idMutacion,
+    tipo: 'cargar_antecedente_clinico',
+    entidad_id: pacienteId,
+    ocurrido_en_cliente: new Date().toISOString(),
+    evento_clinico: entrada,
+  };
+  await encolarAlta(mutacion, 'evento_clinico', {
+    paciente_id: pacienteId,
+    cargado_por: ORIGEN_DE_CARGA.TUTOR,
+    tipo: entrada.tipo,
+    fecha: entrada.fecha,
+    fecha_precision: entrada.fecha_precision ?? PRECISION_DE_FECHA.DIA,
+    descripcion: entrada.descripcion,
+    diagnostico: entrada.diagnostico ?? null,
+    campo_estructurado: entrada.campo_estructurado ?? null,
+    updated_at: new Date().toISOString(),
+  });
+  return idMutacion;
+}
+
+export async function encolarMedicacionDeclarada(
+  pacienteId: string,
+  entrada: CrearMedicacionEntrada,
+): Promise<string> {
+  const idMutacion = Crypto.randomUUID();
+  const mutacion: Mutacion = {
+    id_mutacion: idMutacion,
+    tipo: 'cargar_antecedente_de_medicacion',
+    entidad_id: pacienteId,
+    ocurrido_en_cliente: new Date().toISOString(),
+    medicacion: entrada,
+  };
+  await encolarAlta(mutacion, 'medicacion', {
+    paciente_id: pacienteId,
+    cargado_por: ORIGEN_DE_CARGA.TUTOR,
+    nombre_droga: entrada.nombre_droga,
+    dosis: entrada.dosis ?? null,
+    frecuencia: entrada.frecuencia ?? null,
+    fecha_inicio: entrada.fecha_inicio,
+    fecha_precision: entrada.fecha_precision ?? PRECISION_DE_FECHA.DIA,
+    // Nace activa: es la que el animal está tomando ahora (Modelo de Datos, 4.6).
+    fecha_fin: null,
+    updated_at: new Date().toISOString(),
+  });
+  return idMutacion;
 }
 
 export function encolarPeso(paciente: Paciente, pesoActual: number): Promise<void> {

@@ -12,6 +12,7 @@ export default function FichaDeMiMascotaRuta() {
         pacienteId={id}
         onVerAccesos={() => router.push(`/(tutor)/mascotas/${id}/accesos`)}
         onCompartir={() => router.push(`/(tutor)/mascotas/${id}/compartir`)}
+        onCargarAntecedente={() => router.push(`/(tutor)/mascotas/${id}/antecedentes`)}
       />
     </EntradaDePantalla>
   );

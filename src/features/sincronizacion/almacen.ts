@@ -325,7 +325,12 @@ export async function encolar(
       mutacion.tipo,
       entidad,
       mutacion.entidad_id,
-      mutacion.version_base,
+      // Un alta no lleva versión base. Se guarda como cadena vacía y no como
+      // NULL porque la columna es NOT NULL y la base local **no tiene mecanismo
+      // de migración**: cambiar la restricción dejaría a los dispositivos que ya
+      // tienen la tabla creada con el esquema viejo. Al leer vuelve a ser
+      // `undefined`, así que la cadena vacía no sale nunca de este módulo.
+      mutacion.version_base ?? '',
       mutacion.ocurrido_en_cliente ?? new Date().toISOString(),
       JSON.stringify(cuerpoDe(mutacion)),
     );
@@ -349,8 +354,56 @@ export async function encolar(
   });
 }
 
+/**
+ * Encola un alta y deja el registro nuevo en la copia local para que la ficha lo
+ * muestre como pendiente, sin esperar a la sincronización.
+ *
+ * La clave local del registro provisional es **el id de la mutación**: no hay
+ * otro id que usar —el real lo asigna el servidor— y usar ese es lo que permite
+ * retirarlo sin llevar una tabla de correspondencias. Cuando la mutación se
+ * resuelve, `descartar` o `marcarRechazada` lo saca, y el registro real entra
+ * por el delta de la misma corrida (doc 11, sección 5).
+ */
+export async function encolarAlta(
+  mutacion: Mutacion,
+  entidad: EntidadLocal,
+  registroProvisional: Record<string, unknown>,
+): Promise<void> {
+  const db = await base();
+
+  await db.withTransactionAsync(async () => {
+    await db.runAsync(
+      `INSERT INTO mutacion (id, orden, tipo, entidad, entidad_id, version_base,
+                             ocurrido_en_cliente, cuerpo, estado)
+       VALUES (?, (SELECT COALESCE(MAX(orden), 0) + 1 FROM mutacion), ?, ?, ?, '', ?, ?, 'pendiente')`,
+      mutacion.id_mutacion,
+      mutacion.tipo,
+      entidad,
+      mutacion.entidad_id,
+      mutacion.ocurrido_en_cliente ?? new Date().toISOString(),
+      JSON.stringify(cuerpoDe(mutacion)),
+    );
+
+    await db.runAsync(
+      `INSERT INTO registro (entidad, id, paciente_id, actualizado_en, datos)
+       VALUES (?, ?, ?, ?, ?)`,
+      entidad,
+      mutacion.id_mutacion,
+      mutacion.entidad_id,
+      new Date().toISOString(),
+      JSON.stringify({ ...registroProvisional, id: mutacion.id_mutacion }),
+    );
+  });
+}
+
 function cuerpoDe(mutacion: Mutacion): Record<string, unknown> {
-  return { paciente: mutacion.paciente, tutor: mutacion.tutor, cita: mutacion.cita };
+  return {
+    paciente: mutacion.paciente,
+    tutor: mutacion.tutor,
+    cita: mutacion.cita,
+    evento_clinico: mutacion.evento_clinico,
+    medicacion: mutacion.medicacion,
+  };
 }
 
 interface FilaDeMutacion {
@@ -373,11 +426,13 @@ function desdeFila(fila: FilaDeMutacion): MutacionEnCola {
     id_mutacion: fila.id,
     tipo: fila.tipo as Mutacion['tipo'],
     entidad_id: fila.entidad_id,
-    version_base: fila.version_base,
+    version_base: fila.version_base || undefined,
     ocurrido_en_cliente: fila.ocurrido_en_cliente,
     paciente: cuerpo.paciente,
     tutor: cuerpo.tutor,
     cita: cuerpo.cita,
+    evento_clinico: cuerpo.evento_clinico,
+    medicacion: cuerpo.medicacion,
     estado: fila.estado === 'rechazada' ? 'rechazada' : 'pendiente',
     motivo: fila.motivo_codigo
       ? {
@@ -422,9 +477,19 @@ export async function contarRechazadas(): Promise<number> {
 }
 
 /** Una mutación aceptada sale de la cola: ya está del otro lado. */
+/**
+ * Saca la mutación de la cola. Se llama tanto al aceptarse como al descartar un
+ * rechazo, y en los dos casos el registro provisional de un alta tiene que irse
+ * con ella: si se aceptó, el real llega por el delta de esta misma corrida; si
+ * se descartó, no forma parte del historial. Quedarse sería un antecedente
+ * fantasma en la ficha, con un id que el servidor no conoce.
+ */
 export async function descartar(idMutacion: string): Promise<void> {
   const db = await base();
-  await db.runAsync('DELETE FROM mutacion WHERE id = ?', idMutacion);
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM mutacion WHERE id = ?', idMutacion);
+    await db.runAsync('DELETE FROM registro WHERE id = ?', idMutacion);
+  });
 }
 
 /**
@@ -434,6 +499,10 @@ export async function descartar(idMutacion: string): Promise<void> {
  */
 export async function marcarRechazada(idMutacion: string, motivo: MotivoDeRechazo): Promise<void> {
   const db = await base();
+  // El provisional de un alta rechazada sale de la copia: no es historial. Su
+  // contenido sigue entero en la cola, que es lo que la pantalla de rechazos
+  // muestra para poder corregirlo antes de descartarlo.
+  await db.runAsync('DELETE FROM registro WHERE id = ?', idMutacion);
   await db.runAsync(
     `UPDATE mutacion SET estado = 'rechazada', motivo_codigo = ?, motivo_mensaje = ?, alternativas = ?
      WHERE id = ?`,

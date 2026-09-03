@@ -21,6 +21,14 @@ export const EVENTO_DE_USO = {
   APP_ABIERTA_DESDE_PUSH: 'app_abierta_desde_push',
   NOTIFICACIONES_DESACTIVADAS: 'notificaciones_desactivadas',
   SESION_SERVIDA_OFFLINE: 'sesion_servida_offline',
+  /**
+   * El embudo del paso de antecedentes (Reglas de Negocio, 4.23). Es lo único de
+   * esa pantalla que se mide por acá: cuántas fichas nacen con historia se
+   * cuenta por SQL sobre el historial, que es el dato real y no una muestra.
+   * Esto es lo que ninguna tabla sabe — cuántos tutores **vieron** el paso y
+   * siguieron de largo.
+   */
+  PASO_DE_ANTECEDENTES_RESUELTO: 'paso_de_antecedentes_resuelto',
 } as const;
 
 export type EventoDeUso = (typeof EVENTO_DE_USO)[keyof typeof EVENTO_DE_USO];

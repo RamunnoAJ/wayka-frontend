@@ -163,9 +163,11 @@ describe('FormularioDeEvento al corregir', () => {
   const EVENTO = {
     id: 'ec-1',
     paciente_id: 'p-1',
-    veterinario_id: 'v-1',
+    usuario_id: 'u-1',
+    cargado_por: 'veterinario' as const,
     tipo: 'vacuna' as const,
     fecha: '2026-05-04',
+    fecha_precision: 'dia' as const,
     descripcion: 'Refuerzo antirrábico anual.',
     diagnostico: null,
     campo_estructurado: {

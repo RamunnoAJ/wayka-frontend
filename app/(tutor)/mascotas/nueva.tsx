@@ -16,9 +16,14 @@ export default function NuevaMascota() {
         error={agregar.error ? mensajeDeError(agregar.error) : undefined}
         onGuardar={(entrada) =>
           agregar.mutate(entrada, {
-            // Va a la ficha recién creada y no al listado: lo siguiente que hace
-            // quien acaba de cargar una mascota es compartirla.
-            onSuccess: (creada) => router.replace(`/(tutor)/mascotas/${creada.id}`),
+            // La mascota ya existe: lo siguiente es volcar lo que trae de antes
+            // (Reglas de Negocio, 4.17.6). Es un paso ofrecido y salteable —el
+            // alta ya está hecha— y no puede ser parte de la misma transacción,
+            // porque un antecedente cuelga de un paciente_id que hasta acá no
+            // existía. `replace` y no `push`: volver atrás sería volver a un
+            // formulario de alta que ya se envió.
+            onSuccess: (creada) =>
+              router.replace(`/(tutor)/mascotas/${creada.id}/antecedentes?onboarding=1`),
           })
         }
         onCancelar={() => router.back()}

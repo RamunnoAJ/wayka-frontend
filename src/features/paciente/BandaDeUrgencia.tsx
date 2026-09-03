@@ -5,7 +5,8 @@ import { camposDeAlergia, camposDeVacuna, type EventoClinico } from '../../api/e
 import { AllergyChip, Icon, MedicationItem, Presionable, StatusDot } from '../../components';
 import { ESCALA_DE_PRESION, sombra, useTheme } from '../../theme';
 
-import { fechaCorta } from './formato';
+import { fechaConPrecision, fechaCorta } from './formato';
+import { MarcaDeOrigen } from './MarcaDeOrigen';
 import type { DatosCriticos } from './queries';
 
 /**
@@ -109,7 +110,11 @@ export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps)
                     name={medicacion.nombre_droga}
                     dose={medicacion.dosis}
                     frequency={medicacion.frecuencia}
-                    prescriber={`desde ${fechaCorta(medicacion.fecha_inicio)}`}
+                    prescriber={`desde ${fechaConPrecision(
+                      medicacion.fecha_inicio,
+                      medicacion.fecha_precision,
+                    )}`}
+                    badge={<MarcaDeOrigen registro={medicacion} compacta />}
                   />
                 ))}
                 {ocultas > 0 ? (
@@ -173,7 +178,10 @@ function FilaDeAlergia({ evento }: { evento: EventoClinico }) {
 
   // El design system distingue dos severidades; el contrato tiene tres.
   const severa = campos.severidad === 'severa';
-  const detalle = [campos.reaccion, `detectada ${fechaCorta(evento.fecha)}`]
+  const detalle = [
+    campos.reaccion,
+    `detectada ${fechaConPrecision(evento.fecha, evento.fecha_precision)}`,
+  ]
     .filter(Boolean)
     .join(' · ');
 
@@ -190,10 +198,14 @@ function FilaDeAlergia({ evento }: { evento: EventoClinico }) {
             },
           ]}
         >
-          {campos.severidad.toUpperCase()}
+          {/* Sin severidad es una alergia que declaró el tutor: graduarla es un
+              juicio clínico y el dueño no tiene por qué emitirlo. Se dice que
+              falta, no se la muestra como si fuera leve. */}
+          {campos.severidad ? campos.severidad.toUpperCase() : 'SEVERIDAD SIN GRADUAR'}
         </Text>
       </View>
       <Text style={[texto('caption'), { color: t['--text-muted'] }]}>{detalle}</Text>
+      <MarcaDeOrigen registro={evento} compacta />
     </View>
   );
 }

@@ -1,5 +1,7 @@
 import { http } from '../lib/http';
 
+import type { OrigenDeCarga, PrecisionDeFecha } from './historial';
+
 /**
  * Medicación. Una medicación está **activa** cuando `fecha_fin` es null — es la
  * definición del contrato y el filtro con el que se arma la vista de urgencia
@@ -12,12 +14,21 @@ import { http } from '../lib/http';
 export interface Medicacion {
   id: string;
   paciente_id: string;
-  /** Quién indicó el tratamiento. No se reasigna al cerrarlo ni al corregirlo. */
-  veterinario_id: string;
+  /**
+   * Cuenta que cargó el tratamiento. No se reasigna al cerrarlo ni al
+   * corregirlo. Es una cuenta y no un veterinario porque cargan los dos roles.
+   */
+  usuario_id: string;
+  /** Lo indicó el profesional, o lo declaró el tutor (Reglas de Negocio, 4.23). */
+  cargado_por: OrigenDeCarga;
   nombre_droga: string;
-  dosis: string;
-  frecuencia: string;
+  /** En null cuando la declaró el tutor sin saberla. El veterinario la carga siempre. */
+  dosis?: string | null;
+  /** Misma regla que `dosis`. */
+  frecuencia?: string | null;
   fecha_inicio: string;
+  /** Con qué precisión se conoce `fecha_inicio`. No se muestra sin leerla. */
+  fecha_precision: PrecisionDeFecha;
   /** En null: activa. Con fecha: cierre efectivo del tratamiento. */
   fecha_fin?: string | null;
   created_at: string;
@@ -33,10 +44,13 @@ export interface FiltrosDeMedicacion {
 
 export interface CrearMedicacionEntrada {
   nombre_droga: string;
-  dosis: string;
-  frecuencia: string;
+  /** Obligatorias para el veterinario; opcionales cuando las declara el tutor. */
+  dosis?: string;
+  frecuencia?: string;
   /** Inicio del tratamiento. No puede ser futuro. */
   fecha_inicio: string;
+  /** Un valor distinto de `dia` solo lo admite una medicación declarada por el tutor. */
+  fecha_precision?: PrecisionDeFecha;
 }
 
 function rutaDePaciente(pacienteId: string): string {

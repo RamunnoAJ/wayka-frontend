@@ -18,7 +18,8 @@ import { EtiquetaDeNivel } from '../accesos/EtiquetaDeNivel';
 import { mensajeDeError } from '../../lib/errores';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
-import { capitalizar, edad, fechaCorta, peso } from '../paciente/formato';
+import { capitalizar, edad, fechaConPrecision, fechaCorta, peso } from '../paciente/formato';
+import { MarcaDeOrigen } from '../paciente/MarcaDeOrigen';
 import { useGuardarPesoDelTutor } from '../sincronizacion';
 import { derivarAdjuntos, useRetirarAdjunto } from '../paciente/queries';
 import {
@@ -41,10 +42,12 @@ export function FichaDeMiMascota({
   pacienteId,
   onVerAccesos,
   onCompartir,
+  onCargarAntecedente,
 }: {
   pacienteId: string;
   onVerAccesos: () => void;
   onCompartir: () => void;
+  onCargarAntecedente: () => void;
 }) {
   const { t, px, texto } = useTheme();
   // Todo sale de la copia local en el dispositivo: es lo que hace que la ficha
@@ -232,7 +235,8 @@ export function FichaDeMiMascota({
                     name={m.nombre_droga}
                     dose={m.dosis}
                     frequency={m.frecuencia}
-                    prescriber={`desde ${fechaCorta(m.fecha_inicio)}`}
+                    prescriber={`desde ${fechaConPrecision(m.fecha_inicio, m.fecha_precision)}`}
+                    badge={<MarcaDeOrigen registro={m} compacta />}
                   />
                 ))}
                 {historicas.map((m) => (
@@ -243,6 +247,7 @@ export function FichaDeMiMascota({
                     frequency={m.frecuencia}
                     until={m.fecha_fin ? fechaCorta(m.fecha_fin) : undefined}
                     status="finalizado"
+                    badge={<MarcaDeOrigen registro={m} compacta />}
                   />
                 ))}
               </>
@@ -250,9 +255,20 @@ export function FichaDeMiMascota({
           </View>
 
           <View style={[tarjeta, estilos.bloque]}>
-            <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-              HISTORIAL
-            </Text>
+            <View style={estilos.tituloDeHistorial}>
+              <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+                HISTORIAL
+              </Text>
+              {/* La entrada no está atada al alta: el tutor que encuentra la
+                  libreta en un cajón dos meses después entra por acá (Reglas de
+                  Negocio, 4.23). El de solo lectura no la ve — el backend la
+                  rechazaría igual, y ofrecerla sería un viaje perdido. */}
+              {puedeEscribir ? (
+                <Button variant="secondary" size="sm" iconLeft="plus" onPress={onCargarAntecedente}>
+                  Agregar antecedente
+                </Button>
+              ) : null}
+            </View>
             {eventos.isPending ? (
               <SkeletonText lines={3} />
             ) : eventos.isError ? (
@@ -274,8 +290,12 @@ export function FichaDeMiMascota({
                   <View style={estilos.eventoTitulo}>
                     <Badge tone="neutral">{capitalizar(evento.tipo)}</Badge>
                     <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-                      {fechaCorta(evento.fecha)}
+                      {fechaConPrecision(evento.fecha, evento.fecha_precision)}
                     </Text>
+                    {/* El tutor tiene que distinguir lo suyo de lo que escribió
+                        la clínica: es donde entiende, sin que nadie se lo
+                        explique, por qué una fila tiene acciones y otra no. */}
+                    <MarcaDeOrigen registro={evento} compacta />
                   </View>
                   <Text style={[texto('body'), { color: t['--text-body'] }]}>
                     {evento.descripcion}
@@ -332,6 +352,13 @@ export function FichaDeMiMascota({
 }
 
 const estilos = StyleSheet.create({
+  tituloDeHistorial: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
   raiz: { flex: 1 },
   cargando: { padding: 24, gap: 12 },
   contenido: { paddingVertical: 24, gap: 16 },

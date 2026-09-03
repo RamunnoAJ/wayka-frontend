@@ -8,6 +8,7 @@
  * (UTC-3) devuelve el día anterior. Se parte a mano.
  */
 
+import { PRECISION_DE_FECHA, type PrecisionDeFecha } from '../../api/historial';
 import { diaEnLaClinica, horaEnLaClinica, hoyEnLaClinica } from '../../lib/zona';
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -29,6 +30,22 @@ export function aIso(fecha: Date): string {
 export function fechaCorta(iso: string): string {
   const d = desdeIso(iso);
   return `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/**
+ * Muestra solo lo que la fecha afirma. Un antecedente que el tutor declaró como
+ * "en 2023" viaja como `2023-01-01` con `fecha_precision = anio`: el día y el
+ * mes son relleno del contrato, no algo que alguien haya dicho, y escribirlos
+ * sería inventar una precisión que no existe (Modelo de Datos, 4.5).
+ *
+ * `2023-01-01` → `2023` con precisión de año, `ene 2023` con precisión de mes,
+ * y `1 ene 2023` con precisión de día, que es el caso normal.
+ */
+export function fechaConPrecision(iso: string, precision: PrecisionDeFecha): string {
+  const d = desdeIso(iso);
+  if (precision === PRECISION_DE_FECHA.ANIO) return String(d.getFullYear());
+  if (precision === PRECISION_DE_FECHA.MES) return `${MESES[d.getMonth()]} ${d.getFullYear()}`;
+  return fechaCorta(iso);
 }
 
 /** `2026-08-27` → `27 ago`, sin el año: el extremo de un rango que ya lo dice. */

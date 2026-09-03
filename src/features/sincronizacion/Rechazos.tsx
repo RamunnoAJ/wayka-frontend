@@ -169,6 +169,10 @@ function titulo(rechazo: MutacionEnCola): string {
       return 'El cambio de turno';
     case 'retirar_cita':
       return 'La cita que quisiste retirar';
+    case 'cargar_antecedente_clinico':
+      return 'El antecedente que cargaste';
+    case 'cargar_antecedente_de_medicacion':
+      return 'La medicación que anotaste';
   }
 }
 

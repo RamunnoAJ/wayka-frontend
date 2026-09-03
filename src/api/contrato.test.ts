@@ -66,6 +66,8 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['EstadoDeCita', 'src/api/cita.ts', 'EstadoDeCita', 'ESTADO_DE_CITA'],
     ['TipoDeEventoClinico', 'src/api/evento-clinico.ts', 'TipoDeEvento', 'TIPO_DE_EVENTO'],
     ['TipoDeAdjunto', 'src/api/adjunto.ts', 'TipoDeAdjunto', 'TIPO_DE_ADJUNTO'],
+    ['OrigenDeCarga', 'src/api/historial.ts', 'OrigenDeCarga', 'ORIGEN_DE_CARGA'],
+    ['PrecisionDeFecha', 'src/api/historial.ts', 'PrecisionDeFecha', 'PRECISION_DE_FECHA'],
     ['TipoDocumento', 'src/api/veterinario.ts', 'TipoDocumento', undefined],
   ];
 

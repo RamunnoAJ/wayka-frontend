@@ -30,7 +30,9 @@ function mutacion(mutate: jest.Mock) {
   >;
 }
 
-function padron(data: { id: string; nombre: string; contacto: string; tiene_documento: boolean }[]) {
+function padron(
+  data: { id: string; nombre: string; contacto: string; tiene_documento: boolean }[],
+) {
   return { isPending: false, isError: false, data } as unknown as ReturnType<typeof usePadron>;
 }
 

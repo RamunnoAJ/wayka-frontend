@@ -1,5 +1,7 @@
 import { http } from '../lib/http';
 
+import type { OrigenDeCarga, PrecisionDeFecha } from './historial';
+
 /**
  * Historial clínico. Tipado a mano contra `openapi/openapi.yaml`.
  *
@@ -23,21 +25,32 @@ export type TipoDeEvento = (typeof TIPO_DE_EVENTO)[keyof typeof TIPO_DE_EVENTO];
 
 export type SeveridadDeAlergia = 'leve' | 'moderada' | 'severa';
 
+/**
+ * En las tres formas, lo opcional es lo que el contrato afloja cuando el
+ * registro lo declara el tutor: el lote está impreso en el frasco, la severidad
+ * es un juicio clínico y la dosis a veces es "media pastilla a la mañana". Lo
+ * que identifica al antecedente —la vacuna, el alérgeno, la droga— es
+ * obligatorio para los dos orígenes.
+ *
+ * El tipo no distingue los dos casos porque el mismo objeto viaja en las dos
+ * direcciones; quien arma el formulario exige según el origen (Modelo de Datos,
+ * 4.5).
+ */
 export interface CamposDeVacuna {
   nombre_vacuna: string;
-  lote: string;
+  lote?: string | null;
   fecha_proxima_dosis?: string | null;
 }
 
 export interface CamposDeMedicacion {
   nombre_droga: string;
-  dosis: string;
-  frecuencia: string;
+  dosis?: string | null;
+  frecuencia?: string | null;
 }
 
 export interface CamposDeAlergia {
   alergeno: string;
-  severidad: SeveridadDeAlergia;
+  severidad?: SeveridadDeAlergia | null;
   reaccion?: string | null;
 }
 
@@ -47,14 +60,27 @@ export interface EventoClinico {
   id: string;
   paciente_id: string;
   /**
-   * Autor original. No se reasigna al editar: dice quién atendió, no quién
-   * corrigió el texto. Un colega de la misma clínica puede editar y dar de baja
-   * el evento sin que este campo cambie (Reglas de Negocio, 3.2).
+   * Cuenta que escribió el registro. No se reasigna al editar: dice quién lo
+   * cargó, no quién corrigió el texto. Es una cuenta y no un veterinario porque
+   * escriben los dos roles — cuál de los dos lo dice `cargado_por`.
    */
-  veterinario_id: string;
+  usuario_id: string;
+  /**
+   * Acto médico del profesional, o antecedente que declaró el tutor. **La
+   * interfaz está obligada a distinguirlos**, y de forma imposible de pasar por
+   * alto en la vista de urgencia (Modelo de Datos, 4.5).
+   */
+  cargado_por: OrigenDeCarga;
   tipo: TipoDeEvento;
-  /** ISO `YYYY-MM-DD`. Nunca futura: lo que va a pasar es una Cita. */
+  /**
+   * ISO `YYYY-MM-DD`. Nunca futura: lo que va a pasar es una Cita.
+   *
+   * **No se muestra sin leer `fecha_precision` al lado**: los componentes que la
+   * precisión declara desconocidos vienen rellenados con `01`, y presentarlos
+   * como si fueran una fecha exacta es mostrar un día que nadie declaró.
+   */
   fecha: string;
+  fecha_precision: PrecisionDeFecha;
   descripcion: string;
   diagnostico?: string | null;
   campo_estructurado?: CampoEstructurado | null;
@@ -96,6 +122,11 @@ export interface FiltrosDeEventos {
 export interface CrearEventoEntrada {
   tipo: TipoDeEvento;
   fecha: string;
+  /**
+   * Omitirlo declara una fecha exacta. Un valor distinto de `dia` solo lo admite
+   * un antecedente del tutor: el veterinario carga con la fecha delante.
+   */
+  fecha_precision?: PrecisionDeFecha;
   descripcion: string;
   diagnostico?: string;
   /** Obligatorio en vacuna, medicación y alergia; prohibido en el resto. */

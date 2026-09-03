@@ -52,7 +52,12 @@ describe('FichaDeMiMascota', () => {
   it('el dueño puede actualizar el peso', async () => {
     conNivel('dueno');
     const { getByText } = await render(
-      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
     );
 
     await waitFor(() => expect(getByText('Luna')).toBeTruthy());
@@ -69,7 +74,12 @@ describe('FichaDeMiMascota', () => {
       .mockReturnValue(consultaResuelta({ adjuntos: [], soloMetadatos: true }));
 
     const { getByText } = await render(
-      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
     );
 
     await waitFor(() => expect(getByText('Luna')).toBeTruthy());
@@ -80,7 +90,12 @@ describe('FichaDeMiMascota', () => {
   it('el co-tutor de solo lectura ve el peso y no el botón', async () => {
     conNivel('lectura');
     const { getByText, queryByText } = await render(
-      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
     );
 
     await waitFor(() => expect(getByText('Luna')).toBeTruthy());
@@ -93,7 +108,12 @@ describe('FichaDeMiMascota', () => {
   it('el co-tutor de solo lectura ve los adjuntos y no la zona de carga', async () => {
     conNivel('lectura');
     const { getByText, queryByText } = await render(
-      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
     );
 
     await waitFor(() => expect(getByText('Luna')).toBeTruthy());
@@ -104,7 +124,12 @@ describe('FichaDeMiMascota', () => {
   it('el co-tutor con edición sí ve la zona de carga de adjuntos', async () => {
     conNivel('edicion');
     const { getByText } = await render(
-      <FichaDeMiMascota pacienteId="p-1" onVerAccesos={jest.fn()} onCompartir={jest.fn()} />,
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
     );
 
     await waitFor(() => expect(getByText('Luna')).toBeTruthy());

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Adjunto } from '../../api/adjunto';
 import { TIPO_DE_EVENTO, type EventoClinico, type TipoDeEvento } from '../../api/evento-clinico';
+import { loDeclaroElTutor } from '../../api/historial';
 import type { Veterinario } from '../../api/veterinario';
 import {
   Badge,
@@ -17,7 +18,8 @@ import {
 } from '../../components';
 import { useTheme, type Tokens } from '../../theme';
 
-import { fechaCorta, tamanoDeArchivo } from './formato';
+import { fechaConPrecision, tamanoDeArchivo } from './formato';
+import { MarcaDeOrigen } from './MarcaDeOrigen';
 import { Seccion } from './Seccion';
 import { VisorDeAdjunto } from './VisorDeAdjunto';
 
@@ -220,7 +222,7 @@ export function HistorialClinico({
               <FilaDeEvento
                 key={evento.id}
                 evento={evento}
-                autor={plantel?.get(evento.veterinario_id)}
+                autor={plantel?.get(evento.usuario_id)}
                 adjuntos={adjuntosPorEvento.get(evento.id) ?? []}
                 ultimo={i === visibles.length - 1}
                 esMovil={esMovil}
@@ -300,8 +302,9 @@ function FilaDeEvento({
         <View style={estilos.tituloFila}>
           <Text style={[texto('h4'), { color: t['--text-strong'] }]}>{meta.etiqueta}</Text>
           <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-            {fechaCorta(evento.fecha)}
+            {fechaConPrecision(evento.fecha, evento.fecha_precision)}
           </Text>
+          <MarcaDeOrigen registro={evento} />
           {evento.cita_id ? (
             <Badge tone="primary" icon="calendar-check" size="sm">
               Cumplió cita agendada
@@ -343,12 +346,17 @@ function FilaDeEvento({
           ) : null}
         </View>
 
-        <View style={estilos.autor}>
-          <View style={[estilos.punto, { backgroundColor: t['--clinical-accent'] }]} />
-          <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-            {autor ? `Cargado por ${autor.nombre}` : 'Autor fuera del plantel actual'}
-          </Text>
-        </View>
+        {/* Al tutor lo nombra la marca de origen, que ya está arriba y se lee
+            antes. Repetirlo acá con la misma tipografía que a un profesional
+            borraría justamente la diferencia que la marca viene a hacer. */}
+        {!loDeclaroElTutor(evento) ? (
+          <View style={estilos.autor}>
+            <View style={[estilos.punto, { backgroundColor: t['--clinical-accent'] }]} />
+            <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+              {autor ? `Cargado por ${autor.nombre}` : 'Autor fuera del plantel actual'}
+            </Text>
+          </View>
+        ) : null}
 
         <Text style={[texto('body'), { color: t['--text-body'], marginTop: 8, maxWidth: 720 }]}>
           {evento.descripcion}

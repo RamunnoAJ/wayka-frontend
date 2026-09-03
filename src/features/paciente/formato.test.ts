@@ -9,6 +9,7 @@ import {
   edad,
   edadCompacta,
   fechaConDiaDeSemana,
+  fechaConPrecision,
   fechaCorta,
   horaCorta,
   microchip,
@@ -144,5 +145,28 @@ describe('formato auxiliar', () => {
   it('capitaliza sin romperse con la cadena vacía', () => {
     expect(capitalizar('canino')).toBe('Canino');
     expect(capitalizar('')).toBe('');
+  });
+});
+
+describe('fechaConPrecision', () => {
+  // El backend rellena con 01 lo que la precisión declara desconocido, así que
+  // la fecha siempre llega completa y es la precisión la que dice qué de ella
+  // es una afirmación.
+  it('escribe solo el año cuando el tutor solo sabía el año', () => {
+    expect(fechaConPrecision('2023-01-01', 'anio')).toBe('2023');
+  });
+
+  it('escribe el mes y el año cuando esa fue la precisión declarada', () => {
+    expect(fechaConPrecision('2023-07-01', 'mes')).toBe('jul 2023');
+  });
+
+  it('con precisión de día se lee igual que cualquier otra fecha', () => {
+    expect(fechaConPrecision('2026-08-27', 'dia')).toBe('27 ago 2026');
+  });
+
+  // Es el error que este formato existe para evitar: mostrar un 1 de enero que
+  // nadie declaró como si fuera el día de la vacuna.
+  it('no muestra el día rellenado aunque la fecha lo traiga', () => {
+    expect(fechaConPrecision('2023-01-01', 'anio')).not.toContain('1 ene');
   });
 });

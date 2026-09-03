@@ -13,13 +13,20 @@ import { Icon } from './Icon';
  */
 interface MedicationItemProps {
   name: string;
-  dose: string;
-  frequency?: string;
+  /**
+   * Opcional porque una medicación que declaró el tutor puede no traerla: el
+   * dueño sabe qué le da al animal y a veces nada más que eso. Sin dosis la
+   * línea no queda coja ni miente con un guion — simplemente no la escribe.
+   */
+  dose?: string | null;
+  frequency?: string | null;
   /** Fecha de cierre, ya formateada. */
   until?: string;
   /** Línea secundaria: desde cuándo y quién lo indicó. */
   prescriber?: string;
   status?: 'activo' | 'finalizado';
+  /** Marca de origen, cuando el registro no lo escribió un profesional. */
+  badge?: ReactNode;
   action?: ReactNode;
 }
 
@@ -30,6 +37,7 @@ export function MedicationItem({
   until,
   prescriber,
   status = 'activo',
+  badge,
   action,
 }: MedicationItemProps) {
   const { t, px, texto } = useTheme();
@@ -78,7 +86,10 @@ export function MedicationItem({
           >
             {name}
           </Text>
-          <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{dose}</Text>
+          {dose ? (
+            <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{dose}</Text>
+          ) : null}
+          {badge}
         </View>
         {secundaria ? (
           <Text style={[texto('caption'), { color: t['--text-subtle'], marginTop: 2 }]}>

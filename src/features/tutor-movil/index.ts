@@ -1,5 +1,6 @@
 export { Ajustes } from './Ajustes';
 export { AltaDeMiMascota } from './AltaDeMiMascota';
+export { CargaDeAntecedentes } from './CargaDeAntecedentes';
 export { FichaDeMiMascota } from './FichaDeMiMascota';
 export { MisCitas } from './MisCitas';
 export { MisMascotas } from './MisMascotas';

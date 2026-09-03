@@ -1,7 +1,7 @@
 import type { Adjunto } from './adjunto';
 import type { Cita } from './cita';
-import type { EventoClinico } from './evento-clinico';
-import type { Medicacion } from './medicacion';
+import type { CrearEventoEntrada, EventoClinico } from './evento-clinico';
+import type { CrearMedicacionEntrada, Medicacion } from './medicacion';
 import type { Paciente } from './paciente';
 import type { Tutor } from './tutor';
 import { http } from '../lib/http';
@@ -54,19 +54,43 @@ export interface CambiosDeSincronizacion {
 
 /** Superficie de escritura del tutor sin conexión, completa (regla 3.2). */
 export type TipoDeMutacion =
-  'actualizar_peso_de_paciente' | 'actualizar_ficha_de_tutor' | 'actualizar_cita' | 'retirar_cita';
+  | 'actualizar_peso_de_paciente'
+  | 'actualizar_ficha_de_tutor'
+  | 'actualizar_cita'
+  | 'retirar_cita'
+  | 'cargar_antecedente_clinico'
+  | 'cargar_antecedente_de_medicacion';
+
+/**
+ * Las dos mutaciones que **crean** en vez de editar (Reglas de Negocio, 4.23).
+ * Se nombran aparte porque cambian dos cosas del resto de la cola: no llevan
+ * `version_base` y su `entidad_id` es la mascota.
+ */
+export const MUTACIONES_DE_ALTA: TipoDeMutacion[] = [
+  'cargar_antecedente_clinico',
+  'cargar_antecedente_de_medicacion',
+];
 
 export interface Mutacion {
   /** Lo genera el cliente: es la clave de la idempotencia del reenvío. */
   id_mutacion: string;
   tipo: TipoDeMutacion;
+  /**
+   * Registro sobre el que se escribe. **En las dos mutaciones de alta es la
+   * mascota** y no el registro que se va a crear, que todavía no existe.
+   */
   entidad_id: string;
   /**
    * `updated_at` que el registro tenía en la copia local. Si el del servidor es
    * otro, alguien lo modificó mientras tanto y la mutación se rechaza por
    * desactualizada (doc 11, sección 6).
+   *
+   * Ausente en las dos altas —no hay registro previo cuyo `updated_at`
+   * comparar— y en el retiro de una cita, que no la usa por otro motivo: una
+   * cita que cambió mientras tanto sigue siendo una a la que el tutor no va a
+   * llevar a su mascota.
    */
-  version_base: string;
+  version_base?: string;
   /** Informativo: lo declara el cliente y el backend no lo puede verificar. */
   ocurrido_en_cliente?: string;
   paciente?: { peso_actual?: number };
@@ -81,6 +105,9 @@ export interface Mutacion {
     direccion_lng?: number;
   };
   cita?: { fecha_programada?: string; notificar_tutor?: boolean };
+  /** Payload del alta de un antecedente. El paciente sale del `entidad_id`. */
+  evento_clinico?: CrearEventoEntrada;
+  medicacion?: CrearMedicacionEntrada;
 }
 
 export type ResultadoDeMutacion = 'aceptada' | 'rechazada';

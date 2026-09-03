@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import type { Cita } from '../../api/cita';
+import { crearEventoClinico, darDeBajaEventoClinico } from '../../api/evento-clinico';
+import { crearMedicacion, darDeBajaMedicacion } from '../../api/medicacion';
 import { actualizarPaciente, type Paciente } from '../../api/paciente';
 import { actualizarTutor, type ActualizarTutorEntrada, type Tutor } from '../../api/tutor';
 import { actualizarCita, darDeBajaCita } from '../../api/cita';
@@ -23,9 +25,13 @@ import {
   listarRechazadas,
   type MutacionEnCola,
 } from './almacen';
+import type { AntecedenteACargar } from '../tutor-movil/FormularioDeAntecedente';
+
 import {
+  encolarAntecedenteClinico,
   encolarCambioDeCita,
   encolarFichaDeTutor,
+  encolarMedicacionDeclarada,
   encolarPeso,
   encolarRetiroDeCita,
   type CambioDeCitaDelTutor,
@@ -260,6 +266,82 @@ export function useGuardarPesoDelTutor(paciente: Paciente | undefined) {
       }
       await encolarPeso(paciente, pesoActual);
       sincronizarAhora();
+    },
+    onSettled: invalidar,
+  });
+}
+
+/**
+ * Lo que quedó cargado, sin importar por qué camino. `enCola` es lo que decide
+ * cómo se lo retira: una mutación encolada se descarta de la cola y una escritura
+ * en línea se da de baja por la API. El `id` significa distinto en cada caso —el
+ * de la mutación o el del registro— y no hace falta que signifique lo mismo:
+ * nadie más lo usa.
+ */
+export interface AntecedenteCargado {
+  id: string;
+  enCola: boolean;
+}
+
+/**
+ * Carga un antecedente (Reglas de Negocio, 4.23). Mismo criterio que el peso:
+ * con red la corrida termina en un segundo y el antecedente pasa de pendiente a
+ * sincronizado sin que el tutor haga nada; sin red queda en la cola y la ficha lo
+ * muestra igual, marcado como no confirmado.
+ *
+ * `soloEnLinea` es para el paso del onboarding, que **exige conexión**: la
+ * mascota se acaba de crear en línea y encolar ahí no tiene sentido — el alta de
+ * mascota no pasa por la cola, así que sin red no hay `paciente_id` del que
+ * colgar nada (Sincronización sin Conexión, 5). En web no hay copia local y todo
+ * va directo, como siempre.
+ */
+export function useCargarAntecedenteDelTutor(
+  pacienteId: string,
+  { soloEnLinea = false }: { soloEnLinea?: boolean } = {},
+) {
+  const invalidar = useInvalidarCopia();
+  const { mutate: sincronizarAhora } = useSincronizar();
+  const porLaCola = hayCopiaLocal && !soloEnLinea;
+
+  return useMutation<AntecedenteCargado, Error, AntecedenteACargar>({
+    mutationFn: async (antecedente) => {
+      if (!porLaCola) {
+        const creado =
+          antecedente.clase === 'medicacion'
+            ? await crearMedicacion(pacienteId, antecedente.entrada)
+            : await crearEventoClinico(pacienteId, antecedente.entrada);
+        return { id: creado.id, enCola: false };
+      }
+      const idMutacion =
+        antecedente.clase === 'medicacion'
+          ? await encolarMedicacionDeclarada(pacienteId, antecedente.entrada)
+          : await encolarAntecedenteClinico(pacienteId, antecedente.entrada);
+      sincronizarAhora();
+      return { id: idMutacion, enCola: true };
+    },
+    onSettled: invalidar,
+  });
+}
+
+/**
+ * Retira un antecedente recién cargado, por el camino por el que entró. Es
+ * también la única forma de corregir uno: la Medicación solo admite editar su
+ * cierre (Reglas de Negocio, 4.3), así que ofrecer editar en un tipo y no en el
+ * otro sería una diferencia sin causa a los ojos del tutor.
+ */
+export function useRetirarAntecedenteDelTutor() {
+  const invalidar = useInvalidarCopia();
+
+  return useMutation<void, Error, AntecedenteCargado & { clase: 'evento' | 'medicacion' }>({
+    mutationFn: async ({ id, enCola, clase }) => {
+      if (enCola) {
+        // Nunca llegó al servidor: descartar la mutación es todo lo que hay que
+        // hacer, y con ella se va el registro provisional de la copia local.
+        await descartar(id);
+        return;
+      }
+      if (clase === 'medicacion') await darDeBajaMedicacion(id);
+      else await darDeBajaEventoClinico(id);
     },
     onSettled: invalidar,
   });

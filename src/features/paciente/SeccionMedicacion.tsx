@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { loDeclaroElTutor } from '../../api/historial';
 import type { CrearMedicacionEntrada, Medicacion } from '../../api/medicacion';
 import type { Veterinario } from '../../api/veterinario';
 import { Button, InlineError, Input, MedicationItem } from '../../components';
 import { useTheme } from '../../theme';
 
-import { fechaCorta, hoyEnLaClinica } from './formato';
+import { fechaConPrecision, fechaCorta, hoyEnLaClinica } from './formato';
+import { MarcaDeOrigen } from './MarcaDeOrigen';
 import { Seccion } from './Seccion';
 
 /**
@@ -69,8 +71,12 @@ export function SeccionMedicacion({
   }
 
   function detalle(medicacion: Medicacion): string {
-    const autor = plantel?.get(medicacion.veterinario_id)?.nombre;
-    const desde = fechaCorta(medicacion.fecha_inicio);
+    // Al tutor no se lo nombra acá: de eso se ocupa la marca de origen, que es
+    // la que tiene que leerse de un vistazo.
+    const autor = loDeclaroElTutor(medicacion)
+      ? undefined
+      : plantel?.get(medicacion.usuario_id)?.nombre;
+    const desde = fechaConPrecision(medicacion.fecha_inicio, medicacion.fecha_precision);
     const rango = medicacion.fecha_fin
       ? `${desde} → ${fechaCorta(medicacion.fecha_fin)}`
       : `desde ${desde}`;
@@ -156,6 +162,7 @@ export function SeccionMedicacion({
                     dose={medicacion.dosis}
                     frequency={medicacion.frecuencia}
                     prescriber={detalle(medicacion)}
+                    badge={<MarcaDeOrigen registro={medicacion} compacta />}
                   />
                 </View>
                 <Button
@@ -201,6 +208,7 @@ export function SeccionMedicacion({
                 until={medicacion.fecha_fin ? fechaCorta(medicacion.fecha_fin) : undefined}
                 prescriber={detalle(medicacion)}
                 status="finalizado"
+                badge={<MarcaDeOrigen registro={medicacion} compacta />}
               />
             ))
           ) : (
