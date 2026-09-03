@@ -59,6 +59,35 @@ export function useMisMascotas(): UseQueryResult<Paciente[]> {
 }
 
 /**
+ * Las fotos de las mascotas del tutor, y nada más que las fotos.
+ *
+ * En el dispositivo el listado sale de la copia local, y la copia **no guarda la
+ * URL de la foto**: es prefirmada y de vida corta, así que para cuando hiciera
+ * falta ya habría vencido (Sincronización sin Conexión, 2). Entonces se pide en
+ * línea, aparte, y el listado la usa si llegó — la misma degradación que los
+ * adjuntos de la ficha: sin red la tarjeta muestra el ícono de la especie.
+ *
+ * No reintenta ni corta nada: es un adorno de una pantalla que tiene que abrir
+ * sin conexión. En web no corre, porque ahí el listado ya sale del endpoint y la
+ * trae en cada mascota.
+ */
+export function useFotosDeMisMascotas(): Record<string, string> {
+  const { data } = useQuery({
+    queryKey: ['pacientes', 'mios', 'fotos'],
+    enabled: hayCopiaLocal,
+    retry: false,
+    queryFn: () => listarPacientes({ limite: 100 }),
+    select: (mascotas) =>
+      Object.fromEntries(
+        mascotas
+          .filter((mascota) => mascota.foto_perfil_url)
+          .map((mascota) => [mascota.id, mascota.foto_perfil_url as string]),
+      ),
+  });
+  return data ?? {};
+}
+
+/**
  * Si la caducidad se llevó alguna mascota compartida. El listado lo dice: una
  * mascota que desaparece sin explicación se lee como un error de la aplicación,
  * y no lo es.

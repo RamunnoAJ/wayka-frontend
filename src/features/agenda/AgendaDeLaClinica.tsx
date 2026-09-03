@@ -297,7 +297,14 @@ function FilaDeAgenda({
   onAbrir?: (pacienteId: string) => void;
 }) {
   const { t, px, texto } = useTheme();
-  const { cita, paciente_nombre, paciente_especie, veterinario_nombre, zona_horaria } = fila;
+  const {
+    cita,
+    paciente_nombre,
+    paciente_especie,
+    paciente_foto_url,
+    veterinario_nombre,
+    zona_horaria,
+  } = fila;
   const colores = tono(t, cita.estado);
   const asentar = useAsentarAtencion(cita.paciente_id);
   const [asignando, setAsignando] = useState(false);
@@ -331,7 +338,12 @@ function FilaDeAgenda({
             {horaCorta(cita.fecha_programada, zona_horaria)}
           </Text>
         </View>
-        <Avatar name={paciente_nombre} species={paciente_especie} size="sm" />
+        <Avatar
+          name={paciente_nombre}
+          species={paciente_especie}
+          src={paciente_foto_url}
+          size="sm"
+        />
         <View style={estilos.flexible}>
           <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
             {paciente_nombre}

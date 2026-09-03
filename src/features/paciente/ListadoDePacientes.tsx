@@ -142,7 +142,12 @@ export function ListadoDePacientes({ onAbrir }: ListadoProps) {
                     { borderRadius: px('--radius-card') },
                   ]}
                 >
-                  <Avatar name={paciente.nombre} species={paciente.especie} size="md" />
+                  <Avatar
+                    name={paciente.nombre}
+                    species={paciente.especie}
+                    src={paciente.foto_perfil_url}
+                    size="md"
+                  />
                   <View style={estilos.flexible}>
                     <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
                       {paciente.nombre}

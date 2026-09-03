@@ -18,7 +18,7 @@ import { capitalizar, edad, peso } from '../paciente/formato';
 
 import { FichaDeEjemplo } from './FichaDeEjemplo';
 import { InvitacionesPendientes } from './InvitacionesPendientes';
-import { useAjenasPurgadas, useMisMascotas } from './queries';
+import { useAjenasPurgadas, useFotosDeMisMascotas, useMisMascotas } from './queries';
 
 /**
  * Mis mascotas (Alcance de Plataformas, 5.2).
@@ -38,6 +38,9 @@ export function MisMascotas({
 }) {
   const { t, px, texto } = useTheme();
   const mascotas = useMisMascotas();
+  // En el dispositivo la foto no está en la copia local y viene de este pedido
+  // aparte; en web ya viene en cada mascota del listado.
+  const fotos = useFotosDeMisMascotas();
   const ajenasPurgadas = useAjenasPurgadas();
 
   return (
@@ -95,7 +98,12 @@ export function MisMascotas({
                     { borderRadius: px('--radius-card') },
                   ]}
                 >
-                  <Avatar name={mascota.nombre} species={mascota.especie} size="lg" />
+                  <Avatar
+                    name={mascota.nombre}
+                    species={mascota.especie}
+                    src={mascota.foto_perfil_url ?? fotos[mascota.id]}
+                    size="lg"
+                  />
                   <View style={estilos.flexible}>
                     <Text style={[texto('h4'), { color: t['--text-strong'] }]}>
                       {mascota.nombre}

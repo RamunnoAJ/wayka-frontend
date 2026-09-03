@@ -84,6 +84,12 @@ export interface CitaConPaciente {
   cita: Cita;
   paciente_nombre: string;
   paciente_especie?: string;
+  /**
+   * Foto de la mascota, por el mismo motivo que su nombre: la agenda la dibuja
+   * sin pedir un adjunto por turno. URL prefirmada de vida corta, null si la
+   * mascota no tiene foto.
+   */
+  paciente_foto_url?: string | null;
   /** Viene en la misma consulta para que la agenda no pida uno por fila. */
   veterinario_nombre?: string | null;
   /**

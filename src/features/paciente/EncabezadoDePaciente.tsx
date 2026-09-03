@@ -57,7 +57,15 @@ export function EncabezadoDePaciente({
       ]}
     >
       <View style={estilos.fila}>
-        <Avatar name={paciente.nombre} species={paciente.especie} size="xl" />
+        {/* La foto que eligió el tutor encabeza la ficha. Sin foto queda el
+            ícono de la especie: rellenarlo con algo que finja ser una foto
+            sería peor que la ausencia. */}
+        <Avatar
+          name={paciente.nombre}
+          species={paciente.especie}
+          src={paciente.foto_perfil_url}
+          size="xl"
+        />
 
         <View style={estilos.identidad}>
           <View style={estilos.titulo}>

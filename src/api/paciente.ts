@@ -49,6 +49,17 @@ export interface Paciente {
   nivel_de_acceso?: NivelDeAcceso;
   /** Número de chip. Único entre fichas vigentes cuando está cargado. */
   identificador_externo?: string | null;
+  /**
+   * Foto de la mascota: la URL prefirmada del adjunto marcado como foto de
+   * perfil, o null si no tiene. Tampoco es una columna — el backend la resuelve
+   * por pedido, con el mismo criterio que `nivel_de_acceso`, para que un listado
+   * dibuje el avatar de cada fila sin pedir los adjuntos de cada mascota.
+   *
+   * **Ausente en la copia local**: es una URL de vida corta y no se replica
+   * (Sincronización sin Conexión, 2), así que sin conexión el avatar vuelve al
+   * ícono de la especie.
+   */
+  foto_perfil_url?: string | null;
   created_at: string;
   updated_at: string;
   /**
