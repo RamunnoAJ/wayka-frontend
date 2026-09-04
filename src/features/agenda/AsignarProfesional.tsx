@@ -7,7 +7,12 @@ import { useEntrada } from '../../hooks';
 import { mensajeDeError } from '../../lib/errores';
 import { duracion, sombra, useTheme } from '../../theme';
 import { useAusencias } from '../ausencias';
-import { calcularDisponibilidad, motivoDeNoDisponible } from '../citas';
+import {
+  calcularDisponibilidad,
+  MODO_DE_CALENDARIO,
+  motivoDeNoDisponible,
+  rangoDelPeriodo,
+} from '../citas';
 import { horaCorta } from '../paciente/formato';
 import { usePlantel } from '../veterinario/queries';
 
@@ -42,14 +47,14 @@ export function AsignarProfesional({ cita, nombreDelPaciente, zonaHoraria, onCer
 
   // El día de la cita, para medir la disponibilidad contra su propio momento y
   // no contra el período que la agenda esté mostrando.
+  //
+  // Los bordes salen de `rangoDelPeriodo` y no de un `${dia}T00:00:00` armado a
+  // mano: la API los quiere en RFC 3339 y rechaza un instante sin offset, así
+  // que un rango escrito a mano no devuelve "nadie ocupado", devuelve 400.
   const dia = cita.fecha_programada.slice(0, 10);
-  const agendaDelDia = useAgenda({
-    desde: `${dia}T00:00:00`,
-    hasta: `${dia}T23:59:59`,
-    estado: 'pendiente',
-    limite: 200,
-  });
-  const ausenciasDelDia = useAusencias({ desde: `${dia}T00:00:00`, hasta: `${dia}T23:59:59` });
+  const rango = rangoDelPeriodo(dia, MODO_DE_CALENDARIO.DIA, zonaHoraria);
+  const agendaDelDia = useAgenda({ ...rango, estado: 'pendiente', limite: 200 });
+  const ausenciasDelDia = useAusencias(rango);
 
   const disponibilidad = calcularDisponibilidad({
     momento: cita.fecha_programada,
@@ -59,6 +64,17 @@ export function AsignarProfesional({ cita, nombreDelPaciente, zonaHoraria, onCer
   });
 
   const cargando = plantel.isPending || agendaDelDia.isPending || ausenciasDelDia.isPending;
+
+  // Sin la agenda o las ausencias del día no hay con qué medir quién está
+  // ocupado. Dibujar igual la lista mostraría a todo el plantel como libre, que
+  // es justo lo que el contrato manda evitar: ofrecer y después fallar.
+  const fallo = plantel.isError || agendaDelDia.isError || ausenciasDelDia.isError;
+
+  function reintentar() {
+    if (plantel.isError) void plantel.refetch();
+    if (agendaDelDia.isError) void agendaDelDia.refetch();
+    if (ausenciasDelDia.isError) void ausenciasDelDia.refetch();
+  }
 
   function elegir(veterinarioId: string) {
     asignar.mutate({ citaId: cita.id, veterinarioId }, { onSuccess: onCerrar });
@@ -97,6 +113,12 @@ export function AsignarProfesional({ cita, nombreDelPaciente, zonaHoraria, onCer
               <Skeleton height={44} />
               <Skeleton height={44} />
             </View>
+          ) : fallo ? (
+            <InlineError
+              title="No se pudo cargar quién está disponible"
+              description="Sin eso no se puede repartir la cita sin pisar otro turno."
+              onRetry={reintentar}
+            />
           ) : (
             <ScrollView style={estilos.scroll}>
               {(plantel.data ?? []).map((veterinario) => {

@@ -3,7 +3,12 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Grilla } from '../../api/clinica';
 import { useAusencias } from '../ausencias';
-import { calcularDisponibilidad, motivoDeNoDisponible } from '../citas';
+import {
+  calcularDisponibilidad,
+  MODO_DE_CALENDARIO,
+  motivoDeNoDisponible,
+  rangoDelPeriodo,
+} from '../citas';
 import { franjasDelDia, diaDeLaSemanaDe, turnosDelDia } from '../clinica/grilla';
 import { TIPO_DE_CITA, type CrearCitaEntrada, type TipoDeCita } from '../../api/cita';
 import type { Veterinario } from '../../api/veterinario';
@@ -95,20 +100,17 @@ export function FormularioDeCita({
   // Quién ya está ocupado ese día. Se pide la agenda del día entero y no una
   // consulta por turno: son pocas citas y una sola consulta sirve para todos los
   // horarios que el usuario pruebe.
-  const agendaDelDia = useAgenda({
-    desde: `${dia}T00:00:00`,
-    hasta: `${dia}T23:59:59`,
-    estado: 'pendiente',
-    limite: 200,
-  });
+  //
+  // Los bordes salen de `rangoDelPeriodo`: la API los quiere en RFC 3339 y
+  // rechaza un instante sin offset, así que un `${dia}T00:00:00` escrito a mano
+  // no devuelve "nadie ocupado" — devuelve 400, y la lista sale toda libre.
+  const rango = rangoDelPeriodo(dia, MODO_DE_CALENDARIO.DIA, grilla?.zona_horaria);
+  const agendaDelDia = useAgenda({ ...rango, estado: 'pendiente', limite: 200 });
 
   // Quién no va a estar ese día. La cuenta la hace `calcularDisponibilidad`,
   // que es la misma que usa la agenda al repartir: escrita en cada pantalla, se
   // separa en la primera corrección que toque solo a una.
-  const ausenciasDelDia = useAusencias({
-    desde: `${dia}T00:00:00`,
-    hasta: `${dia}T23:59:59`,
-  });
+  const ausenciasDelDia = useAusencias(rango);
 
   const disponibilidad = useMemo(
     () =>

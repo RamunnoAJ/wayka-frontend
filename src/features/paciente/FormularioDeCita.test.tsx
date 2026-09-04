@@ -8,11 +8,24 @@ import { render } from '../../pruebas/render';
 
 import { FormularioDeCita } from './FormularioDeCita';
 
-jest.mock('./queries', () => ({ useAgenda: () => ({ data: [] }) }));
-jest.mock('../ausencias', () => ({ useAusencias: () => ({ data: mockAusencias() }) }));
+jest.mock('./queries', () => ({ useAgenda: (filtros: object) => mockAgenda(filtros) }));
+jest.mock('../ausencias', () => ({ useAusencias: (filtros: object) => mockUseAusencias(filtros) }));
 
 const ausencias: { veterinario_id: string; desde: string; hasta: string }[] = [];
-const mockAusencias = () => ausencias;
+
+interface Rango {
+  desde?: string;
+  hasta?: string;
+}
+const rangosPedidos: Rango[] = [];
+const mockAgenda = (filtros: Rango) => {
+  rangosPedidos.push(filtros);
+  return { data: [] };
+};
+const mockUseAusencias = (filtros: Rango) => {
+  rangosPedidos.push(filtros);
+  return { data: ausencias };
+};
 
 /**
  * Lo que se prueba acá es la regla, no el layout: **el formulario no ofrece una
@@ -49,11 +62,26 @@ describe('FormularioDeCita', () => {
   // día disponibles. Con la hora del dispositivo, que corre en otra zona, el día
   // por defecto del formulario sería otro.
   beforeEach(() => {
+    rangosPedidos.length = 0;
     jest.useFakeTimers({ now: instanteEnLaClinica('2027-01-04', 8 * 60) });
   });
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  // La disponibilidad se apoya en estas dos consultas. Un rango sin offset la
+  // API lo rechaza con 400, y como el componente sólo mira `isPending`, el
+  // formulario ofrecía a todo el plantel como libre sin decir nada.
+  it('pide el día en instantes que la API acepta, no en horas sueltas', async () => {
+    await render(<FormularioDeCita {...propsBase()} />);
+
+    expect(rangosPedidos.length).toBeGreaterThan(0);
+    for (const { desde, hasta } of rangosPedidos) {
+      // Medianoche a medianoche **de la clínica**, con `hasta` exclusivo.
+      expect(desde).toBe(instanteEnLaClinica('2027-01-04', 0).toISOString());
+      expect(hasta).toBe(instanteEnLaClinica('2027-01-05', 0).toISOString());
+    }
   });
 
   it('ofrece solo las horas de la grilla de la clínica', async () => {
