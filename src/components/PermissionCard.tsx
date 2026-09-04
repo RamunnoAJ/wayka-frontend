@@ -23,7 +23,7 @@ const TEXTOS: Record<EstadoDePermiso, { titulo: string; cuerpo: string }> = {
   'sin-preguntar': {
     titulo: 'Activá los avisos',
     cuerpo:
-      'Te avisamos el día anterior a cada turno y cuando tu veterinaria carga algo nuevo en la ficha.',
+      'Te llega un aviso el día anterior a cada turno y cuando tu veterinaria carga algo nuevo en la ficha.',
   },
   concedido: {
     titulo: 'Avisos activados',

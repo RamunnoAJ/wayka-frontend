@@ -65,7 +65,7 @@ export function MisCitas() {
             <EmptyState
               icon="calendar-days"
               title="No tenés citas agendadas"
-              description="Las agenda la veterinaria cuando queda un control o una vacuna pendiente, y te avisamos cuando se acerca."
+              description="Las agenda la veterinaria cuando queda un control o una vacuna pendiente, y te llega un aviso cuando se acerca."
             />
           ) : (
             <>

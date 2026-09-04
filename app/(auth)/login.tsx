@@ -82,7 +82,7 @@ function useFormularioDeLogin() {
 function mensajeDeFalla(error: unknown): { titulo: string; detalle: string } {
   if (error instanceof ErrorApi) {
     if (error.esCodigo(CODIGO_ERROR.CREDENCIALES_INVALIDAS)) {
-      return { titulo: 'No pudimos entrar', detalle: 'Revisá el correo y la contraseña.' };
+      return { titulo: 'No se pudo entrar', detalle: 'Revisá el correo y la contraseña.' };
     }
     if (error.esCodigo(CODIGO_ERROR.PERMISO_DENEGADO)) {
       // Los dos bloqueos de canal de la regla 2.3, uno por plataforma: en web
@@ -96,7 +96,7 @@ function mensajeDeFalla(error: unknown): { titulo: string; detalle: string } {
       };
     }
   }
-  return { titulo: 'No pudimos entrar', detalle: mensajeDeError(error) };
+  return { titulo: 'No se pudo entrar', detalle: mensajeDeError(error) };
 }
 
 interface CamposProps {

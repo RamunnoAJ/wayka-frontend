@@ -51,11 +51,11 @@ export function AvisoDeCorreoSinConfirmar({
 
       {reenvio.isSuccess ? (
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-          Listo, te lo mandamos de nuevo a {email}. Revisá también el correo no deseado.
+          Listo, salió de nuevo a {email}. Revisá también el correo no deseado.
         </Text>
       ) : (
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-          Te mandamos un enlace a {email} y todavía no lo usaste. Tu cuenta funciona igual: esto es
+          Te llegó un enlace a {email} y todavía no lo usaste. Tu cuenta funciona igual: esto es
           para que podamos escribirte si alguna vez olvidás tu contraseña.
         </Text>
       )}

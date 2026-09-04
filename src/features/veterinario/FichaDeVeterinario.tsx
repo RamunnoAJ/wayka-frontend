@@ -233,8 +233,8 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
               // o con una cuenta desactivada: el listado filtra por rol, no por
               // ficha, así que no encontrarla no es un error de red.
               <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
-                No encontramos una cuenta activa para esta ficha. Escribinos si esta persona debería
-                poder entrar.
+                Esta ficha no tiene una cuenta activa. Si esta persona debería poder entrar, la
+                cuenta se crea desde el alta del plantel.
               </Text>
             ) : sinEstrenar ? (
               // Una cuenta sin ningún método de autenticación es una que nadie
@@ -245,7 +245,7 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
               <>
                 <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{cuenta.email}</Text>
                 <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-                  Todavía no estrenó su cuenta: le mandamos un enlace a ese correo para que elija su
+                  Todavía no estrenó su cuenta: le llegó un enlace a ese correo para que elija su
                   contraseña, y no lo usó. Si no le llegó o ya venció, mandáselo de nuevo.
                 </Text>
                 {reenvio.isError ? (

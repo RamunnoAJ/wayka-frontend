@@ -21,7 +21,7 @@ interface InlineErrorProps {
 }
 
 export function InlineError({
-  title = 'No pudimos cargar esto',
+  title = 'No se pudo cargar esto',
   description,
   onRetry,
   retryLabel = 'Reintentar',

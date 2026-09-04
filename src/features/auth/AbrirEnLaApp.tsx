@@ -52,7 +52,7 @@ export function AbrirEnLaApp({ ruta }: { ruta: string }) {
         <Icon name="external-link" size={18} color={t['--text-muted']} />
         <Text style={[texto('body-sm'), { color: t['--text-body'] }]}>
           {fallo
-            ? 'No pudimos abrirla. Puede que no esté instalada en este dispositivo: seguí acá abajo.'
+            ? 'No se pudo abrir. Puede que no esté instalada en este dispositivo: seguí acá abajo.'
             : '¿Tenés la app de Wayka? Seguí ahí y quedás con la sesión iniciada en el teléfono.'}
         </Text>
       </View>

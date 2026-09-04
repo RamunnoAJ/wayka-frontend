@@ -57,7 +57,7 @@ export function MisDatos() {
         <EmptyState
           icon="user-round"
           title="Tu cuenta no tiene una ficha de tutor"
-          description="Escribinos para que la vinculemos. Mientras tanto no hay datos que mostrar acá."
+          description="Pedile a tu veterinaria que la vincule. Mientras tanto no hay datos que mostrar acá."
         />
       </View>
     );
@@ -86,7 +86,7 @@ export function MisDatos() {
       <View style={estilos.estado}>
         <EmptyState
           icon="refresh-cw"
-          title="Todavía no descargamos tus datos"
+          title="Todavía no se descargaron tus datos"
           description="Conectate a internet un momento y tus datos van a aparecer acá."
         />
       </View>

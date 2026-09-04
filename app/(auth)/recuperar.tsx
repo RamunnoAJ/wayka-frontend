@@ -66,7 +66,7 @@ function PedirElEnlace() {
       ) : (
         <>
           <Text style={[texto('body'), { color: t['--text-muted'] }]}>
-            Poné tu correo y te mandamos un enlace para definir una contraseña nueva.
+            Poné tu correo y te llega un enlace para definir una contraseña nueva.
           </Text>
 
           <Input
@@ -141,8 +141,8 @@ function DefinirNueva({ token }: { token: string }) {
         <View style={estilos.exito}>
           <Icon name="check" size={20} color={t['--text-success']} />
           <Text style={[texto('body'), { color: t['--text-body'] }]}>
-            Ya podés entrar con la contraseña nueva. Cerramos las sesiones que estaban abiertas, así
-            que vas a tener que volver a entrar en tus otros dispositivos.
+            Ya podés entrar con la contraseña nueva. Se cerraron las sesiones que estaban abiertas,
+            así que vas a tener que volver a entrar en tus otros dispositivos.
           </Text>
         </View>
         <Button block size="touch" onPress={() => router.replace('/(auth)/login')}>

@@ -100,7 +100,7 @@ export function FormularioDeVeterinario({
       <Input
         label="Correo profesional"
         icon="mail"
-        hint="Es el usuario con el que va a iniciar sesión, y adonde le mandamos el enlace para activar la cuenta. Un correo equivocado la deja sin poder estrenarse."
+        hint="Es el usuario con el que va a iniciar sesión, y adonde le llega el enlace para activar la cuenta. Un correo equivocado la deja sin poder estrenarse."
         placeholder="nombre@tuclinica.vet"
         value={email}
         onChangeText={setEmail}
@@ -109,7 +109,7 @@ export function FormularioDeVeterinario({
       />
 
       <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-        La contraseña no la elegís vos: le mandamos un enlace para que la defina. Así nadie más que
+        La contraseña no la elegís vos: le llega un enlace para que la defina. Así nadie más que
         ella llega a conocerla.
       </Text>
 

@@ -59,6 +59,6 @@ export function validarConsentimiento(valor: boolean): string | undefined {
   // Regla 4.9, paso 2: sin consentimiento explícito no se crea ni la ficha ni
   // la cuenta. Se bloquea acá para no mandar un alta que el backend va a
   // rechazar de todos modos.
-  if (!valor) return 'Necesitamos tu consentimiento para crear la cuenta';
+  if (!valor) return 'Hace falta tu consentimiento para crear la cuenta';
   return undefined;
 }

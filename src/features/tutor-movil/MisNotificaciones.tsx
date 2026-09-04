@@ -122,7 +122,7 @@ export function MisNotificaciones() {
       <View style={estilos.titulo}>
         <Text style={[texto('h2'), { color: t['--text-strong'] }]}>Avisos</Text>
         <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-          Te avisamos de las citas de tus mascotas. Nada más: no mandamos novedades ni promociones.
+          Los avisos son de las citas de tus mascotas. Nada más: no llegan novedades ni promociones.
         </Text>
       </View>
 

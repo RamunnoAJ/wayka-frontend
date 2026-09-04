@@ -76,7 +76,7 @@ describe('AbrirEnLaApp', () => {
     const { getByRole, findByText } = await render(<AbrirEnLaApp ruta="/recuperar" />);
     fireEvent.press(getByRole('button', { name: 'Abrir en la app' }));
 
-    expect(await findByText(/No pudimos abrirla/)).toBeTruthy();
+    expect(await findByText(/No se pudo abrir/)).toBeTruthy();
     abrir.mockRestore();
   });
 });

@@ -150,8 +150,8 @@ function AvisoDeCopiaVencida() {
     >
       <Icon name="alert-circle" size={18} color={t['--color-primary-strong']} />
       <Text style={[texto('body-sm'), { color: t['--text-strong'], flex: 1 }]}>
-        Algunas mascotas compartidas dejaron de mostrarse porque hace más de una semana que no
-        pudimos confirmar tu acceso. Conectate para verlas de nuevo.
+        Algunas mascotas compartidas dejaron de mostrarse porque hace más de una semana que tu
+        acceso no se pudo confirmar. Conectate para verlas de nuevo.
       </Text>
     </View>
   );

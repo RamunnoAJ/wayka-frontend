@@ -49,7 +49,7 @@ function Confirmacion({ token }: { token?: string }) {
     return (
       <Pantalla titulo="Falta el enlace">
         <Text style={[texto('body'), { color: t['--text-muted'] }]}>
-          Esta pantalla se abre desde el enlace que te mandamos por correo. Si llegaste hasta acá de
+          Esta pantalla se abre desde el enlace que te llegó por correo. Si llegaste hasta acá de
           otra forma, buscá ese mensaje y entrá desde ahí.
         </Text>
         <Button block size="touch" onPress={() => router.replace('/(auth)/login')}>
@@ -77,7 +77,7 @@ function Confirmacion({ token }: { token?: string }) {
 
     if (!enlaceRechazado) {
       return (
-        <Pantalla titulo="No pudimos confirmar tu correo">
+        <Pantalla titulo="No se pudo confirmar tu correo">
           <InlineError
             compact
             title="Algo falló en el camino"

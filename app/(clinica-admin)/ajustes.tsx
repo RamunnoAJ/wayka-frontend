@@ -52,8 +52,8 @@ export default function Ajustes() {
             </>
           ) : (
             <Text style={[texto('body'), { color: t['--text-muted'] }]}>
-              Tu cuenta no tiene una clínica asociada. Escribinos: es un dato que se define al dar
-              de alta la clínica y no se puede corregir desde acá.
+              Tu cuenta no tiene una clínica asociada. Es un dato que se define al dar de alta la
+              clínica y no se puede corregir desde acá.
             </Text>
           )}
 

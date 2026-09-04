@@ -90,7 +90,7 @@ export function TarjetaDeCita({ fila, estadoLocal }: TarjetaProps) {
       <StatusDot status={cita.estado} label={ETIQUETA_DE_ESTADO[cita.estado]} />
       <Text style={[texto('caption'), { color: t['--text-muted'] }]}>
         {cita.notificar_tutor
-          ? 'Te avisamos el día anterior y un rato antes.'
+          ? 'Te llega un aviso el día anterior y un rato antes.'
           : 'No vas a recibir aviso de esta cita.'}
       </Text>
       <EstadoLocal estado={estadoLocal} />

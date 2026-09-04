@@ -102,7 +102,7 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
                 ))}
               </View>
               <Button size="lg" onPress={() => avanzar('demo')}>
-                Armemos tu clínica
+                Terminá de armar tu clínica
               </Button>
             </View>
           ) : null}
@@ -114,7 +114,7 @@ export function OnboardingClinica({ onTerminar }: { onTerminar?: () => void }) {
                   Los datos de tu clínica
                 </Text>
                 <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-                  Ya cargamos lo que sabíamos y dejamos el horario en valores habituales. Si te
+                  Ya está cargado lo que se sabía, y el horario quedó en valores habituales. Si te
                   sirven así, confirmá y seguimos.
                 </Text>
               </View>

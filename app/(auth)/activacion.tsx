@@ -152,8 +152,7 @@ function PantallaDeActivacion() {
           </Button>
 
           <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-            Al activar no entrás todavía: te llevamos al inicio de sesión para estrenar la
-            contraseña.
+            Al activar no entrás todavía: vas al inicio de sesión para estrenar la contraseña.
           </Text>
         </View>
       </ScrollView>

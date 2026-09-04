@@ -153,7 +153,7 @@ function FormularioDeRegistro() {
           {error ? (
             <InlineError
               compact
-              title="No pudimos crear la cuenta"
+              title="No se pudo crear la cuenta"
               description={mensajeDeFalla(error)}
             />
           ) : null}

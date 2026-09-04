@@ -92,7 +92,7 @@ export function CompartirConClinica({
       ) : (clinicas.data?.length ?? 0) === 0 ? (
         <EmptyState
           icon="map-pin"
-          title="No encontramos ninguna"
+          title="No hay ninguna"
           description="Fijate si el nombre está bien escrito. Puede que todavía no use Wayka."
         />
       ) : (

@@ -55,7 +55,7 @@ export function useLogin() {
  */
 export class RegistroSinSesion extends Error {
   constructor(causa: unknown) {
-    super('Tu cuenta quedó creada, pero no pudimos iniciar sesión. Probá ingresar.');
+    super('Tu cuenta quedó creada, pero la sesión no se pudo iniciar. Probá ingresar.');
     this.name = 'RegistroSinSesion';
     this.cause = causa;
   }
