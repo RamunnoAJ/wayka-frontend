@@ -29,6 +29,9 @@ import { destinoAlTocar, itemActivo, NAVEGACION_POR_ROL } from './items';
  */
 const ANCHO_PARA_BARRA_LATERAL = 900;
 
+/** Lo que le queda al contenido en el corte, con la barra lateral de 248 puesta. */
+const ANCHO_MINIMO_DE_CONTENIDO = ANCHO_PARA_BARRA_LATERAL - 248;
+
 const NOMBRE_DE_ROL: Record<string, string> = {
   veterinario: 'Veterinario',
   clinica_admin: 'Administración',
@@ -83,7 +86,14 @@ export function Shell({ children }: { children: ReactNode }) {
   // Antes de medir la ventana, `ancho` es 0 (la exportación web es estática y
   // el primer render tiene que coincidir con el del servidor). Se asume ancho
   // para no dibujar la barra inferior y sacarla en el segundo render.
-  const conBarraLateral = ancho === 0 || ancho >= ANCHO_PARA_BARRA_LATERAL;
+  //
+  // El clínica_admin queda afuera del corte: es rol de web y no tiene canal
+  // móvil (Alcance de Plataformas, 2), y su salida de sesión vive en la barra
+  // lateral y en ninguna sección (3.2). Con la rama angosta se quedaba sin
+  // forma de salir apenas la ventana bajaba de 900 —un zoom al 150 % en un
+  // portátil alcanza—, así que para él esa rama no se dibuja nunca.
+  const conBarraLateral =
+    rol === 'clinica_admin' || ancho === 0 || ancho >= ANCHO_PARA_BARRA_LATERAL;
 
   if (items.length === 0) return <>{children}</>;
 
@@ -110,7 +120,13 @@ export function Shell({ children }: { children: ReactNode }) {
           onSalir={() => cerrarSesion.mutate()}
           salidaEnCurso={cerrarSesion.isPending}
         />
-        <View style={estilos.contenido}>{children}</View>
+        {/*
+          Con la lateral fija, una ventana muy angosta no achica el contenido:
+          lo recorta. El ancho mínimo hace que la página se desplace en vez de
+          dejar datos fuera de alcance — para el rol que no tiene rama angosta,
+          desplazar es la única salida honesta.
+        */}
+        <View style={[estilos.contenido, { minWidth: ANCHO_MINIMO_DE_CONTENIDO }]}>{children}</View>
       </View>
     );
   }
