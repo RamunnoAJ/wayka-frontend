@@ -239,6 +239,8 @@ function titulo(rechazo: MutacionEnCola): string {
   switch (rechazo.tipo) {
     case 'actualizar_peso_de_paciente':
       return 'El peso que anotaste';
+    case 'actualizar_datos_de_paciente':
+      return 'Los datos que cambiaste';
     case 'actualizar_ficha_de_tutor':
       return 'Tus datos';
     case 'actualizar_cita':

@@ -15,6 +15,19 @@ const RUTA = '/pacientes';
  */
 export type NivelDeAcceso = 'dueno' | 'edicion' | 'lectura';
 
+/**
+ * Lo que el tutor edita de la mascota (Alcance de Plataformas, 5.7). El
+ * identificador externo queda afuera a propósito: lo carga el veterinario, que
+ * es quien implanta el chip y lo lee (Reglas de Negocio, 3.2).
+ */
+export interface DatosNoClinicosDeLaMascota {
+  nombre?: string;
+  especie?: string;
+  raza?: string;
+  fecha_nacimiento?: string;
+  sexo?: string;
+}
+
 /** El dueño es el único que administra los accesos (Reglas de Negocio, 3.2). */
 export function puedeAdministrar(paciente: Paciente): boolean {
   return paciente.nivel_de_acceso === 'dueno';

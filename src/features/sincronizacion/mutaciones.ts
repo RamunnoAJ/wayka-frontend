@@ -4,7 +4,7 @@ import type { Cita } from '../../api/cita';
 import type { CrearEventoEntrada } from '../../api/evento-clinico';
 import { ORIGEN_DE_CARGA, PRECISION_DE_FECHA } from '../../api/historial';
 import type { CrearMedicacionEntrada } from '../../api/medicacion';
-import type { Paciente } from '../../api/paciente';
+import type { DatosNoClinicosDeLaMascota, Paciente } from '../../api/paciente';
 import type { Mutacion } from '../../api/sincronizacion';
 import type { ActualizarTutorEntrada, Tutor } from '../../api/tutor';
 
@@ -104,6 +104,26 @@ export function encolarPeso(paciente: Paciente, pesoActual: number): Promise<voi
     paciente: { peso_actual: pesoActual },
   };
   return encolar(mutacion, 'paciente', (registro) => ({ ...registro, peso_actual: pesoActual }));
+}
+
+/**
+ * Los datos no clínicos de la mascota: nombre, especie, raza, fecha de
+ * nacimiento y sexo (Alcance de Plataformas, 5.7).
+ *
+ * Va aparte de la del peso y no la reemplaza: el peso se toca a diario y estos
+ * se corrigen una vez —el nombre mal tipeado en el alta se descubre semanas
+ * después—, y dos tipos distintos dejan que el payload de uno no aplique campos
+ * del otro. El número de chip no entra: lo carga el veterinario (regla 3.2).
+ */
+export function encolarDatosDeLaMascota(
+  paciente: Paciente,
+  cambios: DatosNoClinicosDeLaMascota,
+): Promise<void> {
+  const mutacion: Mutacion = {
+    ...nueva('actualizar_datos_de_paciente', paciente.id, paciente.updated_at),
+    paciente: cambios,
+  };
+  return encolar(mutacion, 'paciente', (registro) => ({ ...registro, ...cambios }));
 }
 
 /**

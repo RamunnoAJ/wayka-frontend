@@ -1,9 +1,15 @@
-import { encolarAntecedenteClinico, encolarMedicacionDeclarada } from './mutaciones';
+import {
+  encolarAntecedenteClinico,
+  encolarDatosDeLaMascota,
+  encolarMedicacionDeclarada,
+} from './mutaciones';
 
-import { encolarAlta } from './almacen';
+import { encolar, encolarAlta } from './almacen';
 
 jest.mock('expo-crypto', () => ({ randomUUID: () => 'mut-1' }));
 jest.mock('./almacen', () => ({ encolar: jest.fn(), encolarAlta: jest.fn() }));
+
+const edicion = encolar as jest.MockedFunction<typeof encolar>;
 
 const alta = encolarAlta as jest.MockedFunction<typeof encolarAlta>;
 
@@ -82,5 +88,42 @@ describe('encolar un antecedente', () => {
     });
 
     expect(alta.mock.calls[0]?.[2]).toMatchObject({ fecha_precision: 'dia' });
+  });
+});
+
+/**
+ * Los datos no clínicos van en su propia mutación y no en la del peso: el tipo
+ * del peso aplica solo el peso, a propósito (Sincronización sin Conexión, 5).
+ */
+describe('encolar los datos de la mascota', () => {
+  const MASCOTA = {
+    id: 'p-1',
+    nombre: 'Luna',
+    updated_at: '2026-01-01T12:00:00Z',
+  } as Parameters<typeof encolarDatosDeLaMascota>[0];
+
+  it('viaja con su propio tipo y la versión de la copia local', async () => {
+    edicion.mockClear();
+
+    await encolarDatosDeLaMascota(MASCOTA, { nombre: 'Lunita', raza: 'mestiza' });
+
+    const [mutacion] = edicion.mock.calls[0] ?? [];
+    expect(mutacion).toMatchObject({
+      tipo: 'actualizar_datos_de_paciente',
+      entidad_id: 'p-1',
+      version_base: '2026-01-01T12:00:00Z',
+      paciente: { nombre: 'Lunita', raza: 'mestiza' },
+    });
+  });
+
+  // Se envía la intención, no el registro entero: mandar lo que no se tocó
+  // pisaría con valores viejos lo que otro tutor haya cambiado mientras tanto.
+  it('no manda los campos que no se tocaron', async () => {
+    edicion.mockClear();
+
+    await encolarDatosDeLaMascota(MASCOTA, { nombre: 'Lunita' });
+
+    const [mutacion] = edicion.mock.calls[0] ?? [];
+    expect(Object.keys(mutacion?.paciente ?? {})).toEqual(['nombre']);
   });
 });

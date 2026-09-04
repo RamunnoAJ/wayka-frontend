@@ -13,6 +13,7 @@ export default function FichaDeMiMascotaRuta() {
         onVerAccesos={() => router.push(`/(tutor)/mascotas/${id}/accesos`)}
         onCompartir={() => router.push(`/(tutor)/mascotas/${id}/compartir`)}
         onCargarAntecedente={() => router.push(`/(tutor)/mascotas/${id}/antecedentes`)}
+        onEditarDatos={() => router.push(`/(tutor)/mascotas/${id}/datos`)}
       />
     </EntradaDePantalla>
   );

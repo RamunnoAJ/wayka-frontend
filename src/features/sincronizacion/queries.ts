@@ -6,7 +6,11 @@ import { AppState } from 'react-native';
 import type { Cita } from '../../api/cita';
 import { crearEventoClinico, darDeBajaEventoClinico } from '../../api/evento-clinico';
 import { crearMedicacion, darDeBajaMedicacion } from '../../api/medicacion';
-import { actualizarPaciente, type Paciente } from '../../api/paciente';
+import {
+  actualizarPaciente,
+  type DatosNoClinicosDeLaMascota,
+  type Paciente,
+} from '../../api/paciente';
 import { actualizarTutor, type ActualizarTutorEntrada, type Tutor } from '../../api/tutor';
 import { actualizarCita, darDeBajaCita } from '../../api/cita';
 import { EVENTO_DE_USO } from '../../api/telemetria';
@@ -32,6 +36,7 @@ import {
   encolarCambioDeCita,
   encolarFichaDeTutor,
   encolarMedicacionDeclarada,
+  encolarDatosDeLaMascota,
   encolarPeso,
   encolarRetiroDeCita,
   type CambioDeCitaDelTutor,
@@ -265,6 +270,28 @@ export function useGuardarPesoDelTutor(paciente: Paciente | undefined) {
         return;
       }
       await encolarPeso(paciente, pesoActual);
+      sincronizarAhora();
+    },
+    onSettled: invalidar,
+  });
+}
+
+/**
+ * Los datos no clínicos de la mascota (Alcance de Plataformas, 5.7). Mismo
+ * camino que el peso: con copia local entra a la cola y sale en la corrida
+ * siguiente; en web va directo.
+ */
+export function useGuardarDatosDeLaMascota(paciente: Paciente | undefined) {
+  const invalidar = useInvalidarCopia();
+  const { mutate: sincronizarAhora } = useSincronizar();
+
+  return useMutation({
+    mutationFn: async (cambios: DatosNoClinicosDeLaMascota) => {
+      if (!hayCopiaLocal || !paciente) {
+        await actualizarPaciente(paciente?.id ?? '', cambios);
+        return;
+      }
+      await encolarDatosDeLaMascota(paciente, cambios);
       sincronizarAhora();
     },
     onSettled: invalidar,

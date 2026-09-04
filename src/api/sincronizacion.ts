@@ -2,7 +2,7 @@ import type { Adjunto } from './adjunto';
 import type { Cita } from './cita';
 import type { CrearEventoEntrada, EventoClinico } from './evento-clinico';
 import type { CrearMedicacionEntrada, Medicacion } from './medicacion';
-import type { Paciente } from './paciente';
+import type { DatosNoClinicosDeLaMascota, Paciente } from './paciente';
 import type { Tutor } from './tutor';
 import { http } from '../lib/http';
 
@@ -55,6 +55,7 @@ export interface CambiosDeSincronizacion {
 /** Superficie de escritura del tutor sin conexión, completa (regla 3.2). */
 export type TipoDeMutacion =
   | 'actualizar_peso_de_paciente'
+  | 'actualizar_datos_de_paciente'
   | 'actualizar_ficha_de_tutor'
   | 'actualizar_cita'
   | 'retirar_cita'
@@ -93,7 +94,12 @@ export interface Mutacion {
   version_base?: string;
   /** Informativo: lo declara el cliente y el backend no lo puede verificar. */
   ocurrido_en_cliente?: string;
-  paciente?: { peso_actual?: number };
+  /**
+   * Payload de las dos mutaciones de la mascota. La del peso aplica **solo** el
+   * peso —el backend descarta el resto, a propósito— y la de datos aplica solo
+   * los no clínicos: el tipo es lo que decide qué se toma.
+   */
+  paciente?: { peso_actual?: number } & DatosNoClinicosDeLaMascota;
   tutor?: {
     nombre?: string;
     contacto?: string;

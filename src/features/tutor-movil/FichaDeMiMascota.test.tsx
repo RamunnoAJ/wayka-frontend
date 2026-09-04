@@ -76,6 +76,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -98,6 +99,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -114,6 +116,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -132,6 +135,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -148,6 +152,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -172,6 +177,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -193,6 +199,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -217,6 +224,7 @@ describe('FichaDeMiMascota', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -268,6 +276,7 @@ describe('FichaDeMiMascota · acciones sobre lo que cargó el tutor', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -283,6 +292,7 @@ describe('FichaDeMiMascota · acciones sobre lo que cargó el tutor', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 
@@ -304,6 +314,7 @@ describe('FichaDeMiMascota · acciones sobre lo que cargó el tutor', () => {
         onVerAccesos={jest.fn()}
         onCompartir={jest.fn()}
         onCargarAntecedente={jest.fn()}
+        onEditarDatos={jest.fn()}
       />,
     );
 

@@ -47,11 +47,13 @@ export function FichaDeMiMascota({
   onVerAccesos,
   onCompartir,
   onCargarAntecedente,
+  onEditarDatos,
 }: {
   pacienteId: string;
   onVerAccesos: () => void;
   onCompartir: () => void;
   onCargarAntecedente: () => void;
+  onEditarDatos: () => void;
 }) {
   const { t, px, texto } = useTheme();
   // Todo sale de la copia local en el dispositivo: es lo que hace que la ficha
@@ -132,6 +134,14 @@ export function FichaDeMiMascota({
                   edad(mascota.fecha_nacimiento),
                 ].join(' · ')}
               </Text>
+              {/* Los cinco campos no clínicos se corrigen acá (Alcance 5.7). El
+                  peso queda aparte, en su tarjeta: es el único que se toca a
+                  diario. */}
+              {puedeEscribir ? (
+                <Button variant="ghost" size="sm" iconLeft="pencil" onPress={onEditarDatos}>
+                  Editar los datos
+                </Button>
+              ) : null}
               {/* En una mascota propia decir "es tuya" sería ruido; en una ajena
                   es lo primero que hay que saber. */}
               {mascota.nivel_de_acceso && mascota.nivel_de_acceso !== 'dueno' ? (
