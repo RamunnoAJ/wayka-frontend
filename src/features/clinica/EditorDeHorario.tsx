@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import {
   DIAS_DE_LA_SEMANA,
@@ -11,6 +11,7 @@ import {
 import { Button, InlineError, Select, Skeleton, type OpcionDeSelect } from '../../components';
 import { mensajeDeError } from '../../lib/errores';
 import { sombra, useTheme } from '../../theme';
+import { momentoCorto } from '../paciente/formato';
 
 import { horaDeMinutos, minutosDeHora } from './grilla';
 import { estaCerradaTodaLaSemana, validarFranjas } from './horario';
@@ -238,7 +239,9 @@ export function EditorDeHorario({ clinicaId }: Props) {
         ) : null}
       </View>
 
-      {previsualizar.data ? <Efecto previsualizacion={previsualizar.data} /> : null}
+      {previsualizar.data ? (
+        <Efecto previsualizacion={previsualizar.data} zonaHoraria={consulta.data.zona_horaria} />
+      ) : null}
 
       {previsualizar.isError ? (
         <InlineError
@@ -289,7 +292,13 @@ export function EditorDeHorario({ clinicaId }: Props) {
  * incluido el cero de un día cerrado: omitirlo dejaría a quien mira adivinando
  * si el día está cerrado o si el número no se calculó.
  */
-function Efecto({ previsualizacion }: { previsualizacion: PrevisualizacionDeGrilla }) {
+function Efecto({
+  previsualizacion,
+  zonaHoraria,
+}: {
+  previsualizacion: PrevisualizacionDeGrilla;
+  zonaHoraria: string | undefined;
+}) {
   const { t, px, texto } = useTheme();
   const afuera = previsualizacion.citas_que_quedan_afuera;
 
@@ -322,11 +331,30 @@ function Efecto({ previsualizacion }: { previsualizacion: PrevisualizacionDeGril
           No hay ninguna cita pendiente que quede fuera de la grilla.
         </Text>
       ) : (
-        <InlineError
-          compact
-          title={`${afuera.length} cita(s) pendiente(s) quedarían sin turno donde existir`}
-          description="Guardar se va a rechazar hasta que se reagenden. No se cancelan ni se mueven solas: mover la agenda de una mascota es una decisión clínica."
-        />
+        <>
+          <InlineError
+            compact
+            title={
+              afuera.length === 1
+                ? '1 cita pendiente quedaría sin turno donde existir'
+                : `${afuera.length} citas pendientes quedarían sin turno donde existir`
+            }
+            description="Guardar se va a rechazar hasta que se reagenden. No se cancelan ni se mueven solas: mover la agenda de una mascota es una decisión clínica."
+          />
+          {/*
+            Cuáles son, y no solo cuántas: sin los horarios hay que corregir la
+            grilla a ciegas hasta que el guardado deje de fallar, que es
+            exactamente lo que la previsualización vino a evitar.
+          */}
+          <ScrollView style={estilos.afuera}>
+            {/* Dos citas pueden caer en el mismo instante: el índice desempata. */}
+            {afuera.map((horario, i) => (
+              <Text key={`${horario}-${i}`} style={[texto('body-sm'), { color: t['--text-body'] }]}>
+                {momentoCorto(horario, zonaHoraria)}
+              </Text>
+            ))}
+          </ScrollView>
+        </>
       )}
     </View>
   );
@@ -341,6 +369,8 @@ const estilos = StyleSheet.create({
   tramo: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 },
   campo: { flex: 1, minWidth: 140 },
   turnos: { gap: 2 },
+  // Todas las citas afectadas entran, sin que el bloque crezca sin límite.
+  afuera: { maxHeight: 132 },
   duracion: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   acciones: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'center' },
 });

@@ -202,8 +202,12 @@ export function FormularioDeAusencia({ veterinarioId, nombre, zonaHoraria, onCer
                     hasta que el número baje no es cargar una ausencia.
                   */}
                   <ScrollView style={estilos.horarios}>
-                    {previsualizar.data.horarios.map((horario) => (
-                      <Text key={horario} style={[texto('body-sm'), { color: t['--text-body'] }]}>
+                    {/* Dos citas pueden caer en el mismo instante: el índice desempata. */}
+                    {previsualizar.data.horarios.map((horario, i) => (
+                      <Text
+                        key={`${horario}-${i}`}
+                        style={[texto('body-sm'), { color: t['--text-body'] }]}
+                      >
                         {momentoCorto(horario, zonaHoraria)}
                       </Text>
                     ))}
