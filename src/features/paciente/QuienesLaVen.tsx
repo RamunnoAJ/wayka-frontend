@@ -56,9 +56,7 @@ export function QuienesLaVen({
 
   return (
     <View style={[tarjeta, estilos.bloque]}>
-      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-        QUIÉNES LA VEN
-      </Text>
+      <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>QUIÉNES LA VEN</Text>
 
       <View style={estilos.lista}>
         {nombreDelDueno ? (

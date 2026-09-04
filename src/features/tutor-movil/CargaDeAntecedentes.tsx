@@ -252,7 +252,7 @@ export function CargaDeAntecedentes({
             },
           ]}
         >
-          <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+          <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>
             {`YA CARGASTE ${cargados.length}`}
           </Text>
           <View style={estilos.chips}>

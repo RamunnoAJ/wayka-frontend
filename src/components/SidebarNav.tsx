@@ -218,9 +218,7 @@ function ItemDeNavegacion({
             { borderRadius: px('--radius-pill'), backgroundColor: t['--nav-accent'] },
           ]}
         >
-          <Text style={[texto('overline'), { fontWeight: '700', color: t['--nav-accent-fg'] }]}>
-            {item.badge}
-          </Text>
+          <Text style={[texto('overline'), { color: t['--nav-accent-fg'] }]}>{item.badge}</Text>
         </View>
       ) : null}
     </PressableAnimado>

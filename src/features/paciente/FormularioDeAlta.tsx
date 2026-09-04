@@ -218,9 +218,7 @@ function DatosDeLaMascota({
       >
         <Avatar name={tutor.nombre} size="sm" tone="brand" />
         <View style={estilos.flexible}>
-          <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-            TUTOR
-          </Text>
+          <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>TUTOR</Text>
           <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>{tutor.nombre}</Text>
         </View>
         <Button variant="ghost" size="sm" onPress={onCambiarTutor}>

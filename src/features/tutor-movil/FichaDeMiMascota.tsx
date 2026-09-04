@@ -158,9 +158,7 @@ export function FichaDeMiMascota({
           />
 
           <View style={[tarjeta, estilos.bloque]}>
-            <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-              PESO ACTUAL
-            </Text>
+            <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>PESO ACTUAL</Text>
             {!editandoPeso ? (
               <View style={estilos.pesoFila}>
                 <Text style={[texto('h2'), { color: t['--text-strong'] }]}>
@@ -232,9 +230,7 @@ export function FichaDeMiMascota({
                 estilos.bloque,
               ]}
             >
-              <Text
-                style={[texto('overline'), { fontWeight: '700', color: t['--alert-allergy-text'] }]}
-              >
+              <Text style={[texto('overline'), { color: t['--alert-allergy-text'] }]}>
                 ALERGIAS
               </Text>
               {alergias.map((evento) => {
@@ -252,9 +248,7 @@ export function FichaDeMiMascota({
           ) : null}
 
           <View style={[tarjeta, estilos.bloque]}>
-            <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-              MEDICACIÓN
-            </Text>
+            <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>MEDICACIÓN</Text>
             {activas.length === 0 && historicas.length === 0 ? (
               <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
                 No tiene medicación registrada.
@@ -288,9 +282,7 @@ export function FichaDeMiMascota({
 
           <View style={[tarjeta, estilos.bloque]}>
             <View style={estilos.tituloDeHistorial}>
-              <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-                HISTORIAL
-              </Text>
+              <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>HISTORIAL</Text>
               {/* La entrada no está atada al alta: el tutor que encuentra la
                   libreta en un cajón dos meses después entra por acá (Reglas de
                   Negocio, 4.23). El de solo lectura no la ve — el backend la

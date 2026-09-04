@@ -234,9 +234,7 @@ function TituloDeGrupo({
   const { t, px, texto } = useTheme();
   return (
     <View style={estilos.tituloGrupo}>
-      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-        {etiqueta}
-      </Text>
+      <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>{etiqueta}</Text>
       <View
         style={[
           estilos.conteo,

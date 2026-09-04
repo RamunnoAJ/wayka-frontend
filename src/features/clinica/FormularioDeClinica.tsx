@@ -90,9 +90,7 @@ export function FormularioDeClinica({
   return (
     <View style={estilos.raiz}>
       <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-          DATOS DE LA CLÍNICA
-        </Text>
+        <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>DATOS DE LA CLÍNICA</Text>
         <Input
           label="Nombre"
           value={borrador.nombre ?? ''}

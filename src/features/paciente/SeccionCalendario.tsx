@@ -312,9 +312,7 @@ export function SeccionCalendario({
       </ScrollView>
 
       <View style={{ padding: px('--gutter-card'), gap: 10 }}>
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-          TODAS LAS CITAS
-        </Text>
+        <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>TODAS LAS CITAS</Text>
         {lista.map((cita) => {
           const colores = tono(t, cita.estado);
           return (

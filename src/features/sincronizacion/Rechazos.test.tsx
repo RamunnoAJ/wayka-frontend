@@ -43,6 +43,45 @@ function conRechazos(rechazos: MutacionEnCola[]) {
 
 afterEach(() => jest.restoreAllMocks());
 
+/**
+ * «Los motivos de rechazo que el tutor ve son de negocio ("ese turno ya está
+ * ocupado", "el peso lo actualizó la clínica"), **no técnicos**» —
+ * Sincronización sin Conexión, 7. El `mensaje` del servidor es diagnóstico y no
+ * está escrito para mostrarse: llegaba tal cual, en minúscula y con el prefijo
+ * de la categoría.
+ */
+describe('el motivo de un rechazo', () => {
+  it('no muestra el texto que mandó el servidor', async () => {
+    conRechazos([
+      {
+        ...RECHAZO,
+        motivo: {
+          codigo: 'no_encontrado',
+          mensaje: 'datos invalidos: la mascota esta dada de baja',
+        },
+      } as MutacionEnCola,
+    ]);
+
+    const { getByText, queryByText } = await render(<Rechazos />);
+
+    expect(queryByText(/datos invalidos/)).toBeNull();
+    expect(getByText(/ya no está/)).toBeOnTheScreen();
+  });
+
+  it('traduce el choque de versiones a lo que pasó', async () => {
+    conRechazos([
+      {
+        ...RECHAZO,
+        motivo: { codigo: 'version_desactualizada', mensaje: 'version desactualizada' },
+      } as MutacionEnCola,
+    ]);
+
+    const { getByText } = await render(<Rechazos />);
+
+    expect(getByText(/lo cambió alguien más/)).toBeOnTheScreen();
+  });
+});
+
 describe('el rechazo de un antecedente', () => {
   it('muestra lo que el tutor había escrito', async () => {
     conRechazos([RECHAZO]);

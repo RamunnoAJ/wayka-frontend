@@ -129,9 +129,7 @@ export function EditorDeHorario({ clinicaId }: Props) {
   return (
     <View style={estilos.raiz}>
       <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-          HORARIO DE ATENCIÓN
-        </Text>
+        <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>HORARIO DE ATENCIÓN</Text>
         <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
           Un día sin ningún tramo es un día cerrado, y dos tramos con un hueco en el medio son el
           corte de mediodía.
@@ -315,9 +313,7 @@ function Efecto({
         },
       ]}
     >
-      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-        CON ESTE HORARIO
-      </Text>
+      <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>CON ESTE HORARIO</Text>
       <View style={estilos.turnos}>
         {previsualizacion.turnos_por_dia.map((dia) => (
           <Text key={dia.dia_semana} style={[texto('body-sm'), { color: t['--text-muted'] }]}>

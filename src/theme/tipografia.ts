@@ -24,7 +24,11 @@ const COMPUESTOS = {
   'body-sm': { fw: '--fw-regular', fs: '--fs-body-sm', lh: '--lh-normal', ls: '--ls-body' },
   'body-strong': { fw: '--fw-semibold', fs: '--fs-body', lh: '--lh-normal', ls: '--ls-body' },
   caption: { fw: '--fw-medium', fs: '--fs-caption', lh: '--lh-normal', ls: '--ls-body' },
-  overline: { fw: '--fw-medium', fs: '--fs-overline', lh: '--lh-normal', ls: '--ls-overline' },
+  // Bold, no medium: «Overline 11/700 versalita (única)» (design system,
+  // §Jerarquía). El CSS entregado no define un compuesto para overline, así que
+  // este se recompuso a mano y eligió mal el peso — y 16 pantallas lo venían
+  // corrigiendo con un `fontWeight: '700'` al lado de cada `texto('overline')`.
+  overline: { fw: '--fw-bold', fs: '--fs-overline', lh: '--lh-normal', ls: '--ls-overline' },
 } as const;
 
 export type NivelDeTexto = keyof typeof COMPUESTOS;

@@ -83,7 +83,7 @@ function TarjetaDeRechazo({ rechazo }: { rechazo: MutacionEnCola }) {
       </View>
 
       <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
-        {rechazo.motivo?.mensaje ?? 'El cambio no se pudo aplicar.'}
+        {motivoDeNegocio(rechazo)}
       </Text>
 
       <LoQueSeQuisoCargar rechazo={rechazo} />
@@ -109,6 +109,32 @@ function TarjetaDeRechazo({ rechazo }: { rechazo: MutacionEnCola }) {
       </Button>
     </View>
   );
+}
+
+/**
+ * El motivo, en lenguaje del tutor. «Los motivos de rechazo que el tutor ve son
+ * de negocio […] no técnicos» (Sincronización sin Conexión, 7): el `mensaje` del
+ * servidor es diagnóstico —minúscula, sin tildes y con el prefijo de la
+ * categoría— y llegaba tal cual a la tarjeta.
+ *
+ * El discriminante es el `codigo`, igual que en el resto del cliente. Un código
+ * que este cliente no conoce cae en el genérico, que no miente.
+ */
+function motivoDeNegocio(rechazo: MutacionEnCola): string {
+  switch (rechazo.motivo?.codigo) {
+    case 'version_desactualizada':
+      return 'Mientras tanto lo cambió alguien más: en el servidor quedó otro valor.';
+    case 'permiso_denegado':
+      return 'Ya no tenés permiso para escribir en esta mascota.';
+    case 'no_encontrado':
+      return 'Eso ya no está: la mascota o el registro se dieron de baja.';
+    case 'conflicto':
+      return 'No se pudo aplicar sobre lo que hay ahora en el servidor.';
+    case 'datos_invalidos':
+      return 'Algún dato no era válido, así que el cambio no se guardó.';
+    default:
+      return 'El cambio no se pudo aplicar.';
+  }
 }
 
 function esAntecedente(rechazo: MutacionEnCola): boolean {
@@ -158,9 +184,7 @@ function LoQueSeQuisoCargar({ rechazo }: { rechazo: MutacionEnCola }) {
         backgroundColor: t['--surface-sunken'],
       }}
     >
-      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-        LO QUE ESCRIBISTE
-      </Text>
+      <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>LO QUE ESCRIBISTE</Text>
       {visibles.map((linea) => (
         <Text key={linea} style={[texto('body-sm'), { color: t['--text-body'] }]}>
           {linea}

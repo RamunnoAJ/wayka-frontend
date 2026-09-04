@@ -212,7 +212,7 @@ function Dato({
             { backgroundColor: acento === 'tutor' ? t['--owner-accent'] : t['--clinical-accent'] },
           ]}
         />
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+        <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>
           {titulo.toUpperCase()}
         </Text>
       </View>

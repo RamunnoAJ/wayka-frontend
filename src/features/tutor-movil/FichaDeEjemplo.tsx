@@ -38,7 +38,7 @@ export function FichaDeEjemplo() {
     >
       <View style={estilos.aclaracion}>
         <Icon name="eye" size={14} color={t['--text-subtle']} />
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+        <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>
           ASÍ SE VE UNA FICHA · EJEMPLO
         </Text>
       </View>

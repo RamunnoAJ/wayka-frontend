@@ -72,9 +72,7 @@ export function BandaDeUrgencia({ datos, esMovil, cargando, error, onVerMedicaci
     >
       <View style={[estilos.encabezado, { borderBottomColor: t['--border-subtle'] }]}>
         <Icon name="shield-alert" size={18} color={t['--danger-500']} />
-        <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-strong'] }]}>
-          DATOS CRÍTICOS
-        </Text>
+        <Text style={[texto('overline'), { color: t['--text-strong'] }]}>DATOS CRÍTICOS</Text>
         <Text style={[texto('body-sm'), estilos.resumen, { color: colorDelResumen }]}>
           {resumen}
         </Text>
@@ -257,7 +255,7 @@ function TituloDeColumna({
   const { px, texto } = useTheme();
   return (
     <View style={estilos.tituloColumna}>
-      <Text style={[texto('overline'), { fontWeight: '700', color }]}>{etiqueta}</Text>
+      <Text style={[texto('overline'), { color }]}>{etiqueta}</Text>
       {conteo != null ? (
         <View
           style={[
@@ -265,9 +263,7 @@ function TituloDeColumna({
             { borderRadius: px('--radius-pill'), backgroundColor: fondoConteo },
           ]}
         >
-          <Text style={[texto('overline'), { fontWeight: '700', color: colorConteo }]}>
-            {conteo}
-          </Text>
+          <Text style={[texto('overline'), { color: colorConteo }]}>{conteo}</Text>
         </View>
       ) : null}
     </View>

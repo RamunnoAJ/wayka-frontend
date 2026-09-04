@@ -419,9 +419,7 @@ function Estructurado({
         },
       ]}
     >
-      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-        {titulo}
-      </Text>
+      <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>{titulo}</Text>
       {nota ? <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{nota}</Text> : null}
       {children}
     </View>

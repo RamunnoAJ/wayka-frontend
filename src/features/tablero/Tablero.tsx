@@ -77,7 +77,7 @@ export function Tablero({ clinicaId }: Props) {
 
           <View style={estilos.grilla}>
             <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-              <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+              <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>
                 OCUPACIÓN DE LA AGENDA
               </Text>
               <Text style={[texto('h2'), { color: t['--text-strong'] }]}>
@@ -99,9 +99,7 @@ export function Tablero({ clinicaId }: Props) {
             </View>
 
             <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-              <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-                ATENCIONES
-              </Text>
+              <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>ATENCIONES</Text>
               <Text style={[texto('h2'), { color: t['--text-strong'] }]}>
                 {consulta.data.atenciones.total}
               </Text>
@@ -114,9 +112,7 @@ export function Tablero({ clinicaId }: Props) {
             </View>
 
             <View style={[tarjeta, sombra('--shadow-sm'), estilos.bloque]}>
-              <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
-                CARTERA
-              </Text>
+              <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>CARTERA</Text>
               <Text style={[texto('h2'), { color: t['--text-strong'] }]}>
                 {consulta.data.cartera.pacientes_vigentes}
               </Text>

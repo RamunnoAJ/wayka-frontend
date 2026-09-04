@@ -383,7 +383,7 @@ function FilaDeEvento({
           >
             {datos.map(([clave, valor]) => (
               <View key={clave} style={estilos.dato}>
-                <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+                <Text style={[texto('overline'), { color: t['--text-subtle'] }]}>
                   {(ETIQUETAS_DE_CAMPO[clave] ?? clave).toUpperCase()}
                 </Text>
                 <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
