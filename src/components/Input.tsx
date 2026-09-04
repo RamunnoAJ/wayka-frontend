@@ -42,6 +42,8 @@ interface InputProps {
   autoComplete?: TextInputProps['autoComplete'];
   textContentType?: TextInputProps['textContentType'];
   editable?: boolean;
+  /** Techo de caracteres, para no descubrir el límite recién en el rechazo. */
+  maxLength?: number;
   onSubmitEditing?: () => void;
   returnKeyType?: TextInputProps['returnKeyType'];
 }
@@ -62,6 +64,7 @@ export function Input({
   autoComplete,
   textContentType,
   editable = true,
+  maxLength,
   onSubmitEditing,
   returnKeyType,
 }: InputProps) {
@@ -112,6 +115,7 @@ export function Input({
           autoComplete={autoComplete}
           textContentType={textContentType}
           editable={editable && !readOnly}
+          maxLength={maxLength}
           onSubmitEditing={onSubmitEditing}
           returnKeyType={returnKeyType}
           onFocus={() => setEnfocado(true)}

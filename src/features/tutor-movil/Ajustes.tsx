@@ -5,7 +5,7 @@ import { Button } from '../../components';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { BotonCerrarSesion } from '../auth';
-import { FormularioDeContrasena } from '../cuenta';
+import { AvisoDeCorreoSinConfirmar, FormularioDeContrasena } from '../cuenta';
 
 import { MisDatos } from './MisDatos';
 import { MisNotificaciones } from './MisNotificaciones';
@@ -57,6 +57,13 @@ export function Ajustes() {
               propia tarjeta y no entre los campos de la ficha: se guardan por
               separado y con otro botón.
             */}
+            {sesion?.usuario ? (
+              <AvisoDeCorreoSinConfirmar
+                email={sesion.usuario.email}
+                confirmado={sesion.usuario.email_confirmado}
+              />
+            ) : null}
+
             {sesion?.usuario ? (
               <View style={[tarjeta, sombra('--shadow-sm'), estilos.tarjeta]}>
                 <Text style={[texto('h3'), { color: t['--text-strong'] }]}>Contraseña</Text>

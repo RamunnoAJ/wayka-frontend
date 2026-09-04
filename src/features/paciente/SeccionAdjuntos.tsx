@@ -4,17 +4,22 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { Adjunto } from '../../api/adjunto';
 import {
   Badge,
-  Button,
   EmptyState,
   Icon,
   InlineError,
+  MenuDeAcciones,
   MiniaturaDeArchivo,
+  Presionable,
+  type AccionDeMenu,
   type RectanguloEnPantalla,
 } from '../../components';
+import { mensajeDeError } from '../../lib/errores';
 import { useTheme } from '../../theme';
 
+import { DialogoDeRenombre } from './DialogoDeRenombre';
 import { fechaCorta, tamanoDeArchivo } from './formato';
 import { iconoDeArchivo } from './HistorialClinico';
+import { useDescargarAdjunto, useRenombrarAdjunto } from './queries';
 import { Seccion } from './Seccion';
 import { VisorDeAdjunto } from './VisorDeAdjunto';
 import { SubidaDeAdjunto } from './SubidaDeAdjunto';
@@ -23,15 +28,20 @@ import { SubidaDeAdjunto } from './SubidaDeAdjunto';
  * Zona 4: los adjuntos que **no** cuelgan de un evento (la ficha histórica en
  * papel, el carnet de vacunación). Los del historial se ven en su evento.
  *
- * Un adjunto no se edita: se retira y se sube otro. Y cada rol retira solo los
- * que subió (regla 2.4) — por eso la acción depende de quién es el dueño.
+ * **Son filas y no tarjetas**: una grilla de tarjetas grandes dedica media
+ * pantalla a tres archivos, y lo que se busca acá es reconocer uno entre varios.
+ * La miniatura chica alcanza para eso; el archivo se abre al tocarlo.
+ *
+ * Las acciones van detrás del botón de tres puntos y no en la fila: puestas a la
+ * vista compiten con el nombre, que es lo único que identifica al archivo, y
+ * dejan "Retirar" al lado de "Abrir" — se apunta a una y se toca la otra.
  */
 interface AdjuntosProps {
   pacienteId: string;
   /** Nombre de la mascota, para que la cámara diga de quién es la foto. */
   nombreDePaciente?: string;
   adjuntos: Adjunto[];
-  /** Cuenta autenticada, para saber qué adjuntos puede retirar. */
+  /** Cuenta autenticada, para saber qué adjuntos puede retirar y renombrar. */
   usuarioId: string | undefined;
   error: boolean;
   onReintentar: () => void;
@@ -41,16 +51,17 @@ interface AdjuntosProps {
   /**
    * La lista salió de la copia local del dispositivo: están los metadatos y no
    * la URL prefirmada, que vence en minutos y por eso no se replica. Los
-   * archivos se listan y no se abren, y subir o retirar tampoco entran — no
-   * están en la superficie de escritura sin conexión del tutor.
+   * archivos se listan y no se abren ni se bajan, y subir, renombrar o retirar
+   * tampoco entran — no están en la superficie de escritura sin conexión del
+   * tutor.
    */
   soloMetadatos?: boolean;
   /**
-   * Quien mira puede subir y retirar. Falso para el co-tutor de solo lectura,
-   * que lista y mira y no escribe nada (Reglas de Negocio, 3.2): ofrecerle una
-   * zona de carga —o un "Retirar" sobre un archivo que subió antes de que le
-   * bajaran el nivel— que el backend va a rechazar es un error que la interfaz
-   * puede evitar. El backend sigue siendo el que decide.
+   * Quien mira puede subir, renombrar y retirar. Falso para el co-tutor de solo
+   * lectura, que lista y mira y no escribe nada (Reglas de Negocio, 3.2):
+   * ofrecerle una zona de carga —o un "Retirar" sobre un archivo que subió antes
+   * de que le bajaran el nivel— que el backend va a rechazar es un error que la
+   * interfaz puede evitar. El backend sigue siendo el que decide.
    */
   puedeEscribir?: boolean;
   onRetirar: (adjunto: Adjunto) => void;
@@ -60,8 +71,8 @@ interface AdjuntosProps {
    * foto de la mascota no es una decisión suya.
    *
    * Solo sobre imágenes, y sobre cualquiera de las que estén — no solo las
-   * propias, al revés que retirar: marcar no toca el archivo de nadie, decide
-   * qué muestra la ficha de una mascota que el tutor sí alcanza.
+   * propias, al revés que retirar y renombrar: marcar no toca el archivo de
+   * nadie, decide qué muestra la ficha de una mascota que el tutor sí alcanza.
    */
   onUsarComoFoto?: (adjunto: Adjunto) => void;
 }
@@ -83,20 +94,24 @@ export function SeccionAdjuntos({
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
 
-  // Cuál se está mirando, y desde qué tarjeta se abrió. Se guarda el adjunto
+  // Cuál se está mirando, y desde qué fila se abrió. Se guarda el adjunto
   // entero y no solo su id: el visor muestra nombre y peso desde el primer
   // cuadro, mientras la URL fresca viaja. El rectángulo es de dónde sale.
   const [mirando, setMirando] = useState<{
     adjunto: Adjunto;
     origen?: RectanguloEnPantalla;
   } | null>(null);
+  const [renombrando, setRenombrando] = useState<Adjunto | null>(null);
+
+  const renombrar = useRenombrarAdjunto(pacienteId);
+  const descargar = useDescargarAdjunto();
 
   return (
     <Seccion
       titulo="Adjuntos generales"
       nota={
         puedeEscribir
-          ? 'No se editan: se retiran y se sube otro'
+          ? 'Se les cambia el nombre; el archivo no se edita'
           : 'Solo lectura: los mirás, no subís'
       }
     >
@@ -142,90 +157,36 @@ export function SeccionAdjuntos({
           />
         </View>
       ) : (
-        <View
-          style={[
-            estilos.grilla,
-            { padding: px('--gutter-card'), flexDirection: esMovil ? 'column' : 'row' },
-          ]}
-        >
-          {adjuntos.map((adjunto) => {
-            const propio = adjunto.subido_por_usuario_id === usuarioId;
-            return (
-              <View
-                key={adjunto.id}
-                style={[
-                  estilos.tarjeta,
-                  { borderRadius: px('--radius-md'), borderColor: t['--border-default'] },
-                ]}
-              >
-                <MiniaturaDeArchivo
-                  contentType={adjunto.content_type}
-                  url={soloMetadatos ? undefined : adjunto.archivo_url}
-                  icono={iconoDeArchivo(adjunto)}
-                  alto={ALTO_DE_MINIATURA}
-                  onAbrir={soloMetadatos ? undefined : (origen) => setMirando({ adjunto, origen })}
-                  accessibilityLabel={
-                    soloMetadatos
-                      ? `${adjunto.nombre_archivo}, necesitás conexión para verlo`
-                      : `Ver ${adjunto.nombre_archivo}`
-                  }
-                />
-                <View style={estilos.cuerpo}>
-                  <Text
-                    style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}
-                  >
-                    {adjunto.tipo.toUpperCase()}
-                  </Text>
-                  <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
-                    {adjunto.nombre_archivo}
-                  </Text>
-                  <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-                    {`${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(adjunto.created_at.slice(0, 10))}`}
-                  </Text>
-                  {adjunto.es_foto_perfil ? (
-                    <Badge tone="success" icon="check" size="sm">
-                      Foto de la mascota
-                    </Badge>
-                  ) : onUsarComoFoto && esImagen(adjunto) && puedeEscribir && !soloMetadatos ? (
-                    /* Marcar una desmarca la anterior sin preguntar: hay una
-                       sola, y la anterior no se borra — deja de ser la que se
-                       muestra (Reglas de Negocio, 4.14). */
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      iconLeft="image"
-                      disabled={bloqueado}
-                      accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                      onPress={() => onUsarComoFoto(adjunto)}
-                    >
-                      Usar como foto
-                    </Button>
-                  ) : null}
-                  {propio && puedeEscribir && !soloMetadatos ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      iconLeft="trash-2"
-                      disabled={bloqueado}
-                      accessibilityLabel={bloqueado ? motivoBloqueo : undefined}
-                      onPress={() => onRetirar(adjunto)}
-                    >
-                      Retirar
-                    </Button>
-                  ) : (
-                    <View style={estilos.ajeno}>
-                      <Icon name="lock" size={12} color={t['--text-subtle']} />
-                      <Text
-                        style={[texto('caption'), { fontWeight: '500', color: t['--text-subtle'] }]}
-                      >
-                        {puedeEscribir ? 'Solo lo retira quien lo subió' : 'Solo lectura'}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            );
-          })}
+        <View style={{ paddingVertical: 6 }}>
+          {/* La descarga se pide de nuevo antes de abrirse y puede fallar: el
+              aviso va arriba de la lista y no en la fila, que ya está llena. */}
+          {descargar.isError ? (
+            <View style={{ paddingHorizontal: px('--gutter-card'), paddingVertical: 8 }}>
+              <InlineError
+                compact
+                title="No se pudo bajar el archivo"
+                description={mensajeDeError(descargar.error)}
+              />
+            </View>
+          ) : null}
+
+          {adjuntos.map((adjunto) => (
+            <FilaDeAdjunto
+              key={adjunto.id}
+              adjunto={adjunto}
+              propio={adjunto.subido_por_usuario_id === usuarioId}
+              esMovil={esMovil}
+              bloqueado={bloqueado}
+              motivoBloqueo={motivoBloqueo}
+              soloMetadatos={soloMetadatos}
+              puedeEscribir={puedeEscribir}
+              onAbrir={(origen) => setMirando({ adjunto, origen })}
+              onDescargar={() => descargar.mutate(adjunto.id)}
+              onRenombrar={() => setRenombrando(adjunto)}
+              onRetirar={() => onRetirar(adjunto)}
+              onUsarComoFoto={onUsarComoFoto ? () => onUsarComoFoto(adjunto) : undefined}
+            />
+          ))}
         </View>
       )}
 
@@ -236,7 +197,147 @@ export function SeccionAdjuntos({
           onCerrar={() => setMirando(null)}
         />
       ) : null}
+
+      {renombrando ? (
+        <DialogoDeRenombre
+          nombre={renombrando.nombre_archivo}
+          enviando={renombrar.isPending}
+          error={renombrar.isError ? mensajeDeError(renombrar.error) : undefined}
+          onGuardar={(nombre) =>
+            renombrar.mutate(
+              { adjuntoId: renombrando.id, nombre },
+              // Se cierra al terminar bien y no antes: cerrarlo al tocar
+              // "Guardar" se llevaría el error si el backend lo rechaza.
+              { onSuccess: () => setRenombrando(null) },
+            )
+          }
+          onCancelar={() => {
+            renombrar.reset();
+            setRenombrando(null);
+          }}
+        />
+      ) : null}
     </Seccion>
+  );
+}
+
+/**
+ * Una fila: la miniatura, el nombre con sus datos, y el menú.
+ *
+ * Todo el bloque de texto abre el archivo, no solo la miniatura: es el objetivo
+ * más grande de la fila y en un teléfono apuntarle a una miniatura de 48 puntos
+ * es pedir puntería para la acción más común.
+ */
+function FilaDeAdjunto({
+  adjunto,
+  propio,
+  esMovil,
+  bloqueado,
+  motivoBloqueo,
+  soloMetadatos,
+  puedeEscribir,
+  onAbrir,
+  onDescargar,
+  onRenombrar,
+  onRetirar,
+  onUsarComoFoto,
+}: {
+  adjunto: Adjunto;
+  propio: boolean;
+  esMovil: boolean;
+  bloqueado: boolean;
+  motivoBloqueo: string;
+  soloMetadatos: boolean;
+  puedeEscribir: boolean;
+  onAbrir: (origen?: RectanguloEnPantalla) => void;
+  onDescargar: () => void;
+  onRenombrar: () => void;
+  onRetirar: () => void;
+  onUsarComoFoto?: () => void;
+}) {
+  const { t, px, texto } = useTheme();
+
+  const enLinea = !soloMetadatos;
+  const escribe = puedeEscribir && enLinea && !bloqueado;
+
+  const acciones: AccionDeMenu[] = [];
+  if (enLinea) {
+    acciones.push({ label: 'Descargar', icono: 'download', onPress: onDescargar });
+  }
+  if (propio && escribe) {
+    acciones.push({ label: 'Cambiar el nombre', icono: 'pencil', onPress: onRenombrar });
+  }
+  // Marcar una desmarca la anterior sin preguntar: hay una sola, y la anterior
+  // no se borra — deja de ser la que se muestra (Reglas de Negocio, 4.14).
+  if (onUsarComoFoto && escribe && esImagen(adjunto) && !adjunto.es_foto_perfil) {
+    acciones.push({ label: 'Usar como foto', icono: 'image', onPress: onUsarComoFoto });
+  }
+  if (propio && escribe) {
+    acciones.push({ label: 'Retirar', icono: 'trash-2', peligro: true, onPress: onRetirar });
+  }
+
+  return (
+    <View
+      style={[estilos.fila, { paddingHorizontal: px('--gutter-card'), gap: esMovil ? 10 : 14 }]}
+    >
+      <MiniaturaDeArchivo
+        contentType={adjunto.content_type}
+        url={enLinea ? adjunto.archivo_url : undefined}
+        icono={iconoDeArchivo(adjunto)}
+        alto={LADO_DE_MINIATURA}
+        ancho={LADO_DE_MINIATURA}
+        radio={px('--radius-md')}
+        onAbrir={enLinea ? onAbrir : undefined}
+        accessibilityLabel={
+          soloMetadatos
+            ? `${adjunto.nombre_archivo}, necesitás conexión para verlo`
+            : `Ver ${adjunto.nombre_archivo}`
+        }
+      />
+
+      <Presionable
+        onPress={enLinea ? () => onAbrir(undefined) : undefined}
+        fondo="transparent"
+        fondoDestacado={t['--surface-hover']}
+        style={[estilos.cuerpo, { borderRadius: px('--radius-md') }]}
+        accessibilityLabel={enLinea ? `Ver ${adjunto.nombre_archivo}` : undefined}
+      >
+        <Text numberOfLines={1} style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+          {adjunto.nombre_archivo}
+        </Text>
+        <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+          {`${adjunto.tipo.toUpperCase()} · ${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(
+            adjunto.created_at.slice(0, 10),
+          )}`}
+        </Text>
+        {adjunto.es_foto_perfil ? (
+          <Badge tone="success" icon="check" size="sm">
+            Foto de la mascota
+          </Badge>
+        ) : null}
+        {/* Sin acciones propias, la fila dice por qué: un menú que solo tiene
+            "Descargar" no explica dónde se fue "Retirar". */}
+        {!propio && puedeEscribir && enLinea ? (
+          <View style={estilos.ajeno}>
+            <Icon name="lock" size={12} color={t['--text-subtle']} />
+            <Text style={[texto('caption'), { fontWeight: '500', color: t['--text-subtle'] }]}>
+              Solo lo cambia quien lo subió
+            </Text>
+          </View>
+        ) : null}
+      </Presionable>
+
+      {acciones.length > 0 ? (
+        <MenuDeAcciones
+          acciones={acciones}
+          accessibilityLabel={`Acciones de ${adjunto.nombre_archivo}`}
+        />
+      ) : bloqueado && puedeEscribir && enLinea ? (
+        <View accessibilityLabel={motivoBloqueo}>
+          <Icon name="lock" size={16} color={t['--text-subtle']} />
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -248,12 +349,11 @@ function esImagen(adjunto: Adjunto): boolean {
   return adjunto.content_type.startsWith('image/');
 }
 
-/** Alto de la banda de la miniatura dentro de la tarjeta. */
-const ALTO_DE_MINIATURA = 88;
+/** Lado de la miniatura de la fila: reconocer el archivo, no mirarlo. */
+const LADO_DE_MINIATURA = 48;
 
 const estilos = StyleSheet.create({
-  grilla: { flexWrap: 'wrap', gap: 14 },
-  tarjeta: { flexGrow: 1, flexBasis: 220, minWidth: 220, borderWidth: 1, overflow: 'hidden' },
-  cuerpo: { padding: 14, gap: 6 },
+  fila: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+  cuerpo: { flex: 1, minWidth: 0, gap: 2, paddingVertical: 4, paddingHorizontal: 6 },
   ajeno: { flexDirection: 'row', alignItems: 'center', gap: 5 },
 });

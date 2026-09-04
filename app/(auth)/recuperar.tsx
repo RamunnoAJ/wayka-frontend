@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Icon, InlineError, Input, EntradaDePantalla } from '../../src/components';
+import { AbrirEnLaApp } from '../../src/features/auth';
 import { validarEmail } from '../../src/features/auth/validaciones';
 import { canjearRecuperacion, pedirRecuperacion } from '../../src/api/recuperacion';
 import { CamposDeContrasena } from '../../src/features/cuenta';
@@ -153,6 +154,11 @@ function DefinirNueva({ token }: { token: string }) {
 
   return (
     <Pantalla titulo="Elegí una contraseña nueva">
+      {/*
+        Solo en este paso: el de pedir el enlace se alcanza desde el ingreso, no
+        desde un correo, así que ahí no hay a quién ofrecerle nada.
+      */}
+      <AbrirEnLaApp ruta="/recuperar" />
       <CamposDeContrasena
         etiquetaDeGuardar="Definir contraseña"
         enviando={canjear.isPending}

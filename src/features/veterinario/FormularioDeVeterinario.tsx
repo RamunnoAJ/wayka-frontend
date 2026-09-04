@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { CrearVeterinarioEntrada, TipoDocumento } from '../../api/veterinario';
 import { Button, InlineError, Input, Select, type OpcionDeSelect } from '../../components';
@@ -7,9 +7,13 @@ import { useTheme } from '../../theme';
 
 /**
  * Alta de un veterinario: la ficha y su cuenta de acceso se crean **juntas, en
- * una sola operación** (proceso 4.12). Por eso el formulario pide email y
- * contraseña además de los datos de la persona — no hay forma de crear una sin
- * la otra, ni un endpoint de invitación.
+ * una sola operación** (proceso 4.12). Por eso el formulario pide el email
+ * además de los datos de la persona — no hay forma de crear una sin la otra.
+ *
+ * **No pide contraseña, y el formulario lo dice.** Al veterinario le llega un
+ * correo con un enlace para definir la suya. Sin esa línea, quien completa el
+ * alta se queda esperando un campo que no está, o peor, cree que la cuenta ya
+ * quedó lista para usar.
  *
  * `nombre` es un solo campo porque la entidad tiene uno solo (Modelo de Datos,
  * 4.4): partirlo en nombre y apellido para después concatenar perdería el dato
@@ -20,11 +24,6 @@ export const TIPOS_DE_DOCUMENTO: OpcionDeSelect<TipoDocumento>[] = [
   { value: 'pasaporte', label: 'Pasaporte' },
   { value: 'otro', label: 'Otro documento' },
 ];
-
-/** Política del contrato (regla 2.1). Se valida por UX; decide el backend. */
-export function contrasenaValida(valor: string): boolean {
-  return valor.length >= 8 && /[a-z]/.test(valor) && /[A-Z]/.test(valor) && /\d/.test(valor);
-}
 
 interface FormularioProps {
   enviando: boolean;
@@ -39,17 +38,15 @@ export function FormularioDeVeterinario({
   onGuardar,
   onCancelar,
 }: FormularioProps) {
-  const { t, px } = useTheme();
+  const { t, px, texto } = useTheme();
 
   const [nombre, setNombre] = useState('');
   const [tipoDocumento, setTipoDocumento] = useState<TipoDocumento>('dni');
   const [numeroDocumento, setNumeroDocumento] = useState('');
   const [matricula, setMatricula] = useState('');
   const [email, setEmail] = useState('');
-  const [contrasena, setContrasena] = useState('');
 
-  const completo =
-    nombre.trim() && numeroDocumento.trim() && email.trim() && contrasenaValida(contrasena);
+  const completo = nombre.trim() && numeroDocumento.trim() && email.trim();
 
   return (
     <View
@@ -91,7 +88,7 @@ export function FormularioDeVeterinario({
         <View style={estilos.campo}>
           <Input
             label="Matrícula"
-            hint="Sin matrícula entra, pero no carga historial ni medicación."
+            hint="Sin matrícula entra, pero no carga historial ni medicación. Es única: no puede repetirse con la de otra persona."
             placeholder="MP 4821"
             value={matricula}
             onChangeText={setMatricula}
@@ -100,35 +97,21 @@ export function FormularioDeVeterinario({
         </View>
       </View>
 
-      <View style={estilos.fila}>
-        <View style={estilos.campo}>
-          <Input
-            label="Correo profesional"
-            icon="mail"
-            hint="Es el usuario con el que va a iniciar sesión."
-            placeholder="nombre@tuclinica.vet"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoComplete="email"
-          />
-        </View>
-        <View style={estilos.campo}>
-          <Input
-            label="Contraseña inicial"
-            icon="lock"
-            hint="Mínimo 8, con minúscula, mayúscula y dígito."
-            error={
-              contrasena && !contrasenaValida(contrasena)
-                ? 'Todavía no cumple la política.'
-                : undefined
-            }
-            value={contrasena}
-            onChangeText={setContrasena}
-            secureTextEntry
-          />
-        </View>
-      </View>
+      <Input
+        label="Correo profesional"
+        icon="mail"
+        hint="Es el usuario con el que va a iniciar sesión, y adonde le mandamos el enlace para activar la cuenta. Un correo equivocado la deja sin poder estrenarse."
+        placeholder="nombre@tuclinica.vet"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoComplete="email"
+      />
+
+      <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+        La contraseña no la elegís vos: le mandamos un enlace para que la defina. Así nadie más que
+        ella llega a conocerla.
+      </Text>
 
       {error ? <InlineError compact title="No se pudo dar de alta" description={error} /> : null}
 
@@ -143,7 +126,6 @@ export function FormularioDeVeterinario({
               tipo_documento: tipoDocumento,
               numero_documento: numeroDocumento.trim(),
               email: email.trim(),
-              contrasena,
               ...(matricula.trim() ? { matricula: matricula.trim() } : {}),
             })
           }

@@ -4,7 +4,13 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 
 import { activarCuenta } from '../../src/api/auth';
 import { Button, Icon, InlineError, Input, EntradaDePantalla } from '../../src/components';
-import { REGLAS_CONTRASENA, validarContrasenaNueva } from '../../src/features/auth';
+import {
+  AbrirEnLaApp,
+  IndicadorDeCoincidencia,
+  ReglasDeContrasena,
+  validarContrasenaNueva,
+  validarRepetirContrasena,
+} from '../../src/features/auth';
 import { mensajeDeError } from '../../src/lib/errores';
 import { RUTA_LOGIN } from '../../src/constants/roles';
 import { ThemeProvider, useTheme } from '../../src/theme';
@@ -35,12 +41,14 @@ function PantallaDeActivacion() {
 
   const [token, setToken] = useState(tokenDeLaURL ?? '');
   const [contrasena, setContrasena] = useState('');
+  const [repetida, setRepetida] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
 
   const errorDeContrasena = contrasena ? validarContrasenaNueva(contrasena) : undefined;
-  const completo = token.trim() && contrasena && !errorDeContrasena;
+  const errorDeRepetida = validarRepetirContrasena(contrasena, repetida);
+  const completo = token.trim() && contrasena && !errorDeContrasena && !errorDeRepetida;
 
   async function activar() {
     if (!completo || enviando) return;
@@ -90,16 +98,24 @@ function PantallaDeActivacion() {
           <View style={estilos.encabezado}>
             <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Definí tu contraseña</Text>
             <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-              Tu cuenta de administración ya está creada. Elegí una contraseña y entrás.
+              Tu cuenta ya está creada. Elegí una contraseña y entrás.
             </Text>
           </View>
+
+          {/*
+            La pantalla es la misma para los dos orígenes del token (regla 4.16):
+            al clínica_admin se lo entregan en mano, al veterinario le llega por
+            correo. La tira se muestra sola cuando el enlace vino de un correo
+            dirigido a alguien que sí puede usar la app.
+          */}
+          <AbrirEnLaApp ruta="/activacion" />
 
           {/* Editable aunque venga en el enlace: un token que viaja por chat se
               corta, y reescribirlo tiene que ser posible sin pedir otro. */}
           <Input
             label="Token de activación"
             icon="lock"
-            hint="Es el código que te pasó el equipo de Wayka al dar de alta la clínica."
+            hint="Es el código que te llegó por correo, o el que te entregó el equipo de Wayka al dar de alta la clínica."
             value={token}
             onChangeText={setToken}
             autoCapitalize="none"
@@ -114,28 +130,18 @@ function PantallaDeActivacion() {
             error={errorDeContrasena}
           />
 
-          <View style={estilos.reglas}>
-            {REGLAS_CONTRASENA.map((regla) => {
-              const cumple = regla.prueba(contrasena);
-              return (
-                <View key={regla.texto} style={estilos.regla}>
-                  <Icon
-                    name="check"
-                    size={14}
-                    color={cumple ? t['--text-success'] : t['--text-subtle']}
-                  />
-                  <Text
-                    style={[
-                      texto('caption'),
-                      { color: cumple ? t['--text-success'] : t['--text-subtle'] },
-                    ]}
-                  >
-                    {regla.texto}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
+          <ReglasDeContrasena valor={contrasena} disposicion="columna" tamanoDeIcono={14} />
+
+          {/* Se repite porque acá no hay a qué volver: la contraseña recién
+              definida es la única credencial de la cuenta. */}
+          <Input
+            label="Repetir contraseña"
+            icon="lock"
+            value={repetida}
+            onChangeText={setRepetida}
+            secureTextEntry
+          />
+          <IndicadorDeCoincidencia nueva={contrasena} repetida={repetida} tamanoDeIcono={14} />
 
           {error ? (
             <InlineError compact title="No se pudo activar la cuenta" description={error} />
@@ -161,6 +167,4 @@ const estilos = StyleSheet.create({
   hoja: { width: '100%', maxWidth: 372, gap: 20 },
   encabezado: { gap: 6 },
   marca: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center' },
-  reglas: { gap: 6 },
-  regla: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 });

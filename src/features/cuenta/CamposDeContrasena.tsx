@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, Icon, InlineError, Input } from '../../components';
+import { Button, InlineError, Input } from '../../components';
 import { useTheme } from '../../theme';
-import { REGLAS_CONTRASENA, validarContrasenaNueva } from '../auth/validaciones';
+import { IndicadorDeCoincidencia, ReglasDeContrasena } from '../auth/IndicadoresDeContrasena';
+import { validarContrasenaNueva, validarRepetirContrasena } from '../auth/validaciones';
 
 /**
  * Los campos de elegir una contraseña, sin saber para qué.
@@ -47,8 +48,8 @@ export function CamposDeContrasena({
   const [tocado, setTocado] = useState(false);
 
   const errorDeNueva = validarContrasenaNueva(nueva);
-  const noCoinciden = repetida.length > 0 && repetida !== nueva;
-  const completo = (!pedirActual || actual.length > 0) && !errorDeNueva && repetida === nueva;
+  const errorDeRepetida = validarRepetirContrasena(nueva, repetida);
+  const completo = (!pedirActual || actual.length > 0) && !errorDeNueva && !errorDeRepetida;
 
   return (
     <View style={estilos.raiz}>
@@ -73,28 +74,7 @@ export function CamposDeContrasena({
         error={tocado ? errorDeNueva : undefined}
       />
 
-      <View style={estilos.reglas}>
-        {REGLAS_CONTRASENA.map((regla) => {
-          const cumple = regla.prueba(nueva);
-          return (
-            <View key={regla.texto} style={estilos.regla}>
-              <Icon
-                name={cumple ? 'check' : 'circle-dot'}
-                size={13}
-                color={cumple ? t['--text-success'] : t['--text-subtle']}
-              />
-              <Text
-                style={[
-                  texto('caption'),
-                  { color: cumple ? t['--text-success'] : t['--text-subtle'] },
-                ]}
-              >
-                {regla.texto}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
+      <ReglasDeContrasena valor={nueva} />
 
       <Input
         label="Repetir la nueva"
@@ -102,8 +82,10 @@ export function CamposDeContrasena({
         value={repetida}
         onChangeText={setRepetida}
         textContentType="newPassword"
-        error={noCoinciden ? 'Las dos no coinciden' : undefined}
+        error={tocado ? errorDeRepetida : undefined}
       />
+
+      <IndicadorDeCoincidencia nueva={nueva} repetida={repetida} />
 
       {error ? <InlineError compact title="No se pudo cambiar" description={error} /> : null}
 
@@ -130,7 +112,5 @@ export function CamposDeContrasena({
 
 const estilos = StyleSheet.create({
   raiz: { gap: 12 },
-  reglas: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  regla: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   acciones: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },
 });

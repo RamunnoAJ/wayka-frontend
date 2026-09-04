@@ -39,6 +39,17 @@ export function validarContrasenaNueva(valor: string): string | undefined {
   return `Le falta: ${faltan.map((regla) => regla.texto.toLowerCase()).join(', ')}`;
 }
 
+/**
+ * La repetición es del formulario, no del backend: el servidor recibe una sola
+ * contraseña. Sirve para atajar el error de tipeo antes de que quede una
+ * credencial que nadie sabe cuál es.
+ */
+export function validarRepetirContrasena(nueva: string, repetida: string): string | undefined {
+  if (!repetida) return 'Repetí la contraseña';
+  if (repetida !== nueva) return 'Las dos no coinciden';
+  return undefined;
+}
+
 export function validarNombre(valor: string): string | undefined {
   if (!valor.trim()) return 'Ingresá tu nombre';
   return undefined;

@@ -102,6 +102,27 @@ describe('SubidaDeAdjunto', () => {
     expect(subir).not.toHaveBeenCalled();
   });
 
+  // El nombre se elige antes de tocar el archivo: en el teléfono el selector
+  // abre y sube de una, y después ya no hay dónde escribirlo.
+  it('sube con el nombre elegido, y lo olvida para el siguiente archivo', async () => {
+    devuelveArchivo();
+    subir.mockResolvedValue({ id: 'a1' });
+    const { getByRole, getByLabelText } = await render(<SubidaDeAdjunto pacienteId="p1" />);
+
+    await fireEvent.changeText(getByLabelText('Nombre del archivo'), 'Carnet de vacunación');
+    await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
+
+    await waitFor(() => expect(subir).toHaveBeenCalled());
+    expect(subir.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ nombre_archivo: 'Carnet de vacunación' }),
+    );
+
+    await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
+
+    await waitFor(() => expect(subir).toHaveBeenCalledTimes(2));
+    expect(subir.mock.calls[1][1].nombre_archivo).toBeUndefined();
+  });
+
   it('el archivo válido sube declarando el tipo, y el evento cuando lo hay', async () => {
     devuelveArchivo();
     subir.mockResolvedValue({ id: 'a1' });

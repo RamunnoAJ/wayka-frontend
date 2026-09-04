@@ -404,6 +404,9 @@ interface MiniaturaDeArchivoProps {
   /** Alternativo del icono cuando no hay imagen que mostrar. */
   icono: NombreDeIcono;
   alto: number;
+  /** Sin ancho ocupa el que le dé su contenedor, que es el caso de la banda. */
+  ancho?: number;
+  radio?: number;
   /** Abre el visor. Responde igual al toque y al mantener apretado. */
   onAbrir?: (origen?: RectanguloEnPantalla) => void;
   accessibilityLabel?: string;
@@ -414,6 +417,8 @@ export function MiniaturaDeArchivo({
   url,
   icono,
   alto,
+  ancho,
+  radio,
   onAbrir,
   accessibilityLabel,
 }: MiniaturaDeArchivoProps) {
@@ -443,7 +448,15 @@ export function MiniaturaDeArchivo({
       onPressIn={onAbrir ? medir : undefined}
       onPress={onAbrir ? abrir : undefined}
       onLongPress={onAbrir ? abrir : undefined}
-      style={[estilos.miniatura, { height: alto, backgroundColor: t['--surface-sunken'] }]}
+      style={[
+        estilos.miniatura,
+        {
+          height: alto,
+          width: ancho,
+          borderRadius: radio,
+          backgroundColor: t['--surface-sunken'],
+        },
+      ]}
     >
       {hayImagen ? (
         <Image
@@ -453,7 +466,7 @@ export function MiniaturaDeArchivo({
           onError={() => setFallo(true)}
         />
       ) : (
-        <Icon name={icono} size={26} color={t['--text-subtle']} />
+        <Icon name={icono} size={Math.min(26, Math.round(alto * 0.5))} color={t['--text-subtle']} />
       )}
     </Pressable>
   );

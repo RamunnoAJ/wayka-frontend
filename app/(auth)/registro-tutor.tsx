@@ -20,13 +20,15 @@ import {
   EntradaDePantalla,
 } from '../../src/components';
 import {
-  REGLAS_CONTRASENA,
+  IndicadorDeCoincidencia,
   RegistroSinSesion,
+  ReglasDeContrasena,
   useRegistroTutor,
   validarConsentimiento,
   validarEmail,
   validarNombre,
   validarContrasenaNueva,
+  validarRepetirContrasena,
 } from '../../src/features/auth';
 import { CODIGO_ERROR, ErrorApi, mensajeDeError } from '../../src/lib/errores';
 import { ThemeProvider, useTheme } from '../../src/theme';
@@ -66,6 +68,7 @@ function FormularioDeRegistro() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [repetida, setRepetida] = useState('');
   const [consentimiento, setConsentimiento] = useState(false);
   const [tocado, setTocado] = useState(false);
 
@@ -75,6 +78,7 @@ function FormularioDeRegistro() {
     nombre: validarNombre(nombre),
     email: validarEmail(email),
     contrasena: validarContrasenaNueva(contrasena),
+    repetida: validarRepetirContrasena(contrasena, repetida),
     consentimiento: validarConsentimiento(consentimiento),
   };
   const hayErrores = Object.values(errores).some(Boolean);
@@ -167,7 +171,24 @@ function FormularioDeRegistro() {
               autoComplete="new-password"
               textContentType="newPassword"
             />
-            <RequisitosDeContrasena valor={contrasena} />
+            <ReglasDeContrasena valor={contrasena} tamanoDeIcono={12} />
+          </View>
+
+          {/* La repetición se pide para que un error de tipeo no termine en una
+              cuenta con una contraseña que nadie sabe cuál es: acá no hay
+              contraseña anterior con la que volver a entrar. */}
+          <View style={{ gap: 6 }}>
+            <Input
+              label="Repetir contraseña"
+              icon="lock"
+              value={repetida}
+              onChangeText={setRepetida}
+              error={tocado ? errores.repetida : undefined}
+              secureTextEntry
+              autoComplete="new-password"
+              textContentType="newPassword"
+            />
+            <IndicadorDeCoincidencia nueva={contrasena} repetida={repetida} tamanoDeIcono={12} />
           </View>
 
           <Checkbox
@@ -185,42 +206,20 @@ function FormularioDeRegistro() {
           <Button block size="touch" loading={isPending} onPress={enviar}>
             Crear cuenta
           </Button>
+
+          {/*
+            Se avisa y se sigue de largo: confirmar el correo **no es un paso del
+            registro** y no bloquea nada (regla 4.9.1). Decirlo acá evita que
+            alguien se quede esperando un correo antes de empezar a usar la
+            aplicación.
+          */}
+          <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+            Te va a llegar un correo para confirmar tu dirección. No hace falta esperarlo: ya podés
+            entrar y cargar tu primera mascota.
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-  );
-}
-
-/**
- * Los requisitos se muestran siempre, tildándose a medida que se cumplen: es
- * más útil que un error después de enviar, que es cuando ya se eligió mal.
- */
-function RequisitosDeContrasena({ valor }: { valor: string }) {
-  const { t, texto } = useTheme();
-
-  return (
-    <View style={estilos.requisitos}>
-      {REGLAS_CONTRASENA.map((regla) => {
-        const cumple = regla.prueba(valor);
-        return (
-          <View key={regla.texto} style={estilos.requisito}>
-            <Icon
-              name="check"
-              size={12}
-              color={cumple ? t['--text-success'] : t['--text-subtle']}
-            />
-            <Text
-              style={[
-                texto('caption'),
-                { color: cumple ? t['--text-success'] : t['--text-subtle'] },
-              ]}
-            >
-              {regla.texto}
-            </Text>
-          </View>
-        );
-      })}
-    </View>
   );
 }
 
@@ -248,6 +247,4 @@ const estilos = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 22,
   },
-  requisitos: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: 2 },
-  requisito: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 });

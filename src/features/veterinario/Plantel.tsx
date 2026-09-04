@@ -10,6 +10,7 @@ import {
   DialogoDeConfirmacion,
   EmptyState,
   InlineError,
+  Input,
   MenuDeAcciones,
   Skeleton,
   SkeletonText,
@@ -39,7 +40,9 @@ export function Plantel() {
   const ancho = useAnchoDeVentana();
   const esMovil = ancho > 0 && ancho < ANCHO_MOVIL;
 
-  const plantel = usePlantel();
+  const [texto_, setTexto] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const plantel = usePlantel(busqueda);
   const crear = useCrearVeterinario();
   const darDeBaja = useDarDeBajaVeterinario();
   const [abierto, setAbierto] = useState(false);
@@ -74,6 +77,40 @@ export function Plantel() {
             <Button iconLeft="plus" onPress={() => setAbierto((v) => !v)}>
               Agregar veterinario
             </Button>
+          </View>
+
+          {/*
+            El plantel entra entero en la pantalla, así que el buscador no está
+            para acortarlo: está para responder si un documento o una matrícula
+            ya están cargados. La matrícula es única en todo el sistema y el
+            conflicto del alta no dice de quién es la que colisiona.
+          */}
+          <View style={estilos.buscador}>
+            <View style={estilos.flexible}>
+              <Input
+                label="Buscar en el plantel"
+                placeholder="Vidal, 25640119 o MP-3390"
+                value={texto_}
+                onChangeText={setTexto}
+                onSubmitEditing={() => setBusqueda(texto_.trim())}
+                returnKeyType="search"
+                autoCapitalize="none"
+              />
+            </View>
+            <Button variant="secondary" onPress={() => setBusqueda(texto_.trim())}>
+              Buscar
+            </Button>
+            {busqueda ? (
+              <Button
+                variant="ghost"
+                onPress={() => {
+                  setTexto('');
+                  setBusqueda('');
+                }}
+              >
+                Ver todo
+              </Button>
+            ) : null}
           </View>
 
           {abierto ? (
@@ -269,6 +306,7 @@ const estilos = StyleSheet.create({
   lista: { gap: 12 },
   tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 16, borderWidth: 1, padding: 16 },
   flexible: { flex: 1, minWidth: 180, gap: 2 },
+  buscador: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap', gap: 12 },
   confirmacion: { gap: 8, minWidth: 260 },
   acciones: { flexDirection: 'row', gap: 8 },
 });

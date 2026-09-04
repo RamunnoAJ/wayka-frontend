@@ -98,15 +98,16 @@ function ElegirDelPadron({
       </View>
 
       <Input
-        label="Nombre o contacto"
+        label="Nombre, contacto o DNI"
         value={busqueda}
         onChangeText={setBusqueda}
-        placeholder="Gómez, o diego@correo.test"
+        placeholder="Gómez, diego@correo.test o 29847113"
+        autoCapitalize="none"
       />
 
       {busqueda.trim().length === 0 ? (
         <Text style={[texto('body-sm'), { color: t['--text-subtle'] }]}>
-          Escribí un nombre o un contacto para buscar.
+          Escribí un nombre, un contacto o un DNI para buscar.
         </Text>
       ) : padron.isPending ? (
         <Skeleton height={44} />

@@ -5,9 +5,9 @@ import { http } from '../lib/http';
  * Adjuntos. Todo adjunto pertenece a un Paciente; que además documente un
  * Evento clínico es información adicional (`evento_id`, Modelo de Datos, 4.8).
  *
- * Un adjunto **no se edita**: corregir una carga errónea es retirarla y subir
- * otra. Y cada rol retira solo los que subió (regla 2.4), por eso el listado
- * trae `subido_por_usuario_id`.
+ * De un adjunto **solo se edita el nombre** con el que se ve: corregir una carga
+ * errónea sigue siendo retirarla y subir otra. Renombrar y retirar son de quien
+ * lo subió (regla 2.4), por eso el listado trae `subido_por_usuario_id`.
  */
 
 export const TIPO_DE_ADJUNTO = {
@@ -26,6 +26,11 @@ export interface Adjunto {
   /** Cuenta que lo subió. Es quien puede retirarlo. */
   subido_por_usuario_id: string;
   tipo: TipoDeAdjunto;
+  /**
+   * Nombre con el que el archivo se ve y se baja. Nace del nombre con el que se
+   * subió y se puede cambiar: es lo único editable del adjunto. Siempre trae la
+   * extensión del archivo real.
+   */
   nombre_archivo: string;
   content_type: string;
   tamano_bytes: number;
@@ -70,6 +75,11 @@ export interface SubirAdjuntoEntrada {
   archivo: ArchivoElegido;
   tipo: TipoDeAdjunto;
   /**
+   * Nombre con el que se va a ver. Omitido vale el del archivo elegido, que es
+   * lo que suele ser ilegible: `IMG_20260115_113045.jpg`.
+   */
+  nombre_archivo?: string;
+  /**
    * Evento que el archivo documenta. Omitido, el adjunto queda como general de
    * la mascota. Tiene que ser un evento del mismo paciente.
    */
@@ -95,7 +105,7 @@ export interface SubirAdjuntoEntrada {
  */
 export function subirAdjunto(
   pacienteId: string,
-  { archivo, tipo, evento_id, es_foto_perfil, signal }: SubirAdjuntoEntrada,
+  { archivo, tipo, nombre_archivo, evento_id, es_foto_perfil, signal }: SubirAdjuntoEntrada,
 ): Promise<Adjunto> {
   const formulario = new FormData();
 
@@ -105,6 +115,7 @@ export function subirAdjunto(
   // sin haber leído el cuerpo entero, y el cliente —que todavía está subiendo—
   // se come el cierre de la conexión y lo ve como una caída de red.
   formulario.append('tipo', tipo);
+  if (nombre_archivo) formulario.append('nombre_archivo', nombre_archivo);
   if (evento_id) formulario.append('evento_id', evento_id);
   if (es_foto_perfil) formulario.append('es_foto_perfil', 'true');
 
@@ -163,6 +174,19 @@ export function marcarFotoDePerfil(adjuntoId: string): Promise<null> {
  */
 export function fotoDePerfilDe(adjuntos: Adjunto[] | undefined): Adjunto | undefined {
   return adjuntos?.find((adjunto) => adjunto.es_foto_perfil);
+}
+
+/**
+ * Cambia el nombre con el que el archivo se ve y se baja. Lo demás del adjunto
+ * no se toca: ni los bytes, ni el tipo, ni el peso.
+ *
+ * Renombra quien lo subió, con el mismo criterio que retirar (regla 2.4). La
+ * extensión la conserva el backend: si el nombre no la trae, se la agrega.
+ */
+export function renombrarAdjunto(adjuntoId: string, nombreArchivo: string): Promise<Adjunto> {
+  return http.patch<Adjunto>(`/adjuntos/${adjuntoId}`, {
+    body: { nombre_archivo: nombreArchivo },
+  });
 }
 
 /** Baja lógica: **no borra el objeto del bucket** (regla 2.4). */

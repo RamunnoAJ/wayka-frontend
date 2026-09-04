@@ -5,6 +5,7 @@ import {
   crearVeterinario,
   darDeBajaVeterinario,
   listarVeterinarios,
+  reenviarActivacionDeVeterinario,
   type ActualizarVeterinarioEntrada,
   type CrearVeterinarioEntrada,
   type Veterinario,
@@ -12,6 +13,10 @@ import {
 
 export const CLAVES = {
   plantel: () => ['veterinarios'] as const,
+  // La búsqueda cuelga de la clave del plantel, no al lado: así una invalidación
+  // sobre `plantel()` alcanza también a los resultados filtrados, que son del
+  // mismo listado visto por una rendija.
+  busqueda: (busqueda: string) => ['veterinarios', { busqueda }] as const,
 };
 
 /**
@@ -30,14 +35,38 @@ export const CLAVES = {
  */
 export const CONSULTA_DEL_PLANTEL = {
   queryKey: CLAVES.plantel(),
-  queryFn: listarVeterinarios,
+  // Envuelta y no pasada por referencia: react-query le pasa su contexto al
+  // queryFn, y `listarVeterinarios` ahora recibe filtros.
+  queryFn: () => listarVeterinarios(),
   // El plantel de una clínica cambia cada varios meses. Volver a pedirlo en
   // cada pantalla que resuelve el autor de un registro es tráfico puro.
   staleTime: 5 * 60 * 1000,
 } as const;
 
-export function usePlantel(): UseQueryResult<Veterinario[]> {
-  return useQuery(CONSULTA_DEL_PLANTEL);
+/**
+ * Sin búsqueda es la consulta compartida —la misma que alimenta el índice por
+ * id—, y con búsqueda es una consulta aparte. No se filtra en el cliente porque
+ * el buscador existe justamente para lo que la lista cargada no dice: si una
+ * matrícula ya está en uso, que es única en todo el sistema y no solo en esta
+ * clínica.
+ */
+export function usePlantel(busqueda = ''): UseQueryResult<Veterinario[]> {
+  const filtro = busqueda.trim();
+  // Sin filtro la clave y la queryFn son literalmente las de la consulta
+  // compartida, así que la caché es una sola y no dos con la misma forma.
+  const consulta =
+    filtro === ''
+      ? { queryKey: CONSULTA_DEL_PLANTEL.queryKey, queryFn: CONSULTA_DEL_PLANTEL.queryFn }
+      : {
+          queryKey: CLAVES.busqueda(filtro),
+          queryFn: () => listarVeterinarios({ busqueda: filtro }),
+        };
+
+  return useQuery({
+    queryKey: consulta.queryKey as readonly unknown[],
+    queryFn: consulta.queryFn,
+    staleTime: CONSULTA_DEL_PLANTEL.staleTime,
+  });
 }
 
 export function useCrearVeterinario() {
@@ -73,5 +102,19 @@ export function useDarDeBajaVeterinario() {
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.plantel() });
     },
+  });
+}
+
+/**
+ * Vuelve a mandar el correo de activación de una cuenta que nadie estrenó. Es la
+ * salida del token que se venció o del correo que no llegó; sin esto la única
+ * sería que el administrador de la plataforma emita otro por línea de comandos.
+ *
+ * No invalida nada: el estado de la cuenta no cambia —sigue sin estrenar— y lo
+ * único que ocurre está del otro lado, en la casilla de esa persona.
+ */
+export function useReenviarActivacion() {
+  return useMutation({
+    mutationFn: (veterinarioId: string) => reenviarActivacionDeVeterinario(veterinarioId),
   });
 }

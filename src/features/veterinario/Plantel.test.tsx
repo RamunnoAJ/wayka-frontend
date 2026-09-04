@@ -104,4 +104,43 @@ describe('Plantel', () => {
 
     expect(queryByText(/no puede escribir historial/)).toBeNull();
   });
+
+  /**
+   * La búsqueda va al backend y no filtra la lista ya cargada: existe para
+   * responder si una matrícula está en uso, y la matrícula es única en todo el
+   * sistema, no solo en el plantel que esta pantalla muestra.
+   */
+  it('busca en el backend y no sobre la lista cargada', async () => {
+    listar.mockResolvedValue([ficha('Ana Rossi', 'MP-4821')]);
+
+    const { findByText, findByLabelText } = await render(<Plantel />);
+    await findByText('Ana Rossi');
+
+    await fireEvent.changeText(await findByLabelText('Buscar en el plantel'), 'MP-3390');
+    await fireEvent.press(await findByText('Buscar'));
+
+    expect(listar).toHaveBeenLastCalledWith({ busqueda: 'MP-3390' });
+  });
+
+  // Volver al plantel entero no vuelve a pedirlo: es la misma consulta que ya
+  // estaba cacheada antes de buscar, no una segunda con la misma forma.
+  it('vuelve al plantel entero al limpiar la búsqueda', async () => {
+    listar.mockImplementation((filtros?: { busqueda?: string }) =>
+      Promise.resolve(
+        filtros?.busqueda ? [ficha('Hernán Vidal', 'MP-3390')] : [ficha('Ana Rossi', 'MP-4821')],
+      ),
+    );
+
+    const { findByText, findByLabelText, queryByText } = await render(<Plantel />);
+    await findByText('Ana Rossi');
+
+    await fireEvent.changeText(await findByLabelText('Buscar en el plantel'), 'MP-3390');
+    await fireEvent.press(await findByText('Buscar'));
+    await findByText('Hernán Vidal');
+    expect(queryByText('Ana Rossi')).toBeNull();
+
+    await fireEvent.press(await findByText('Ver todo'));
+
+    expect(await findByText('Ana Rossi')).toBeOnTheScreen();
+  });
 });

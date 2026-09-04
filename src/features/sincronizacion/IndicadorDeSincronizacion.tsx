@@ -4,20 +4,23 @@ import { Badge, Presionable } from '../../components';
 import { hayCopiaLocal } from '../../lib/base-local';
 import { useTheme } from '../../theme';
 
-import { useEstadoDeSincronizacion, useSincronizar } from './queries';
+import { useEstadoDeSincronizacion } from './queries';
 
 /**
- * Estado de la copia local, siempre visible (doc 11, sección 7).
+ * Estado de la copia local, cuando hay algo que decir (doc 11, sección 7).
  *
- * Los tres estados que el tutor puede tener —sincronizado, pendiente,
- * rechazado— se muestran; ninguno se esconde. Un cambio pendiente que no
- * apareciera haría que la app pareciera haber perdido lo que acaba de escribir,
- * y un rechazo invisible es un cambio que el tutor cree hecho y no está.
+ * **Estar al día no se muestra.** Un cartel verde permanente arriba de la lista
+ * de mascotas ocupa lugar en la pantalla más usada de la app para decir que no
+ * pasa nada; que la barra no esté significa que está todo enviado.
+ *
+ * Lo que sí se muestra son los dos estados que le piden algo al tutor: un cambio
+ * pendiente que no apareciera haría que la app pareciera haber perdido lo que
+ * acaba de escribir, y un rechazo invisible es un cambio que el tutor cree hecho
+ * y no está.
  */
 export function IndicadorDeSincronizacion({ onVerRechazos }: { onVerRechazos: () => void }) {
   const { t, px, texto } = useTheme();
   const estado = useEstadoDeSincronizacion();
-  const sincronizacion = useSincronizar();
 
   if (!hayCopiaLocal || !estado.data) return null;
 
@@ -40,17 +43,13 @@ export function IndicadorDeSincronizacion({ onVerRechazos }: { onVerRechazos: ()
     );
   }
 
+  if (pendientes === 0) return null;
+
   return (
     <View style={[estilos.barra, estilos.sinBorde]}>
-      {pendientes > 0 ? (
-        <Badge tone="warning" icon="refresh-cw">
-          {pendientes === 1 ? '1 cambio sin enviar' : `${pendientes} cambios sin enviar`}
-        </Badge>
-      ) : (
-        <Badge tone="success" icon="check">
-          {sincronizacion.isPending ? 'Sincronizando…' : 'Todo al día'}
-        </Badge>
-      )}
+      <Badge tone="warning" icon="refresh-cw">
+        {pendientes === 1 ? '1 cambio sin enviar' : `${pendientes} cambios sin enviar`}
+      </Badge>
     </View>
   );
 }

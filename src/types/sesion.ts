@@ -15,6 +15,13 @@ export interface Usuario {
   /** Métodos de autenticación configurados en la cuenta. */
   tiene_contrasena: boolean;
   tiene_google_vinculado: boolean;
+  /**
+   * Si se probó que la dirección existe y que su titular la lee (regla 4.9.1).
+   * **No condiciona ningún permiso**: está para poder ofrecer el reenvío, no
+   * para decidir nada a partir de él. Una pantalla que lo use para bloquear algo
+   * está inventando una regla que el contrato no tiene.
+   */
+  email_confirmado: boolean;
   created_at: string;
   updated_at: string;
   /** Presente según el tipo de usuario. */

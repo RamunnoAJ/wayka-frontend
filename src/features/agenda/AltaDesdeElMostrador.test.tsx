@@ -70,7 +70,7 @@ describe('AltaDesdeElMostrador', () => {
     );
 
     const { getByText, getAllByText } = await render(<AltaDesdeElMostrador {...propsBase()} />);
-    await fireEvent.changeText(getByText('Nombre o contacto'), 'gomez');
+    await fireEvent.changeText(getByText('Nombre, contacto o DNI'), 'gomez');
 
     expect(getByText('diego@correo.test')).toBeTruthy();
     // Solo la que no lo tiene: la etiqueta señala la ficha incompleta, no todas.
@@ -100,7 +100,7 @@ describe('AltaDesdeElMostrador', () => {
     );
 
     const { getByText, queryByText } = await render(<AltaDesdeElMostrador {...propsBase()} />);
-    await fireEvent.changeText(getByText('Nombre o contacto'), 'gomez');
+    await fireEvent.changeText(getByText('Nombre, contacto o DNI'), 'gomez');
     await fireEvent.press(getByText('Diego Gómez'));
 
     expect(getByText('La mascota')).toBeTruthy();
@@ -122,7 +122,7 @@ describe('AltaDesdeElMostrador', () => {
 
     const props = propsBase();
     const { getByText } = await render(<AltaDesdeElMostrador {...props} />);
-    await fireEvent.changeText(getByText('Nombre o contacto'), 'gomez');
+    await fireEvent.changeText(getByText('Nombre, contacto o DNI'), 'gomez');
     await fireEvent.press(getByText('Diego Gómez'));
 
     await fireEvent.changeText(getByText('Nombre'), 'Luna');

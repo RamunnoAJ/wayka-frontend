@@ -57,7 +57,7 @@ export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
           <View style={estilos.titulo}>
             <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Tutores</Text>
             <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-              Buscá por nombre, teléfono o correo antes de crear una ficha nueva. La búsqueda
+              Buscá por nombre, teléfono, correo o DNI antes de crear una ficha nueva. La búsqueda
               alcanza todo el sistema, no solo tu clínica.
             </Text>
           </View>
@@ -66,7 +66,7 @@ export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
             <View style={estilos.campo}>
               <Input
                 label="Buscar"
-                placeholder="María Pérez, o su teléfono"
+                placeholder="María Pérez, su teléfono o su DNI"
                 value={texto_}
                 onChangeText={setTexto}
                 onSubmitEditing={buscar}

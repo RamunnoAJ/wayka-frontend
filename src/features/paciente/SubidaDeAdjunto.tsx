@@ -6,6 +6,7 @@ import {
   Button,
   FileDropzone,
   InlineError,
+  Input,
   Select,
   UploadItem,
   type OpcionDeSelect,
@@ -45,6 +46,8 @@ interface EnCurso {
   id: string;
   archivo: ArchivoElegido;
   tipo: TipoDeAdjunto;
+  /** Nombre elegido para la lista. Vacío: vale el del archivo. */
+  nombre: string;
   estado: 'subiendo' | 'fallo';
   error?: string;
   /** Corta la subida de verdad: sin esto, "cancelar" solo escondería la fila. */
@@ -79,6 +82,7 @@ export function SubidaDeAdjunto({
   const subir = useSubirAdjunto(pacienteId);
 
   const [tipo, setTipo] = useState<TipoDeAdjunto>('foto');
+  const [nombre, setNombre] = useState('');
   const [rechazo, setRechazo] = useState<string | null>(null);
   const [errorAlAbrir, setErrorAlAbrir] = useState<string | null>(null);
   const [enCurso, setEnCurso] = useState<EnCurso[]>([]);
@@ -106,6 +110,7 @@ export function SubidaDeAdjunto({
       await subir.mutateAsync({
         archivo: fila.archivo,
         tipo: fila.tipo,
+        nombre_archivo: fila.nombre || undefined,
         evento_id: eventoId,
         signal: fila.corte.signal,
       });
@@ -134,10 +139,14 @@ export function SubidaDeAdjunto({
       id: String(proximoId.current++),
       archivo,
       tipo,
+      nombre: nombre.trim(),
       estado: 'subiendo',
       corte: new AbortController(),
     };
     setEnCurso((filas) => [...filas, fila]);
+    // El nombre elegido vale para este archivo y no para el siguiente: dejarlo
+    // puesto haría que dos fotos seguidas se llamaran igual.
+    setNombre('');
     await despachar(fila);
   }
 
@@ -201,6 +210,19 @@ export function SubidaDeAdjunto({
         }}
       />
 
+      {/* El nombre se elige antes de tocar el archivo, con el mismo criterio
+          que el tipo: en el teléfono el selector se abre y sube de una, y
+          después ya no hay dónde escribirlo. Igual se puede cambiar más tarde
+          desde la lista. */}
+      <Input
+        label="Nombre del archivo"
+        hint="Opcional: si lo dejás vacío queda el nombre con el que viene el archivo."
+        placeholder="Carnet de vacunación"
+        value={nombre}
+        onChangeText={setNombre}
+        editable={!bloqueado}
+      />
+
       <FileDropzone
         type={tipo}
         maxSizeMB={TAMANO_MAXIMO_MB}
@@ -240,7 +262,7 @@ export function SubidaDeAdjunto({
       {enCurso.map((fila) => (
         <UploadItem
           key={fila.id}
-          name={fila.archivo.nombre}
+          name={fila.nombre || fila.archivo.nombre}
           // La foto recién sacada no trae peso: leerlo exigiría cargar el
           // archivo entero, que es lo que la subida evita.
           size={fila.archivo.tamanoBytes > 0 ? tamanoLegible(fila.archivo.tamanoBytes) : undefined}

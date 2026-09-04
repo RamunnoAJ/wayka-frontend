@@ -12,7 +12,7 @@ import { useMiClinica } from '../clinica';
 import { FormularioDeContrasena, useUsuariosDeLaClinica } from '../cuenta';
 
 import { TIPOS_DE_DOCUMENTO } from './FormularioDeVeterinario';
-import { useActualizarVeterinario, usePlantel } from './queries';
+import { useActualizarVeterinario, usePlantel, useReenviarActivacion } from './queries';
 
 /**
  * Edición de una ficha del plantel (Alcance de Plataformas, 3.2).
@@ -46,6 +46,10 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
     Boolean(veterinario),
   );
   const cuenta = cuentas.data?.find((u) => u.veterinario_id === veterinarioId);
+  // Sin ningún método de autenticación configurado, nadie estrenó la cuenta: su
+  // token de activación sigue sin canjearse (regla 2.1).
+  const sinEstrenar = Boolean(cuenta && !cuenta.tiene_contrasena && !cuenta.tiene_google_vinculado);
+  const reenvio = useReenviarActivacion();
 
   if (plantel.isPending) {
     return (
@@ -232,11 +236,42 @@ export function FichaDeVeterinario({ veterinarioId }: { veterinarioId: string })
                 No encontramos una cuenta activa para esta ficha. Escribinos si esta persona debería
                 poder entrar.
               </Text>
+            ) : sinEstrenar ? (
+              // Una cuenta sin ningún método de autenticación es una que nadie
+              // estrenó (regla 2.1): su token de activación sigue sin canjearse.
+              // Restablecer la contraseña acá no tendría sentido — no hay ninguna
+              // que reemplazar, y saltearía el proceso que existe para que la
+              // elija su titular.
+              <>
+                <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{cuenta.email}</Text>
+                <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
+                  Todavía no estrenó su cuenta: le mandamos un enlace a ese correo para que elija su
+                  contraseña, y no lo usó. Si no le llegó o ya venció, mandáselo de nuevo.
+                </Text>
+                {reenvio.isError ? (
+                  <InlineError
+                    compact
+                    title="No se pudo reenviar"
+                    description={mensajeDeError(reenvio.error)}
+                  />
+                ) : null}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  style={estilos.botonDeAcceso}
+                  loading={reenvio.isPending}
+                  disabled={reenvio.isSuccess}
+                  onPress={() => reenvio.mutate(veterinarioId)}
+                >
+                  {reenvio.isSuccess ? 'Enlace reenviado' : 'Reenviar el enlace de activación'}
+                </Button>
+              </>
             ) : !restableciendo ? (
               <>
                 <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>{cuenta.email}</Text>
                 <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-                  Si olvidó su contraseña, restablecela vos: no hay recuperación por correo todavía.
+                  Si olvidó su contraseña puede recuperarla por correo. Restablecerla vos es la
+                  salida cuando el enlace no le llega o ya no tiene acceso a esa casilla.
                 </Text>
                 <Button
                   variant="secondary"

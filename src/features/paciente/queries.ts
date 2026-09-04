@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import { Linking } from 'react-native';
 
 import {
   listarAdjuntos,
   marcarFotoDePerfil,
   obtenerAdjunto,
   partirPorPertenencia,
+  renombrarAdjunto,
   retirarAdjunto,
   subirAdjunto,
   type Adjunto,
@@ -395,6 +397,45 @@ export function useMarcarFotoDePerfil(pacienteId: string) {
   const cliente = useQueryClient();
   return useMutation({
     mutationFn: (adjuntoId: string) => marcarFotoDePerfil(adjuntoId),
+    onSuccess: () => {
+      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+      void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
+    },
+  });
+}
+
+/**
+ * Baja el archivo al dispositivo.
+ *
+ * Pide la URL de nuevo antes de abrirla: la que trajo el listado vence en
+ * minutos (regla 4.14.4), y una ficha abierta hace rato ya la tiene vencida.
+ *
+ * **Abrirla es bajarla**: el backend firma la descarga con `Content-Disposition:
+ * attachment`, así que el navegador —el de la web y el del teléfono— la guarda
+ * en vez de mostrarla. Guardarla desde la app sin salir exigiría una dependencia
+ * nativa nueva y otro build del cliente para llegar al mismo archivo en la misma
+ * carpeta.
+ */
+export function useDescargarAdjunto() {
+  return useMutation({
+    mutationFn: async (adjuntoId: string) => {
+      const fresco = await obtenerAdjunto(adjuntoId);
+      await Linking.openURL(fresco.archivo_url);
+      return fresco;
+    },
+  });
+}
+
+/**
+ * Renombra un adjunto. Refresca el listado y también la copia local: el nombre
+ * viaja en el metadato que el dispositivo replica, y es lo que la ficha muestra
+ * sin conexión.
+ */
+export function useRenombrarAdjunto(pacienteId: string) {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: ({ adjuntoId, nombre }: { adjuntoId: string; nombre: string }) =>
+      renombrarAdjunto(adjuntoId, nombre),
     onSuccess: () => {
       cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
       void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });

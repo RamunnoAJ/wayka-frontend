@@ -43,7 +43,13 @@ export interface Tutor {
 }
 
 export interface FiltrosDeTutores {
-  /** Coincidencia parcial, sin distinguir mayúsculas, sobre nombre o contacto. */
+  /**
+   * Coincidencia parcial, sin distinguir mayúsculas, sobre nombre o contacto; o
+   * por el **comienzo del número de documento**. Es un campo contra los tres
+   * datos: quien busca tiene lo que la persona le dijo —un apellido, un
+   * teléfono, un DNI— y no debería tener que declarar antes cuál de las tres
+   * cosas es.
+   */
   busqueda?: string;
   tipo_documento?: TipoDocumento;
   numero_documento?: string;
