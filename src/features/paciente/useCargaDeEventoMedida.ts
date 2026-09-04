@@ -5,7 +5,9 @@ import { emitir } from '../../lib/telemetria';
 
 /**
  * Mide la carga de un evento clínico: cuándo se abrió el formulario, cuánto duró
- * y si se cerró sin guardar.
+ * y cómo se cerró. Los dos cierres emiten `duracion_ms`, y son dos eventos
+ * distintos porque la mediana de los que se fueron a la mitad no es el tiempo de
+ * carga: es el tiempo de abandono.
  *
  * Es el único cronómetro del catálogo y existe porque el tiempo de carga es lo
  * que decide si el veterinario vuelve al papel. El abandono se distingue del
@@ -38,6 +40,13 @@ export function useCargaDeEventoMedida(activa = true): { guardada: () => void } 
   return {
     guardada: () => {
       seGuardo.current = true;
+      // Apagada no hay cronómetro que leer: `abierta` sigue en cero y la
+      // duración daría el tiempo transcurrido desde 1970. Es el caso de la
+      // edición, que no es una carga y no entra en la métrica.
+      if (!activa) return;
+      emitir(EVENTO_DE_USO.CARGA_EVENTO_GUARDADA, {
+        duracion_ms: Date.now() - abierta.current,
+      });
     },
   };
 }

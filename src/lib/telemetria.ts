@@ -1,6 +1,8 @@
 import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { Platform } from 'react-native';
 
+import { borrarColaGuardada, guardarCola, leerColaGuardada } from './almacenamiento-cola';
 import {
   EVENTOS_POR_LOTE,
   registrarTelemetria,
@@ -27,11 +29,17 @@ import { obtenerTokenAcceso } from '../stores/sesion';
  * **Sin sesión no se emite.** La ruta exige token, y encolar lo que va a ser
  * rechazado solo llena la cola con lo que nunca va a entrar.
  *
- * La cola vive en memoria y no sobrevive a que el sistema mate el proceso. Es
- * menos de lo que pide el documento —ahí la cola vive en el dispositivo— y está
- * asumido: persistirla exige una tabla en la copia local, que solo existe para el
- * tutor en nativo. Lo que se pierde son los eventos generados sin señal si la app
- * se cierra antes de reconectar.
+ * **La cola vive en el dispositivo y sobrevive a que el sistema mate el
+ * proceso** (`almacenamiento-cola.ts`). Estuvo un tiempo solo en memoria, y lo
+ * que se perdía era justo lo que el documento quiere medir: los eventos que el
+ * tutor genera sin señal, cuando la app se cierra antes de reconectar. Eso
+ * sesgaba `sesion_servida_offline` hacia cero en los usos que más la
+ * necesitaban, que es la peor forma de equivocarse — no agrega ruido, corre la
+ * media para el lado que hace parecer que el offline no sirve.
+ *
+ * Se vuelca en los mismos momentos en que se despacha y no en cada `emitir`:
+ * quinientas escrituras a disco por sesión, para un dato que nunca bloquea al
+ * usuario, sería al revés del principio.
  */
 const TECHO_DE_LA_COLA = 500;
 const INTENTOS_MAXIMOS = 3;
@@ -91,6 +99,53 @@ function versionDeLaApp(): string | undefined {
 }
 
 /**
+ * Qué paquete corre este cliente. La versión declarada en la app **no cambia**
+ * al publicar una actualización por aire, así que dos clientes con la misma
+ * `app_version` pueden estar corriendo código distinto: sin esto, atribuir un
+ * salto de una serie a una entrega —la única razón por la que se guarda la
+ * versión— no se puede.
+ *
+ * Queda `undefined` donde no hay actualización por aire: el navegador, el
+ * entorno de desarrollo y Expo Go. No es dato personal: lo genera el sistema de
+ * compilación, no el aparato.
+ */
+function entregaEnCurso(): string | undefined {
+  return Updates.updateId ?? undefined;
+}
+
+/**
+ * Recupera lo que quedó del uso anterior. Se llama una vez al arrancar, antes de
+ * que nada emita.
+ *
+ * Los eventos recuperados **conservan su `sesion_id` original**: son de otro uso
+ * de la app, y renumerarlos con el actual mezclaría dos sesiones en una y
+ * rompería el conteo. El identificador nuevo es solo para lo que se emita ahora.
+ */
+export async function hidratarColaDeTelemetria(): Promise<void> {
+  const guardada = await leerColaGuardada();
+  if (!guardada) return;
+
+  try {
+    const recuperados = JSON.parse(guardada) as EventoEnCola[];
+    if (!Array.isArray(recuperados)) return;
+    cola = [...recuperados, ...cola].slice(-TECHO_DE_LA_COLA);
+  } catch {
+    // Un JSON cortado a la mitad —la app murió mientras escribia— es un dato
+    // menos y no un arranque que falla.
+    await borrarColaGuardada();
+  }
+}
+
+/** Vuelca lo pendiente. La cola vacia borra en vez de guardar un `[]`. */
+async function volcarCola(): Promise<void> {
+  if (cola.length === 0) {
+    await borrarColaGuardada();
+    return;
+  }
+  await guardarCola(JSON.stringify(cola));
+}
+
+/**
  * Encola un hecho de uso. No devuelve nada y no falla nunca: quien lo llama está
  * haciendo otra cosa, y enterarse de que la métrica no se pudo guardar no le
  * sirve para nada.
@@ -103,6 +158,7 @@ export function emitir(nombre: EventoDeUso, propiedades?: PropiedadesDeUso): voi
     ocurrido_at: new Date().toISOString(),
     sesion_id: sesionDeUso,
     app_version: versionDeLaApp(),
+    update_id: entregaEnCurso(),
     ...(propiedades ? { propiedades } : {}),
     intentos: 0,
   });
@@ -126,9 +182,14 @@ export function emitir(nombre: EventoDeUso, propiedades?: PropiedadesDeUso): voi
  */
 export function despachar(): Promise<void> {
   if (despachando) return despachando;
-  despachando = correr().finally(() => {
-    despachando = null;
-  });
+  // El volcado va despues de correr y no antes: lo que se despacho con exito ya
+  // no esta en la cola, y guardarlo primero dejaria en disco eventos que se
+  // volverian a mandar en el proximo arranque.
+  despachando = correr()
+    .then(volcarCola)
+    .finally(() => {
+      despachando = null;
+    });
   return despachando;
 }
 
@@ -160,6 +221,7 @@ async function correr(): Promise<void> {
 export function vaciarColaDeTelemetria(): void {
   cola = [];
   ultimoDespachoFallo = false;
+  void borrarColaGuardada();
 }
 
 export function cuantosEventosEsperan(): number {

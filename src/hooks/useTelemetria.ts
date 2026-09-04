@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 
 import { EVENTO_DE_USO } from '../api/telemetria';
 import { escucharAperturaDesdeAviso } from '../features/notificaciones';
-import { despachar, emitir } from '../lib/telemetria';
+import { despachar, emitir, hidratarColaDeTelemetria } from '../lib/telemetria';
 
 /**
  * Cuándo sube la telemetría acumulada.
@@ -22,7 +22,10 @@ export function useTelemetriaAutomatica(habilitada: boolean): void {
   useEffect(() => {
     if (!habilitada) return;
 
-    void despachar();
+    // Primero se recupera lo que quedó del uso anterior y recién después se
+    // despacha: al revés, el primer envío saldría sin los eventos que el tutor
+    // juntó sin señal, que son los que más importa no perder.
+    void hidratarColaDeTelemetria().then(despachar);
     const dejarDeEscucharAvisos = escucharAperturaDesdeAviso();
     const red = Network.addNetworkStateListener((estado) => {
       if (estado.isInternetReachable) void despachar();

@@ -1,7 +1,13 @@
 import { registrarTelemetria } from '../api/telemetria';
 import { obtenerTokenAcceso } from '../stores/sesion';
 
-import { cuantosEventosEsperan, despachar, emitir, vaciarColaDeTelemetria } from './telemetria';
+import {
+  cuantosEventosEsperan,
+  despachar,
+  emitir,
+  hidratarColaDeTelemetria,
+  vaciarColaDeTelemetria,
+} from './telemetria';
 
 jest.mock('../api/telemetria', () => ({
   ...jest.requireActual('../api/telemetria'),
@@ -9,10 +15,26 @@ jest.mock('../api/telemetria', () => ({
 }));
 jest.mock('../stores/sesion', () => ({ obtenerTokenAcceso: jest.fn() }));
 
+// El almacén real es SQLite en nativo y localStorage en web; acá alcanza con un
+// objeto que recuerde, que es todo lo que la cola le pide.
+// El prefijo `mock` es lo único que jest deja referenciar desde una factoría de
+// `jest.mock`, que se iza por encima de las declaraciones del módulo.
+const mockAlmacen = { valor: null as string | null };
+jest.mock('./almacenamiento-cola', () => ({
+  leerColaGuardada: jest.fn(async () => mockAlmacen.valor),
+  guardarCola: jest.fn(async (serializada: string) => {
+    mockAlmacen.valor = serializada;
+  }),
+  borrarColaGuardada: jest.fn(async () => {
+    mockAlmacen.valor = null;
+  }),
+}));
+
 const registrarMock = registrarTelemetria as jest.MockedFunction<typeof registrarTelemetria>;
 const tokenMock = obtenerTokenAcceso as jest.MockedFunction<typeof obtenerTokenAcceso>;
 
 beforeEach(() => {
+  mockAlmacen.valor = null;
   vaciarColaDeTelemetria();
   registrarMock.mockReset();
   registrarMock.mockResolvedValue({ recibidos: 1, descartados: 0 });
@@ -111,4 +133,58 @@ it('no despacha dos veces en paralelo los mismos eventos', async () => {
   await Promise.all([despachar(), despachar()]);
 
   expect(registrarMock).toHaveBeenCalledTimes(1);
+});
+
+describe('la cola sobrevive a que se cierre la app', () => {
+  it('recupera al arrancar lo que no se pudo despachar', async () => {
+    registrarMock.mockRejectedValue(new Error('sin red'));
+    emitir('sesion_servida_offline', { copia_caducada: false });
+    await despachar();
+
+    // El arranque siguiente: otro proceso, la cola en memoria vacía.
+    vaciarColaDeTelemetria();
+    mockAlmacen.valor = JSON.stringify([
+      { nombre: 'sesion_servida_offline', ocurrido_at: '2026-01-01T00:00:00.000Z', intentos: 1 },
+    ]);
+    await hidratarColaDeTelemetria();
+
+    expect(cuantosEventosEsperan()).toBe(1);
+
+    registrarMock.mockReset();
+    registrarMock.mockResolvedValue({ recibidos: 1, descartados: 0 });
+    await despachar();
+    expect(registrarMock).toHaveBeenCalledTimes(1);
+    expect(registrarMock.mock.calls[0]![0].eventos[0]!.nombre).toBe('sesion_servida_offline');
+  });
+
+  it('conserva el sesion_id con que se emitió y no lo renumera con el del arranque nuevo', async () => {
+    mockAlmacen.valor = JSON.stringify([
+      {
+        nombre: 'pantalla_vista',
+        ocurrido_at: '2026-01-01T00:00:00.000Z',
+        sesion_id: '11111111-1111-4111-8111-111111111111',
+        intentos: 0,
+      },
+    ]);
+    await hidratarColaDeTelemetria();
+    await despachar();
+
+    expect(registrarMock.mock.calls[0]![0].eventos[0]!.sesion_id).toBe(
+      '11111111-1111-4111-8111-111111111111',
+    );
+  });
+
+  it('no deja en disco lo que ya se despachó con éxito', async () => {
+    emitir('pantalla_vista', { pantalla: 'agenda' });
+    await despachar();
+
+    expect(mockAlmacen.valor).toBeNull();
+  });
+
+  it('un JSON cortado a la mitad no rompe el arranque', async () => {
+    mockAlmacen.valor = '[{"nombre":"pantalla_vis';
+    await hidratarColaDeTelemetria();
+
+    expect(cuantosEventosEsperan()).toBe(0);
+  });
 });

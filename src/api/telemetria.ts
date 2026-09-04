@@ -18,6 +18,12 @@ export const EVENTO_DE_USO = {
   PANTALLA_VISTA: 'pantalla_vista',
   CARGA_EVENTO_ABIERTA: 'carga_evento_abierta',
   CARGA_EVENTO_ABANDONADA: 'carga_evento_abandonada',
+  /**
+   * El otro extremo del cronómetro. Sin él, la única `duracion_ms` registrada es
+   * la de los que se fueron a la mitad, y el "Tiempo de carga" de Telemetría de
+   * Producto, 9 termina siendo la mediana del abandono con otro nombre.
+   */
+  CARGA_EVENTO_GUARDADA: 'carga_evento_guardada',
   APP_ABIERTA_DESDE_PUSH: 'app_abierta_desde_push',
   NOTIFICACIONES_DESACTIVADAS: 'notificaciones_desactivadas',
   SESION_SERVIDA_OFFLINE: 'sesion_servida_offline',
@@ -43,6 +49,13 @@ export interface EventoDeTelemetria {
   /** Agrupa los eventos de un mismo uso de la app. No es el token ni deriva de él. */
   sesion_id?: string;
   app_version?: string;
+  /**
+   * Qué paquete corre el cliente. `app_version` sola no lo dice: no cambia al
+   * publicar una actualización por aire, así que dos clientes con la misma
+   * versión pueden estar corriendo código distinto. Queda `undefined` en el
+   * navegador y en desarrollo, donde no hay actualización por aire.
+   */
+  update_id?: string;
   propiedades?: PropiedadesDeUso;
 }
 
