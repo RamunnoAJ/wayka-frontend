@@ -5,5 +5,5 @@ export {
   useAusencias,
   useCrearAusencia,
   useDarDeBajaAusencia,
-  usePrevisualizarAusencia,
+  usePrevisualizacionDeAusencia,
 } from './queries';

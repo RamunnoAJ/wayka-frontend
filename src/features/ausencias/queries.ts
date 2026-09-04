@@ -39,10 +39,22 @@ export function useCrearAusencia() {
   });
 }
 
-/** No escribe nada: se dispara a mano y manda un cuerpo, así que es mutación por su forma. */
-export function usePrevisualizarAusencia() {
-  return useMutation<PrevisualizacionDeAusencia, Error, CrearAusenciaEntrada>({
-    mutationFn: previsualizarAusencia,
+/**
+ * El efecto que tendría cargar esa ausencia. No escribe nada —manda un cuerpo
+ * por el tamaño del rango, no porque mute algo—, así que es una consulta y no
+ * una mutación: el contrato pide que la pantalla **diga** el efecto antes de
+ * guardar (Reglas 4.22 paso 2), no que lo ofrezca detrás de un botón.
+ *
+ * Con `entrada` en null la consulta queda apagada, que es lo que pasa mientras
+ * el rango no cierra o mientras se está tecleando la fecha.
+ */
+export function usePrevisualizacionDeAusencia(
+  entrada: CrearAusenciaEntrada | null,
+): UseQueryResult<PrevisualizacionDeAusencia> {
+  return useQuery({
+    queryKey: ['ausencias', 'previsualizacion', entrada] as const,
+    queryFn: () => previsualizarAusencia(entrada as CrearAusenciaEntrada),
+    enabled: entrada !== null,
   });
 }
 
