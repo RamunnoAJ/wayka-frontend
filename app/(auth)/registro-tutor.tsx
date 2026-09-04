@@ -31,6 +31,7 @@ import {
   validarRepetirContrasena,
 } from '../../src/features/auth';
 import { CODIGO_ERROR, ErrorApi, mensajeDeError } from '../../src/lib/errores';
+import { esWeb } from '../../src/lib/plataforma';
 import { ThemeProvider, useTheme } from '../../src/theme';
 
 /**
@@ -48,18 +49,37 @@ import { ThemeProvider, useTheme } from '../../src/theme';
 export default function RegistroTutor() {
   return (
     <ThemeProvider nombre="tutor">
-      <EntradaDePantalla>
-        <FormularioDeRegistro />
-      </EntradaDePantalla>
+      <EntradaDePantalla>{esWeb ? <SoloEnMovil /> : <FormularioDeRegistro />}</EntradaDePantalla>
     </ThemeProvider>
   );
 }
 
 /**
- * El tutor no tiene acceso a la web bajo ninguna circunstancia (Alcance de
- * Plataformas, sección 1): el backend rechazaría el alta por canal, así que
- * mostrar el formulario sería llevar a alguien a un rechazo evitable.
+ * El tutor solo entra por la app (Alcance de Plataformas, sección 2). El alta en
+ * sí no declara canal y el backend la aceptaría —no emite sesión—, pero el login
+ * que viene inmediatamente después la rechaza: mostrar el formulario en el
+ * navegador sería dejar a alguien con una cuenta creada y sin poder entrar.
  */
+function SoloEnMovil() {
+  const { t, px, texto } = useTheme();
+
+  return (
+    <View style={[estilos.pantalla, estilos.centrado, { backgroundColor: t['--surface-card'] }]}>
+      <View style={{ maxWidth: 380, gap: px('--space-4'), alignItems: 'center' }}>
+        <Text style={[texto('h2'), { color: t['--text-strong'], textAlign: 'center' }]}>
+          Wayka para tutores está en la app
+        </Text>
+        <Text style={[texto('body'), { color: t['--text-muted'], textAlign: 'center' }]}>
+          Descargá la aplicación en tu teléfono para crear tu cuenta y ver la historia clínica de
+          tus mascotas.
+        </Text>
+        <Button variant="secondary" onPress={() => router.replace('/(auth)/login')}>
+          Volver al ingreso
+        </Button>
+      </View>
+    </View>
+  );
+}
 
 function FormularioDeRegistro() {
   const { t, px, texto } = useTheme();

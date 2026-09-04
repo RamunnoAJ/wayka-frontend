@@ -85,13 +85,13 @@ function mensajeDeFalla(error: unknown): { titulo: string; detalle: string } {
       return { titulo: 'No pudimos entrar', detalle: 'Revisá el correo y la contraseña.' };
     }
     if (error.esCodigo(CODIGO_ERROR.PERMISO_DENEGADO)) {
-      // El único bloqueo de canal que queda en pie es el del clínica_admin en
-      // móvil (regla 2.3): en web ya no hay cuenta que rebote por el canal, y
-      // por eso ese caso no tiene un mensaje propio.
+      // Los dos bloqueos de canal de la regla 2.3, uno por plataforma: en web
+      // solo puede rebotar un tutor, y en la app solo un clínica_admin. El
+      // mensaje dice a dónde ir, que es lo único que la persona necesita.
       return {
         titulo: 'Esta cuenta no entra por acá',
         detalle: esWeb
-          ? 'Probá de nuevo, o escribinos si el problema sigue.'
+          ? 'Wayka para tutores está en la app: descargala para entrar con este correo.'
           : 'Las cuentas de administración de la clínica entran desde la web.',
       };
     }
@@ -181,17 +181,24 @@ function LoginAncho() {
             textoBoton="Ingresar"
           />
 
-          {/* El tutor también entra por acá desde que la web dejó de estar
-              cerrada para su rol. Se lo nombra explícitamente porque la columna
-              dice "correo profesional" y sin esto parecería que no es para él. */}
+          {/* En web no se ofrece el alta: el tutor no entra por acá (regla
+              2.3), y el aviso reemplaza al camino en vez de esconderlo — quien
+              busca dónde crear su cuenta necesita saber adónde ir. */}
           <View style={estilos.tutor}>
             <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-              ¿Sos tutor de una mascota? Entrás por acá con el mismo correo. Los recordatorios de
-              turno y sacar una foto son de la app.
+              {esWeb
+                ? '¿Sos tutor de una mascota? Wayka para tutores está en la app.'
+                : '¿Sos tutor de una mascota? Entrás por acá con el mismo correo.'}
             </Text>
-            <Button variant="ghost" size="sm" onPress={() => router.push('/(auth)/registro-tutor')}>
-              Crear una cuenta
-            </Button>
+            {esWeb ? null : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={() => router.push('/(auth)/registro-tutor')}
+              >
+                Crear una cuenta
+              </Button>
+            )}
           </View>
         </View>
       </View>
@@ -281,16 +288,19 @@ function LoginAngosto() {
             textoBoton="Entrar"
           />
 
-          {/* El alta abierta es solo del tutor, que ahora entra por los dos
-              canales (Alcance de Plataformas, 5.1). */}
-          <Button
-            block
-            size="touch"
-            variant="ghost"
-            onPress={() => router.push('/(auth)/registro-tutor')}
-          >
-            Crear una cuenta
-          </Button>
+          {/* El alta abierta es solo del tutor, y el tutor solo entra por la
+              app (Alcance de Plataformas, 5.1): en un navegador angosto el botón
+              llevaría a una pantalla que dice que no. */}
+          {esWeb ? null : (
+            <Button
+              block
+              size="touch"
+              variant="ghost"
+              onPress={() => router.push('/(auth)/registro-tutor')}
+            >
+              Crear una cuenta
+            </Button>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
