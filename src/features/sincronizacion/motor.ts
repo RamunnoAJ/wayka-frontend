@@ -92,6 +92,15 @@ async function subir(resumen: ResumenDeSincronizacion): Promise<void> {
   }
 }
 
+/**
+ * La mutación como la quiere el contrato: sin el estado de la cola, que es del
+ * cliente y el servidor no espera.
+ *
+ * Lleva **los cinco** payloads. Los dos de alta —`evento_clinico` y
+ * `medicacion`— faltaban, y sin ellos el servidor rechaza todo antecedente
+ * cargado por el tutor con "falta el antecedente": la superficie de escritura
+ * clínica del tutor (doc 11, sección 5) no llegaba a existir.
+ */
 function comoMutacion(mutacion: Mutacion): Mutacion {
   return {
     id_mutacion: mutacion.id_mutacion,
@@ -102,6 +111,8 @@ function comoMutacion(mutacion: Mutacion): Mutacion {
     paciente: mutacion.paciente,
     tutor: mutacion.tutor,
     cita: mutacion.cita,
+    evento_clinico: mutacion.evento_clinico,
+    medicacion: mutacion.medicacion,
   };
 }
 

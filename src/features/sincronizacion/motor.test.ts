@@ -152,6 +152,58 @@ describe('motor de sincronización', () => {
     expect(aplicarDelta).toHaveBeenCalledTimes(2);
   });
 
+  // Las dos mutaciones de alta llevan su payload en `evento_clinico` /
+  // `medicacion` (doc 11, sección 5). Sin eso el servidor las rechaza con
+  // "falta el antecedente", y el tutor no puede cargar ni uno.
+  it('sube el antecedente con su contenido', async () => {
+    pendientes.mockResolvedValue([
+      {
+        id_mutacion: 'mut-1',
+        tipo: 'cargar_antecedente_clinico' as const,
+        entidad_id: 'paciente-1',
+        estado: 'pendiente' as const,
+        evento_clinico: {
+          tipo: 'vacuna',
+          fecha: '2023-03-01',
+          fecha_precision: 'mes',
+          descripcion: 'Antirrábica, según la libreta',
+          campo_estructurado: { nombre_vacuna: 'Antirrábica' },
+        },
+      },
+    ]);
+    subir.mockResolvedValue({ resultados: [{ id_mutacion: 'mut-1', resultado: 'aceptada' }] });
+
+    await sincronizar();
+
+    expect(subir).toHaveBeenCalledWith([
+      expect.objectContaining({
+        tipo: 'cargar_antecedente_clinico',
+        evento_clinico: expect.objectContaining({ descripcion: 'Antirrábica, según la libreta' }),
+      }),
+    ]);
+  });
+
+  it('sube la medicación declarada con su contenido', async () => {
+    pendientes.mockResolvedValue([
+      {
+        id_mutacion: 'mut-2',
+        tipo: 'cargar_antecedente_de_medicacion' as const,
+        entidad_id: 'paciente-1',
+        estado: 'pendiente' as const,
+        medicacion: { nombre_droga: 'Meloxicam', fecha_inicio: '2026-08-01' },
+      },
+    ]);
+    subir.mockResolvedValue({ resultados: [{ id_mutacion: 'mut-2', resultado: 'aceptada' }] });
+
+    await sincronizar();
+
+    expect(subir).toHaveBeenCalledWith([
+      expect.objectContaining({
+        medicacion: expect.objectContaining({ nombre_droga: 'Meloxicam' }),
+      }),
+    ]);
+  });
+
   it('no corre dos veces en paralelo', async () => {
     // El diferido se arma antes de disparar: `sincronizar` es async y la bajada
     // recién ocurre unos microtasks después, así que resolver "al toque" sería
