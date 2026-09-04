@@ -116,7 +116,18 @@ export function Plantel() {
           {abierto ? (
             <FormularioDeVeterinario
               enviando={crear.isPending}
-              error={crear.error ? mensajeDeError(crear.error) : undefined}
+              error={
+                crear.error
+                  ? mensajeDeError(crear.error, {
+                      // Acá el buscador de arriba resuelve el choque sin salir
+                      // de la pantalla, así que el copy manda a usarlo.
+                      documento_en_uso:
+                        'Ese documento ya está cargado en otra ficha. Buscalo en el plantel antes de darlo de alta.',
+                      matricula_en_uso:
+                        'Esa matrícula ya está cargada en otra ficha. Buscala en el plantel para ver de quién es.',
+                    })
+                  : undefined
+              }
               onGuardar={(entrada) => crear.mutate(entrada, { onSuccess: () => setAbierto(false) })}
               onCancelar={() => setAbierto(false)}
             />

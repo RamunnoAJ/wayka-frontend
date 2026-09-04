@@ -166,7 +166,12 @@ export function AsignarProfesional({ cita, nombreDelPaciente, zonaHoraria, onCer
             <InlineError
               compact
               title="No se pudo asignar"
-              description={mensajeDeError(asignar.error)}
+              description={mensajeDeError(asignar.error, {
+                // Un 409 acá solo puede ser que esa persona dejó de estar libre
+                // entre que se abrió el diálogo y se eligió.
+                conflicto:
+                  'Esa persona ya no está libre a esa hora. Elegí a otra, o movele la hora a la cita.',
+              })}
             />
           ) : null}
 
