@@ -14,6 +14,7 @@ import { obtenerTutor, type Tutor } from '../../api/tutor';
 import { useSesion } from '../../hooks/useSesion';
 import type { ArchivoElegido } from '../../lib/archivos';
 import { hayCopiaLocal } from '../../lib/base-local';
+import { CLAVES, invalidarAdjuntos } from '../paciente/queries';
 import { sincronizar } from '../sincronizacion/motor';
 import {
   hayAjenasPurgadas,
@@ -149,7 +150,7 @@ export function useSubirFotoDePerfil() {
         es_foto_perfil: true,
       }),
     onSuccess: (_adjunto, { pacienteId }) => {
-      void cliente.invalidateQueries({ queryKey: ['adjuntos', pacienteId] });
+      invalidarAdjuntos(cliente, pacienteId);
       void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
     },
   });
@@ -216,9 +217,9 @@ export interface AdjuntosDeLaFicha {
 
 export function useAdjuntosDeMiMascota(pacienteId: string): UseQueryResult<AdjuntosDeLaFicha> {
   return useQuery({
-    queryKey: hayCopiaLocal
-      ? ['sincronizacion', 'copia', 'adjuntos', pacienteId]
-      : ['adjuntos', pacienteId],
+    // La clave la define `CLAVES` y no este módulo: las mutaciones de adjuntos
+    // viven en `paciente/queries` y tienen que poder invalidarla.
+    queryKey: CLAVES.adjuntosDelTutor(pacienteId),
     queryFn: async () => {
       try {
         return { adjuntos: await listarAdjuntos(pacienteId), soloMetadatos: false };

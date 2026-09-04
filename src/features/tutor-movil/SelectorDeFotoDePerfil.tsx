@@ -38,9 +38,9 @@ export function SelectorDeFotoDePerfil({
     setError(null);
     let elegido: ArchivoElegido | null;
     try {
-      // En el teléfono la foto sale del carrete y no de la app Archivos, donde
+      // En el teléfono la foto sale de la galería y no de la app Archivos, donde
       // las fotos no están (misma decisión que la subida de adjuntos).
-      elegido = await elegirArchivo('foto', Platform.OS === 'web' ? 'archivos' : 'carrete');
+      elegido = await elegirArchivo('foto', Platform.OS === 'web' ? 'archivos' : 'galeria');
     } catch (falla) {
       setError(mensajeDeError(falla));
       return;

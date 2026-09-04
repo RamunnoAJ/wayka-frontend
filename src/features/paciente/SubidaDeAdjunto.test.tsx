@@ -14,16 +14,16 @@ jest.mock('expo-image-picker', () => ({ launchImageLibraryAsync: jest.fn() }));
 jest.mock('../../api/adjunto', () => ({ subirAdjunto: jest.fn() }));
 
 const abrirArchivos = DocumentPicker.getDocumentAsync as jest.Mock;
-const abrirCarrete = ImagePicker.launchImageLibraryAsync as jest.Mock;
+const abrirGaleria = ImagePicker.launchImageLibraryAsync as jest.Mock;
 const subir = subirAdjunto as jest.Mock;
 
 /**
- * El tipo por defecto es "foto", y una foto sale del carrete: en iOS el
+ * El tipo por defecto es "foto", y una foto sale de la galería: en iOS el
  * selector de documentos abre la app Archivos, donde las fotos del teléfono no
- * están. Por eso el mock que usan casi todas las pruebas es el del carrete.
+ * están. Por eso el mock que usan casi todas las pruebas es el de la galería.
  */
 function devuelveArchivo(cambios: Record<string, unknown> = {}) {
-  abrirCarrete.mockResolvedValue({
+  abrirGaleria.mockResolvedValue({
     canceled: false,
     assets: [
       {
@@ -138,7 +138,7 @@ describe('SubidaDeAdjunto', () => {
   });
 
   it('cancelar el selector no es un error: no pasa nada', async () => {
-    abrirCarrete.mockResolvedValue({ canceled: true, assets: null });
+    abrirGaleria.mockResolvedValue({ canceled: true, assets: null });
     const { getByRole, queryByText } = await render(<SubidaDeAdjunto pacienteId="p1" />);
 
     await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
@@ -179,14 +179,14 @@ describe('SubidaDeAdjunto', () => {
   });
   // El bug que motivó esto: "elegir foto" abría la app Archivos en iPhone, que
   // es justo el lugar donde las fotos del teléfono no están.
-  it('la foto sale del carrete, no de la app Archivos', async () => {
+  it('la foto sale de la galería, no de la app Archivos', async () => {
     devuelveArchivo();
     subir.mockResolvedValue({ id: 'a1' });
     const { getByRole } = await render(<SubidaDeAdjunto pacienteId="p1" />);
 
     await fireEvent.press(getByRole('button', { name: 'Elegir foto' }));
 
-    await waitFor(() => expect(abrirCarrete).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(abrirGaleria).toHaveBeenCalledTimes(1));
     expect(abrirArchivos).not.toHaveBeenCalled();
   });
 
@@ -204,10 +204,10 @@ describe('SubidaDeAdjunto', () => {
 
     await waitFor(() => expect(abrirArchivos).toHaveBeenCalledTimes(1));
     expect(hoja).not.toHaveBeenCalled();
-    expect(abrirCarrete).not.toHaveBeenCalled();
+    expect(abrirGaleria).not.toHaveBeenCalled();
   });
 
-  // El estudio vive en los dos lados: la placa en el carrete, el informe
+  // El estudio vive en los dos lados: la placa en la galería, el informe
   // escaneado entre los archivos. Es el único tipo que pregunta.
   it('el estudio pregunta de dónde sacarlo y respeta la respuesta', async () => {
     devuelveDocumento();
@@ -220,7 +220,7 @@ describe('SubidaDeAdjunto', () => {
     await fireEvent.press(getByRole('button', { name: 'Elegir estudio' }));
 
     await waitFor(() => expect(abrirArchivos).toHaveBeenCalledTimes(1));
-    expect(abrirCarrete).not.toHaveBeenCalled();
+    expect(abrirGaleria).not.toHaveBeenCalled();
   });
 
   it('cerrar la hoja sin elegir no abre ningún selector', async () => {
@@ -231,7 +231,7 @@ describe('SubidaDeAdjunto', () => {
     await fireEvent.press(getByRole('menuitem', { name: 'Estudio' }));
     await fireEvent.press(getByRole('button', { name: 'Elegir estudio' }));
 
-    await waitFor(() => expect(abrirCarrete).not.toHaveBeenCalled());
+    await waitFor(() => expect(abrirGaleria).not.toHaveBeenCalled());
     expect(abrirArchivos).not.toHaveBeenCalled();
   });
 });

@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useEntrada } from '../hooks';
 import { ANCHO_BORDE_FOCO, colorDeFoco, duracion, resorte, useTheme } from '../theme';
 
 import { Icon, type NombreDeIcono } from './Icon';
@@ -28,14 +29,17 @@ const OPACIDAD_DEL_FLASH = 0.85;
  * Port a React Native de `design-system/components/core/CameraCapture.jsx`.
  *
  * Cámara **dentro** de la app, no el picker del sistema: la foto clínica
- * necesita guía de encuadre y un paso de revisión antes de subir. Es el paso
- * previo a `UploadItem`.
+ * necesita guía de encuadre y un paso de revisión antes de subir
+ * (Alcance de Plataformas, 5.6). Es el paso previo a `UploadItem`.
  *
  * Este componente es solo la interfaz — no habla con la cámara ni pide permisos.
  * El fotograma vivo entra por `visor` y la toma congelada por `previewSrc`; quién
  * los produce es problema de quien lo use (`CamaraDeAdjunto`).
  *
- * Dos diferencias con el original, las dos de plataforma:
+ * **Es un panel, no una pantalla.** Llena el contenedor que le den y lo redondea;
+ * quién lo posiciona —hoy `CamaraDeAdjunto`, al pie de la pantalla— es de afuera.
+ *
+ * Diferencias con el original del design system, y por qué:
  *
  * 1. **El visor es un slot, no una imagen.** En web el design system mete el
  *    fotograma por `previewSrc` como `<img>`; en nativo el visor vivo es una
@@ -43,8 +47,15 @@ const OPACIDAD_DEL_FLASH = 0.85;
  *    `visor` recibe el elemento y `previewSrc` queda para la toma ya sacada.
  * 2. **Sin `backdrop-filter`.** No existe en React Native y resolverlo pedía
  *    `expo-blur`, que sobre un visor vivo cuesta cuadros en Android. Los
- *    controles se sostienen con los degradados de arriba y abajo, que sí son
- *    fieles: para eso entró `expo-linear-gradient`.
+ *    controles se sostienen con el degradado de abajo, que sí es fiel.
+ * 3. **Una sola fila de controles, sin barra superior ni título.** El original
+ *    reparte los controles arriba (cerrar, título, flash) y abajo (galería,
+ *    obturador, girar). Acá el panel no ocupa la pantalla entera: lo que está
+ *    arriba es la ficha del paciente, y una barra de la cámara ahí se leería
+ *    como parte de la ficha. Todo baja a `‹ · obturador · ···`, con el resto
+ *    —galería, modo, flash, girar— desplegándose desde `···` en una columna al
+ *    alcance del pulgar. El modo `documento` no desaparece: la guía de encuadre
+ *    es contrato (Alcance de Plataformas, 5.6), solo cambia de lugar.
  */
 export type ModoDeCamara = 'foto' | 'documento';
 export type EstadoDeCamara = 'listo' | 'revisando' | 'procesando' | 'sin-permiso';
@@ -72,6 +83,23 @@ const ORDEN_DE_FLASH: FlashDeCamara[] = ['off', 'auto', 'on'];
 
 const ALTO_DEL_DEGRADADO = 148;
 
+/** Lado del chip flotante. Lo usa la columna para saber a qué altura empezar. */
+const LADO_DEL_CHIP = 44;
+
+/** Separación entre los chips de la columna, y entre la columna y el `···`. */
+const HUECO_DE_LA_COLUMNA = 8;
+
+/** Lado del obturador. Es lo alto que es la fila: los chips van centrados en él. */
+const LADO_DEL_OBTURADOR = 76;
+
+/**
+ * Cuánto sube la columna desde el borde de abajo del panel para apoyarse justo
+ * arriba del `···`. El chip no está pegado al margen: va centrado en una fila
+ * tan alta como el obturador, y ese centrado es lo que suma el término del medio.
+ */
+const ALTURA_DE_LA_COLUMNA =
+  (LADO_DEL_OBTURADOR - LADO_DEL_CHIP) / 2 + LADO_DEL_CHIP + HUECO_DE_LA_COLUMNA;
+
 /**
  * `StyleSheet.absoluteFillObject` no está en los tipos de esta versión de React
  * Native, y `absoluteFill` es un id registrado que no se puede desarmar dentro
@@ -82,11 +110,9 @@ const LLENA = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 } as 
 interface CameraCaptureProps {
   status?: EstadoDeCamara;
   mode?: ModoDeCamara;
-  /** Modos ofrecidos, en orden. Con uno solo, el selector no se dibuja. */
+  /** Modos ofrecidos, en orden. Con uno solo, el cambio de modo no se ofrece. */
   modes?: ModoDeCamara[];
   flash?: FlashDeCamara;
-  /** Para qué se está sacando la foto: "Herida · Mora". */
-  title?: string;
   /** Reemplaza la ayuda de encuadre del modo. */
   hint?: string;
   /** Fotograma vivo: la vista nativa de la cámara. */
@@ -99,8 +125,6 @@ interface CameraCaptureProps {
   retakeLabel?: string;
   deniedTitle?: string;
   deniedBody?: string;
-  /** `false` = a sangre, sin radio (pantalla completa). */
-  framed?: boolean;
   onCapture?: () => void;
   onRetake?: () => void;
   onConfirm?: () => void;
@@ -117,7 +141,6 @@ export function CameraCapture({
   mode = 'foto',
   modes = ['foto', 'documento'],
   flash = 'off',
-  title,
   hint,
   visor,
   previewSrc,
@@ -127,7 +150,6 @@ export function CameraCapture({
   retakeLabel = 'Repetir',
   deniedTitle = 'Wayka no tiene acceso a la cámara',
   deniedBody = 'Sin cámara podés adjuntar fotos que ya tengas en el teléfono, pero no tomar una nueva desde acá.',
-  framed = true,
   onCapture,
   onRetake,
   onConfirm,
@@ -140,6 +162,9 @@ export function CameraCapture({
 }: CameraCaptureProps) {
   const { t, px, texto } = useTheme();
   const reducido = useReducedMotion();
+  const entradaDeLaColumna = useEntrada();
+
+  const [opciones, setOpciones] = useState(false);
 
   // Los tres momentos de la captura (Movimiento, sección 9): el obturador
   // confirma que se sacó la foto, el velo tapa el salto del sensor, y el paso a
@@ -152,7 +177,19 @@ export function CameraCapture({
     transform: [{ scale: hundido.get() }],
   }));
 
+  const modoActual = MODOS_DE_CAMARA[mode];
+  const revisando = status === 'revisando' || status === 'procesando';
+  const ocupado = status === 'procesando';
+  const sinPermiso = status === 'sin-permiso';
+  const flashActual = FLASH[flash];
+
+  // La columna no sobrevive a la captura ni a la falta de permiso: quedaría
+  // flotando sobre una toma congelada, ofreciendo ajustar un encuadre que ya no
+  // existe. Se cierra al disparar, y el estado se ignora mientras no haya visor.
+  const opcionesAbiertas = opciones && !revisando && !sinPermiso;
+
   const capturar = () => {
+    setOpciones(false);
     if (!reducido) {
       hundido.set(
         withSequence(withSpring(HUNDIDO_DEL_OBTURADOR, resorte.snap), withSpring(1, resorte.snap)),
@@ -167,25 +204,22 @@ export function CameraCapture({
     onCapture?.();
   };
 
-  const modoActual = MODOS_DE_CAMARA[mode];
-  const revisando = status === 'revisando' || status === 'procesando';
-  const ocupado = status === 'procesando';
-  const sinPermiso = status === 'sin-permiso';
-  const flashActual = FLASH[flash];
-
   const siguienteFlash = () => {
     const proximo = ORDEN_DE_FLASH[(ORDEN_DE_FLASH.indexOf(flash) + 1) % ORDEN_DE_FLASH.length];
     if (proximo) onFlashChange?.(proximo);
   };
 
+  // El modo se cambia con un solo chip y no con un selector de pestañas: en la
+  // columna hay lugar para un control, no para dos opciones lado a lado. Con más
+  // de dos modos rotaría, que es lo mismo que hace el flash.
+  const indiceDeModo = modes.indexOf(mode);
+  const siguienteModo = modes[(indiceDeModo + 1) % modes.length];
+
   return (
     <View
       style={[
         estilos.raiz,
-        {
-          borderRadius: framed ? px('--radius-card') : 0,
-          backgroundColor: t['--surface-immersive'],
-        },
+        { borderRadius: px('--radius-xl'), backgroundColor: t['--surface-immersive'] },
       ]}
     >
       {/* El visor vivo lo aporta quien usa el componente; la toma congelada entra por previewSrc. */}
@@ -233,41 +267,15 @@ export function CameraCapture({
         <GuiaDeEncuadre color={t['--immersive-accent']} radio={px('--radius-sm')} />
       ) : null}
 
-      <LinearGradient
-        pointerEvents="none"
-        colors={[t['--surface-immersive'], 'transparent']}
-        style={[estilos.degradado, estilos.degradadoArriba]}
-      />
+      {/* Un solo degradado, abajo: sin barra superior no hay nada arriba que sostener. */}
       <LinearGradient
         pointerEvents="none"
         colors={['transparent', t['--surface-immersive']]}
-        style={[estilos.degradado, estilos.degradadoAbajo]}
+        style={estilos.degradado}
       />
 
       <View style={[estilos.capa, { padding: px('--gutter-mobile') }]}>
-        <View style={estilos.barraSuperior}>
-          <Chip icono="x" etiqueta="Cerrar la cámara" onPress={onClose} />
-          {title ? (
-            <Text
-              numberOfLines={1}
-              style={[texto('body-strong'), estilos.titulo, { color: t['--text-on-immersive'] }]}
-            >
-              {title}
-            </Text>
-          ) : (
-            <View style={estilos.flexible} />
-          )}
-          {!sinPermiso && !revisando ? (
-            <Chip
-              icono={flashActual.icono}
-              etiqueta={flashActual.etiqueta}
-              activo={flash !== 'off'}
-              onPress={siguienteFlash}
-            />
-          ) : (
-            <View style={estilos.huecoDeChip} />
-          )}
-        </View>
+        <View style={estilos.flexible} />
 
         {sinPermiso ? (
           <View
@@ -307,166 +315,81 @@ export function CameraCapture({
               </Pressable>
             ) : null}
           </View>
-        ) : (
-          <View style={estilos.flexible} />
-        )}
+        ) : null}
 
-        {!sinPermiso ? (
-          <View style={estilos.controles}>
-            {hint || (!revisando && modoActual.ayuda) ? (
-              <Text
-                style={[
-                  texto('body-sm'),
-                  estilos.centrarTexto,
-                  { color: t['--text-on-immersive-muted'] },
-                ]}
-              >
-                {ocupado
-                  ? 'Guardando la toma…'
-                  : revisando
-                    ? (hint ?? '')
-                    : (hint ?? modoActual.ayuda)}
-              </Text>
-            ) : null}
+        <View style={estilos.flexible} />
 
-            {/* Revisando no ofrece modos: la toma ya está sacada, no hay nada que configurar. */}
-            {!revisando && modes.length > 1 ? (
-              <View
-                accessibilityRole="tablist"
+        <View style={estilos.controles}>
+          {!sinPermiso && (hint || (!revisando && modoActual.ayuda)) ? (
+            <Text
+              style={[
+                texto('body-sm'),
+                estilos.centrarTexto,
+                { color: t['--text-on-immersive-muted'] },
+              ]}
+            >
+              {ocupado
+                ? 'Guardando la toma…'
+                : revisando
+                  ? (hint ?? '')
+                  : (hint ?? modoActual.ayuda)}
+            </Text>
+          ) : null}
+
+          {revisando ? (
+            <View style={estilos.dosAcciones}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: ocupado }}
+                disabled={ocupado}
+                onPress={onRetake}
                 style={[
-                  estilos.selectorDeModo,
+                  estilos.accion,
                   {
-                    borderRadius: px('--radius-pill'),
-                    backgroundColor: t['--surface-immersive-item-hover'],
+                    height: px('--control-h-touch'),
+                    borderRadius: px('--radius-control'),
+                    backgroundColor: t['--surface-immersive-item'],
                     borderColor: t['--border-on-immersive'],
+                    borderWidth: 1,
                   },
                 ]}
               >
-                {modes.map((clave) => {
-                  const activo = clave === mode;
-                  return (
-                    <Pressable
-                      key={clave}
-                      accessibilityRole="tab"
-                      accessibilityState={{ selected: activo }}
-                      onPress={() => onModeChange?.(clave)}
-                      style={[
-                        estilos.modo,
-                        {
-                          borderRadius: px('--radius-pill'),
-                          backgroundColor: activo ? t['--immersive-accent'] : 'transparent',
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          texto('body-strong'),
-                          {
-                            fontSize: Number.parseFloat(t['--fs-body-sm']),
-                            color: activo ? t['--wayka-oscuro'] : t['--text-on-immersive-muted'],
-                          },
-                        ]}
-                      >
-                        {MODOS_DE_CAMARA[clave].etiqueta}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ) : null}
+                <Text style={[texto('body-lg'), { color: t['--text-on-immersive'] }]}>
+                  {retakeLabel}
+                </Text>
+              </Pressable>
 
-            {revisando ? (
-              <View style={estilos.dosAcciones}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityState={{ disabled: ocupado }}
-                  disabled={ocupado}
-                  onPress={onRetake}
-                  style={[
-                    estilos.accion,
-                    {
-                      height: px('--control-h-touch'),
-                      borderRadius: px('--radius-control'),
-                      backgroundColor: t['--surface-immersive-item'],
-                      borderColor: t['--border-on-immersive'],
-                      borderWidth: 1,
-                    },
-                  ]}
-                >
-                  <Text style={[texto('body-lg'), { color: t['--text-on-immersive'] }]}>
-                    {retakeLabel}
-                  </Text>
-                </Pressable>
+              {/* Procesando deja los dos botones donde están: no se saca el botón de debajo del dedo. */}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: ocupado, busy: ocupado }}
+                disabled={ocupado}
+                onPress={onConfirm}
+                style={[
+                  estilos.accion,
+                  {
+                    height: px('--control-h-touch'),
+                    borderRadius: px('--radius-control'),
+                    backgroundColor: t['--immersive-accent'],
+                  },
+                ]}
+              >
+                {ocupado ? <ActivityIndicator size="small" color={t['--wayka-oscuro']} /> : null}
+                <Text style={[texto('body-lg'), { color: t['--wayka-oscuro'] }]}>
+                  {ocupado ? 'Guardando' : confirmLabel}
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={estilos.barraDeCaptura}>
+              {/* Vuelve a los adjuntos, de donde se llegó: es la salida y no una
+                  cruz de descarte — no hay nada sacado que se pierda. */}
+              <Chip icono="chevron-left" etiqueta="Cerrar la cámara" onPress={onClose} />
 
-                {/* Procesando deja los dos botones donde están: no se saca el botón de debajo del dedo. */}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityState={{ disabled: ocupado, busy: ocupado }}
-                  disabled={ocupado}
-                  onPress={onConfirm}
-                  style={[
-                    estilos.accion,
-                    {
-                      height: px('--control-h-touch'),
-                      borderRadius: px('--radius-control'),
-                      backgroundColor: t['--immersive-accent'],
-                    },
-                  ]}
-                >
-                  {ocupado ? <ActivityIndicator size="small" color={t['--wayka-oscuro']} /> : null}
-                  <Text style={[texto('body-lg'), { color: t['--wayka-oscuro'] }]}>
-                    {ocupado ? 'Guardando' : confirmLabel}
-                  </Text>
-                </Pressable>
-              </View>
-            ) : (
-              <View style={estilos.barraDeCaptura}>
-                {onGallery ? (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Elegir del carrete"
-                    onPress={onGallery}
-                    style={[
-                      estilos.carrete,
-                      {
-                        borderRadius: px('--radius-md'),
-                        backgroundColor: t['--surface-immersive-item'],
-                        borderColor: t['--border-on-immersive'],
-                      },
-                    ]}
-                  >
-                    <View style={[estilos.recorte, { borderRadius: px('--radius-md') }]}>
-                      {galleryThumb ? (
-                        <Image
-                          source={{ uri: galleryThumb }}
-                          resizeMode="cover"
-                          style={estilos.llena}
-                        />
-                      ) : (
-                        <Icon name="images" size={18} color={t['--text-on-immersive']} />
-                      )}
-                    </View>
-                    {galleryCount ? (
-                      <View
-                        style={[
-                          estilos.contador,
-                          {
-                            borderRadius: px('--radius-pill'),
-                            backgroundColor: t['--immersive-accent'],
-                          },
-                        ]}
-                      >
-                        <Text style={[texto('overline'), { color: t['--wayka-oscuro'] }]}>
-                          {galleryCount}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </Pressable>
-                ) : (
-                  <View style={estilos.huecoDeChip} />
-                )}
-
-                {/* El obturador queda blanco: es la convención de cámara y no compite con el acento. */}
+              {sinPermiso ? (
+                <View style={estilos.huecoDeChip} />
+              ) : (
+                /* El obturador queda blanco: es la convención de cámara y no compite con el acento. */
                 <PressableAnimado
                   accessibilityRole="button"
                   accessibilityLabel={`Tomar ${modoActual.etiqueta.toLowerCase()}`}
@@ -484,15 +407,104 @@ export function CameraCapture({
                     ]}
                   />
                 </PressableAnimado>
+              )}
 
-                {onFlip ? (
-                  <Chip icono="refresh-cw" etiqueta="Cambiar de cámara" onPress={onFlip} />
-                ) : (
-                  <View style={estilos.huecoDeChip} />
-                )}
-              </View>
-            )}
-          </View>
+              {sinPermiso ? (
+                <View style={estilos.huecoDeChip} />
+              ) : (
+                <Chip
+                  icono={opcionesAbiertas ? 'x' : 'ellipsis'}
+                  etiqueta={opcionesAbiertas ? 'Cerrar las opciones' : 'Opciones de la cámara'}
+                  expandido={opcionesAbiertas}
+                  onPress={() => setOpciones((valor) => !valor)}
+                />
+              )}
+            </View>
+          )}
+        </View>
+
+        {/* La columna cuelga de la capa y no de la celda del `···`: dentro de una
+            vista de 44 px, Android recorta lo que se sale.
+
+            Los desplazamientos suman el margen a mano porque Yoga posiciona a un
+            hijo absoluto contra el **borde** del padre y no contra su caja de
+            relleno: sin esto la columna se va contra el borde del panel, corrida
+            del `···` que la abre. */}
+        {opcionesAbiertas ? (
+          <Animated.View
+            entering={entradaDeLaColumna}
+            exiting={FadeOut.duration(reducido ? 0 : duracion.fast.duration)}
+            style={[
+              estilos.columna,
+              {
+                right: px('--gutter-mobile'),
+                bottom: px('--gutter-mobile') + ALTURA_DE_LA_COLUMNA,
+              },
+            ]}
+          >
+            {onGallery ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Elegir de la galería"
+                onPress={onGallery}
+                style={[
+                  estilos.galeria,
+                  {
+                    borderRadius: px('--radius-md'),
+                    backgroundColor: t['--surface-immersive-item'],
+                    borderColor: t['--border-on-immersive'],
+                  },
+                ]}
+              >
+                <View style={[estilos.recorte, { borderRadius: px('--radius-md') }]}>
+                  {galleryThumb ? (
+                    <Image
+                      source={{ uri: galleryThumb }}
+                      resizeMode="cover"
+                      style={estilos.llena}
+                    />
+                  ) : (
+                    <Icon name="images" size={18} color={t['--text-on-immersive']} />
+                  )}
+                </View>
+                {galleryCount ? (
+                  <View
+                    style={[
+                      estilos.contador,
+                      {
+                        borderRadius: px('--radius-pill'),
+                        backgroundColor: t['--immersive-accent'],
+                      },
+                    ]}
+                  >
+                    <Text style={[texto('overline'), { color: t['--wayka-oscuro'] }]}>
+                      {galleryCount}
+                    </Text>
+                  </View>
+                ) : null}
+              </Pressable>
+            ) : null}
+
+            {siguienteModo && modes.length > 1 ? (
+              <Chip
+                icono={MODOS_DE_CAMARA[siguienteModo].icono}
+                etiqueta={`Cambiar a modo ${MODOS_DE_CAMARA[siguienteModo].etiqueta.toLowerCase()}`}
+                activo={mode === 'documento'}
+                onPress={() => onModeChange?.(siguienteModo)}
+              />
+            ) : null}
+
+            <Chip
+              icono={flashActual.icono}
+              etiqueta={flashActual.etiqueta}
+              activo={flash !== 'off'}
+              onPress={siguienteFlash}
+            />
+
+            {onFlip ? (
+              <Chip icono="refresh-cw" etiqueta="Cambiar de cámara" onPress={onFlip} />
+            ) : null}
+          </Animated.View>
         ) : null}
       </View>
     </View>
@@ -505,11 +517,13 @@ function Chip({
   etiqueta,
   onPress,
   activo,
+  expandido,
 }: {
   icono: NombreDeIcono;
   etiqueta: string;
   onPress?: () => void;
   activo?: boolean;
+  expandido?: boolean;
 }) {
   const { t, px } = useTheme();
   const [enfocado, setEnfocado] = useState(false);
@@ -519,7 +533,7 @@ function Chip({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={etiqueta}
-      accessibilityState={{ selected: activo }}
+      accessibilityState={{ selected: activo, expanded: expandido }}
       onPress={onPress}
       onFocus={() => setEnfocado(true)}
       onBlur={() => setEnfocado(false)}
@@ -600,21 +614,29 @@ function GuiaDeEncuadre({ color, radio }: { color: string; radio: number }) {
 }
 
 const estilos = StyleSheet.create({
-  raiz: { flex: 1, width: '100%', minHeight: 520, overflow: 'hidden' },
+  raiz: { flex: 1, width: '100%', overflow: 'hidden' },
   visor: { ...LLENA },
   llena: { width: '100%', height: '100%' },
   encima: { position: 'absolute', top: 0, left: 0 },
   atenuada: { opacity: 0.7 },
   centrado: { ...LLENA, alignItems: 'center', justifyContent: 'center' },
-  degradado: { position: 'absolute', left: 0, right: 0, height: ALTO_DEL_DEGRADADO, opacity: 0.9 },
-  degradadoArriba: { top: 0 },
-  degradadoAbajo: { bottom: 0 },
-  capa: { ...LLENA, justifyContent: 'space-between', gap: 12 },
-  barraSuperior: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  titulo: { flex: 1, textAlign: 'center' },
+  degradado: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: ALTO_DEL_DEGRADADO,
+    opacity: 0.9,
+  },
+  capa: { ...LLENA, justifyContent: 'flex-end', gap: 12 },
   flexible: { flex: 1 },
-  huecoDeChip: { width: 44, height: 44 },
-  chip: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  huecoDeChip: { width: LADO_DEL_CHIP, height: LADO_DEL_CHIP },
+  chip: {
+    width: LADO_DEL_CHIP,
+    height: LADO_DEL_CHIP,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sinPermiso: {
     alignSelf: 'center',
     alignItems: 'center',
@@ -625,8 +647,6 @@ const estilos = StyleSheet.create({
   centrarTexto: { textAlign: 'center' },
   enlace: { textDecorationLine: 'underline' },
   controles: { gap: 16, alignItems: 'center' },
-  selectorDeModo: { flexDirection: 'row', gap: 2, padding: 3, borderWidth: 1 },
-  modo: { height: 32, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
   dosAcciones: { flexDirection: 'row', gap: 12, width: '100%' },
   accion: {
     flex: 1,
@@ -641,7 +661,8 @@ const estilos = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  carrete: { width: 44, height: 44, borderWidth: 1 },
+  columna: { position: 'absolute', alignItems: 'center', gap: HUECO_DE_LA_COLUMNA },
+  galeria: { width: LADO_DEL_CHIP, height: LADO_DEL_CHIP, borderWidth: 1 },
   recorte: {
     ...LLENA,
     overflow: 'hidden',
@@ -659,8 +680,8 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   obturador: {
-    width: 76,
-    height: 76,
+    width: LADO_DEL_OBTURADOR,
+    height: LADO_DEL_OBTURADOR,
     padding: 5,
     borderWidth: 2,
     alignItems: 'center',

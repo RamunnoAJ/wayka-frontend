@@ -154,18 +154,14 @@ export function obtenerAdjunto(adjuntoId: string): Promise<Adjunto> {
   return http.get<Adjunto>(`/adjuntos/${adjuntoId}`);
 }
 
-/**
- * Deja este adjunto como foto de la mascota y desmarca a la que estuviera
- * marcada, en la misma transacción del backend.
- *
- * No es una edición del adjunto —que sigue sin admitirlas—: lo que cambia es
- * cuál de todos muestra la ficha, y por eso es una ruta propia y no un PATCH
- * del recurso. Retirar la marcada deja a la mascota sin foto: no se elige una
- * sucesora sola.
+/*
+ * `PUT /adjuntos/{id}/foto-perfil` existe en el contrato y el backend lo sigue
+ * sirviendo —marcar una foto ya subida es una capacidad real (Reglas de Negocio,
+ * 4.14.6)—, pero esta app no lo llama: la foto de perfil se cambia subiendo una
+ * nueva desde el avatar de la ficha (Alcance de Plataformas, 5.3), que ya la
+ * marca en el mismo pedido. Se saca el cliente en vez de dejarlo sin usar; si
+ * vuelve a hacer falta, es una línea.
  */
-export function marcarFotoDePerfil(adjuntoId: string): Promise<null> {
-  return http.put<null>(`/adjuntos/${adjuntoId}/foto-perfil`);
-}
 
 /**
  * La foto de perfil vigente de una mascota, si tiene. Se busca en el listado de

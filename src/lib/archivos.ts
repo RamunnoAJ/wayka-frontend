@@ -37,10 +37,10 @@ export interface ArchivoElegido {
 
 /**
  * De dónde sale el archivo. No es lo mismo en iOS: el selector de documentos
- * abre la app Archivos, donde las fotos del teléfono **no están** — el carrete
+ * abre la app Archivos, donde las fotos del teléfono **no están** — la galería
  * es otro selector distinto.
  */
-export type FuenteDeArchivo = 'carrete' | 'archivos';
+export type FuenteDeArchivo = 'galeria' | 'archivos';
 
 /**
  * Abre el selector que corresponda a la fuente. Devuelve `null` si el usuario
@@ -50,7 +50,7 @@ export async function elegirArchivo(
   tipo: TipoDeArchivo,
   fuente: FuenteDeArchivo = 'archivos',
 ): Promise<ArchivoElegido | null> {
-  return fuente === 'carrete' ? elegirDelCarrete() : elegirDeArchivos(tipo);
+  return fuente === 'galeria' ? elegirDeLaGaleria() : elegirDeArchivos(tipo);
 }
 
 /** El selector de documentos: la app Archivos en iOS, el de siempre. */
@@ -75,14 +75,14 @@ async function elegirDeArchivos(tipo: TipoDeArchivo): Promise<ArchivoElegido | n
 }
 
 /**
- * El carrete. Solo imágenes: en la biblioteca de fotos no hay PDFs, así que un
+ * La galería. Solo imágenes: en la biblioteca de fotos no hay PDFs, así que un
  * "estudio" que sea informe en papel escaneado sigue saliendo de Archivos.
  *
  * No pide permiso a mano: el selector de fotos del sistema (PHPicker en iOS,
  * el Photo Picker en Android) corre fuera de la app y devuelve solo lo que el
  * usuario eligió, sin acceso a la biblioteca entera.
  */
-async function elegirDelCarrete(): Promise<ArchivoElegido | null> {
+async function elegirDeLaGaleria(): Promise<ArchivoElegido | null> {
   const resultado = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ['images'],
     allowsMultipleSelection: false,
@@ -97,7 +97,7 @@ async function elegirDelCarrete(): Promise<ArchivoElegido | null> {
 
   return {
     uri: elegido.uri,
-    // El carrete no siempre da nombre (una foto de iCloud puede venir sin él).
+    // La galería no siempre da nombre (una foto de iCloud puede venir sin él).
     nombre: elegido.fileName ?? nombreDeRespaldo(elegido.mimeType),
     contentType: elegido.mimeType ?? 'image/jpeg',
     tamanoBytes: elegido.fileSize ?? 0,
@@ -114,13 +114,13 @@ async function elegirDelCarrete(): Promise<ArchivoElegido | null> {
  * selector nativo se lee como una pantalla de más.
  */
 export function preguntarFuente(): Promise<FuenteDeArchivo | null> {
-  const opciones = ['Elegir del carrete', 'Elegir un archivo', 'Cancelar'];
+  const opciones = ['Elegir de la galería', 'Elegir un archivo', 'Cancelar'];
 
   if (Platform.OS === 'ios') {
     return new Promise((resolver) => {
       ActionSheetIOS.showActionSheetWithOptions(
         { options: opciones, cancelButtonIndex: 2 },
-        (indice) => resolver(indice === 0 ? 'carrete' : indice === 1 ? 'archivos' : null),
+        (indice) => resolver(indice === 0 ? 'galeria' : indice === 1 ? 'archivos' : null),
       );
     });
   }
@@ -130,9 +130,9 @@ export function preguntarFuente(): Promise<FuenteDeArchivo | null> {
   return new Promise((resolver) => {
     Alert.alert(
       'Adjuntar un estudio',
-      'La placa está en el carrete; el informe escaneado, entre los archivos.',
+      'La placa está en la galería; el informe escaneado, entre los archivos.',
       [
-        { text: opciones[0], onPress: () => resolver('carrete') },
+        { text: opciones[0], onPress: () => resolver('galeria') },
         { text: opciones[1], onPress: () => resolver('archivos') },
         { text: opciones[2], style: 'cancel', onPress: () => resolver(null) },
       ],
@@ -141,7 +141,43 @@ export function preguntarFuente(): Promise<FuenteDeArchivo | null> {
   });
 }
 
-/** `foto-...jpg` para la toma del carrete que viene sin nombre. */
+/**
+ * De dónde sale la foto de la mascota: sacarla ahora o buscarla en la galería.
+ * `null` = el usuario cerró sin elegir.
+ *
+ * Es otra pregunta que `preguntarFuente`, y no un parámetro suyo: ahí las dos
+ * opciones son dos selectores del sistema, y acá una de las dos abre la cámara
+ * de la app. El mismo diálogo con opciones distintas confundiría los dos casos.
+ */
+export function preguntarComoSacarLaFoto(): Promise<'camara' | 'galeria' | null> {
+  const opciones = ['Sacar una foto', 'Elegir de la galería', 'Cancelar'];
+  const resolverIndice = (indice: number) =>
+    indice === 0 ? ('camara' as const) : indice === 1 ? ('galeria' as const) : null;
+
+  if (Platform.OS === 'ios') {
+    return new Promise((resolver) => {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: opciones, cancelButtonIndex: 2 },
+        (indice) => resolver(resolverIndice(indice)),
+      );
+    });
+  }
+
+  return new Promise((resolver) => {
+    Alert.alert(
+      'La foto de la mascota',
+      'La que elijas reemplaza a la que se ve hoy. La anterior queda entre los adjuntos.',
+      [
+        { text: opciones[0], onPress: () => resolver('camara') },
+        { text: opciones[1], onPress: () => resolver('galeria') },
+        { text: opciones[2], style: 'cancel', onPress: () => resolver(null) },
+      ],
+      { cancelable: true, onDismiss: () => resolver(null) },
+    );
+  });
+}
+
+/** `foto-...jpg` para la toma de la galería que viene sin nombre. */
 function nombreDeRespaldo(contentType: string | undefined): string {
   const extension = contentType?.split('/')[1]?.split('+')[0] ?? 'jpg';
   return `foto-${Date.now()}.${extension}`;

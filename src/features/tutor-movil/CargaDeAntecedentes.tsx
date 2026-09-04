@@ -288,7 +288,6 @@ export function CargaDeAntecedentes({
           */}
           <SeccionAdjuntos
             pacienteId={pacienteId}
-            nombreDePaciente={nombreDeMascota}
             adjuntos={derivarAdjuntos(adjuntos.data?.adjuntos ?? []).generales}
             usuarioId={sesion?.usuario.id}
             error={adjuntos.isError}

@@ -7,7 +7,6 @@ import { fotoDePerfilDe } from '../../api/adjunto';
 import { partirPorVigencia } from '../../api/medicacion';
 import { puedeAdministrar, puedeEditar } from '../../api/paciente';
 import {
-  Avatar,
   Badge,
   Button,
   InlineError,
@@ -25,7 +24,7 @@ import { capitalizar, edad, fechaConPrecision, fechaCorta, peso } from '../pacie
 import { MarcaDeOrigen } from '../paciente/MarcaDeOrigen';
 import { useGuardarPesoDelTutor } from '../sincronizacion';
 import { useRetirarAntecedenteDelTutor } from '../sincronizacion/queries';
-import { derivarAdjuntos, useMarcarFotoDePerfil, useRetirarAdjunto } from '../paciente/queries';
+import { derivarAdjuntos, useRetirarAdjunto } from '../paciente/queries';
 import {
   useAdjuntosDeMiMascota,
   useHistorialDeMiMascota,
@@ -33,6 +32,7 @@ import {
   useMiMascota,
 } from './queries';
 import { SeccionAdjuntos } from '../paciente/SeccionAdjuntos';
+import { FotoDeMiMascota } from './FotoDeMiMascota';
 
 /**
  * Ficha de mi mascota (Alcance de Plataformas, 5.3 y 5.7).
@@ -66,7 +66,6 @@ export function FichaDeMiMascota({
   const adjuntos = useAdjuntosDeMiMascota(pacienteId);
   const guardarPeso = useGuardarPesoDelTutor(paciente.data);
   const retirar = useRetirarAdjunto(pacienteId);
-  const marcarFoto = useMarcarFotoDePerfil(pacienteId);
   // Lo que el tutor cargó lo puede sacar desde acá y no solo desde el resumen
   // del alta: fuera de esa pantalla un antecedente mal cargado quedaba para
   // siempre (Alcance de Plataformas, 5.12).
@@ -116,14 +115,20 @@ export function FichaDeMiMascota({
       <ScrollView>
         <View style={[estilos.contenido, { paddingHorizontal: px('--gutter-mobile') }]}>
           <View style={[tarjeta, sombra('--shadow-sm'), estilos.identidad]}>
-            {/* La foto que el tutor eligió encabeza la ficha. Sin foto se
-                muestra el ícono de la especie: rellenarlo con algo que finja
-                ser una foto sería peor que la ausencia. */}
-            <Avatar
-              name={mascota.nombre}
-              species={mascota.especie}
-              size="xl"
-              src={fotoDePerfil?.archivo_url || undefined}
+            {/* La foto que el tutor eligió encabeza la ficha, y se cambia
+                tocándola (Alcance 5.3). Sin foto se muestra el ícono de la
+                especie: rellenarlo con algo que finja ser una foto sería peor
+                que la ausencia.
+
+                Sin conexión no se toca: la copia local guarda los metadatos y no
+                el archivo, así que no habría con qué dibujar la que se elija ni
+                cómo subirla. */}
+            <FotoDeMiMascota
+              pacienteId={pacienteId}
+              nombre={mascota.nombre}
+              especie={mascota.especie}
+              fotoUrl={fotoDePerfil?.archivo_url}
+              editable={puedeEscribir && !adjuntos.data?.soloMetadatos}
             />
             <View style={estilos.flexible}>
               <Text style={[texto('h1'), { color: t['--text-strong'] }]}>{mascota.nombre}</Text>
@@ -378,7 +383,6 @@ export function FichaDeMiMascota({
           */}
           <SeccionAdjuntos
             pacienteId={pacienteId}
-            nombreDePaciente={mascota.nombre}
             adjuntos={generales}
             usuarioId={sesion?.usuario.id}
             error={adjuntos.isError}
@@ -391,7 +395,6 @@ export function FichaDeMiMascota({
             permiteDescarga={false}
             puedeEscribir={puedeEscribir}
             onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
-            onUsarComoFoto={puedeEscribir ? (adjunto) => marcarFoto.mutate(adjunto.id) : undefined}
           />
         </View>
       </ScrollView>

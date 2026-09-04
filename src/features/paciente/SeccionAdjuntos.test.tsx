@@ -59,30 +59,10 @@ async function abrirMenu(
 afterEach(() => jest.restoreAllMocks());
 
 describe('SeccionAdjuntos · foto de la mascota', () => {
-  it('ofrece usar una imagen como foto de la mascota', async () => {
-    const pantalla = await render(seccion([adjunto()], { onUsarComoFoto: jest.fn() }));
-
-    await abrirMenu(pantalla);
-
-    expect(pantalla.getByText('Usar como foto')).toBeOnTheScreen();
-  });
-
-  // Marcar un PDF dejaría a la ficha sin nada que mostrar.
-  it('no la ofrece sobre lo que no es una imagen', async () => {
-    const pantalla = await render(
-      seccion([adjunto({ tipo: 'pdf', content_type: 'application/pdf' })], {
-        onUsarComoFoto: jest.fn(),
-      }),
-    );
-
-    await abrirMenu(pantalla);
-
-    expect(pantalla.queryByText('Usar como foto')).toBeNull();
-  });
-
-  // La ficha del veterinario lista los mismos archivos, y ahí elegir la foto de
-  // la mascota no es una decisión suya.
-  it('sin la acción no aparece nada de la foto', async () => {
+  // La foto de perfil se cambia tocando el avatar de la ficha (Alcance de
+  // Plataformas, 5.3). Elegirla acá obligaba a saber que es un adjunto marcado,
+  // que es cómo se guarda y no cómo se piensa.
+  it('no ofrece marcar ninguna como foto de la mascota', async () => {
     const pantalla = await render(seccion([adjunto()]));
 
     await abrirMenu(pantalla);
@@ -90,35 +70,12 @@ describe('SeccionAdjuntos · foto de la mascota', () => {
     expect(pantalla.queryByText('Usar como foto')).toBeNull();
   });
 
-  it('la que ya es la foto se dice, y no se vuelve a ofrecer', async () => {
-    const pantalla = await render(
-      seccion([adjunto({ es_foto_perfil: true })], { onUsarComoFoto: jest.fn() }),
-    );
+  // Cuál es la vigente sí se dice: es la única forma de saber, desde la lista,
+  // qué archivo está encabezando la ficha.
+  it('dice cuál es la que la ficha muestra', async () => {
+    const pantalla = await render(seccion([adjunto({ es_foto_perfil: true })]));
 
     expect(pantalla.getByText('Foto de la mascota')).toBeOnTheScreen();
-    await abrirMenu(pantalla);
-    expect(pantalla.queryByText('Usar como foto')).toBeNull();
-  });
-
-  // Sin conexión están los metadatos y no la URL prefirmada: marcar una foto es
-  // una escritura en línea, y no entra a la cola del tutor.
-  it('sin conexión no se marca ninguna', async () => {
-    const pantalla = await render(
-      seccion([adjunto()], { onUsarComoFoto: jest.fn(), soloMetadatos: true }),
-    );
-
-    expect(pantalla.queryByLabelText('Acciones de luna.png')).toBeNull();
-  });
-
-  // El co-tutor de solo lectura mira y no escribe (Reglas de Negocio, 3.2).
-  it('el de solo lectura no la marca', async () => {
-    const pantalla = await render(
-      seccion([adjunto()], { onUsarComoFoto: jest.fn(), puedeEscribir: false }),
-    );
-
-    await abrirMenu(pantalla);
-
-    expect(pantalla.queryByText('Usar como foto')).toBeNull();
   });
 });
 

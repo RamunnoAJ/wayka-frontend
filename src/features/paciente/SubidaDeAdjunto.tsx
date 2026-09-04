@@ -63,8 +63,6 @@ const HAY_CAMARA = Platform.OS !== 'web';
 
 interface SubidaDeAdjuntoProps {
   pacienteId: string;
-  /** Para qué se saca la foto, si se abre la cámara: "Herida · Mora". */
-  tituloDeCamara?: string;
   /** Evento que el archivo documenta. Sin él, queda como adjunto general. */
   eventoId?: string;
   /** La ficha no admite escrituras (paciente dado de baja, matrícula vencida). */
@@ -74,7 +72,6 @@ interface SubidaDeAdjuntoProps {
 
 export function SubidaDeAdjunto({
   pacienteId,
-  tituloDeCamara,
   eventoId,
   bloqueado = false,
   motivoBloqueo,
@@ -152,15 +149,15 @@ export function SubidaDeAdjunto({
 
   /**
    * De dónde sale el archivo del tipo declarado. En iOS son dos selectores
-   * distintos y el de documentos **no muestra el carrete**: pedir una foto y
+   * distintos y el de documentos **no muestra la galería**: pedir una foto y
    * caer en la app Archivos es el camino equivocado.
    *
    * En web no hay tal cosa: el `input file` del navegador es uno solo.
    */
   async function fuenteDe(tipo: TipoDeAdjunto): Promise<FuenteDeArchivo | null> {
     if (Platform.OS === 'web' || tipo === 'pdf') return 'archivos';
-    if (tipo === 'foto') return 'carrete';
-    // El estudio vive en los dos lados: la placa en el carrete, el informe
+    if (tipo === 'foto') return 'galeria';
+    // El estudio vive en los dos lados: la placa en la galería, el informe
     // escaneado entre los archivos. Solo acá se pregunta.
     return preguntarFuente();
   }
@@ -280,14 +277,13 @@ export function SubidaDeAdjunto({
 
       {HAY_CAMARA && camaraAbierta ? (
         <CamaraDeAdjunto
-          titulo={tituloDeCamara}
           onCerrar={() => setCamaraAbierta(false)}
           onTomada={(archivo) => void encolar(archivo)}
-          onAbrirCarrete={() => {
+          onAbrirGaleria={() => {
             setCamaraAbierta(false);
-            // El botón dice "carrete" y va al carrete, sin preguntar: quien
+            // El botón dice "galería" y va a la galería, sin preguntar: quien
             // está en la cámara ya dijo que la foto es una foto.
-            void elegir('carrete');
+            void elegir('galeria');
           }}
         />
       ) : null}

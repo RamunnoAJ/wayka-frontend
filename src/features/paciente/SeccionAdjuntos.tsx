@@ -38,8 +38,6 @@ import { SubidaDeAdjunto } from './SubidaDeAdjunto';
  */
 interface AdjuntosProps {
   pacienteId: string;
-  /** Nombre de la mascota, para que la cámara diga de quién es la foto. */
-  nombreDePaciente?: string;
   adjuntos: Adjunto[];
   /** Cuenta autenticada, para saber qué adjuntos puede retirar y renombrar. */
   usuarioId: string | undefined;
@@ -74,21 +72,10 @@ interface AdjuntosProps {
    */
   puedeEscribir?: boolean;
   onRetirar: (adjunto: Adjunto) => void;
-  /**
-   * Deja este archivo como foto de la mascota. Sin la función, la acción no se
-   * ofrece: la ficha del veterinario lista los mismos adjuntos y ahí elegir la
-   * foto de la mascota no es una decisión suya.
-   *
-   * Solo sobre imágenes, y sobre cualquiera de las que estén — no solo las
-   * propias, al revés que retirar y renombrar: marcar no toca el archivo de
-   * nadie, decide qué muestra la ficha de una mascota que el tutor sí alcanza.
-   */
-  onUsarComoFoto?: (adjunto: Adjunto) => void;
 }
 
 export function SeccionAdjuntos({
   pacienteId,
-  nombreDePaciente,
   adjuntos,
   usuarioId,
   error,
@@ -100,7 +87,6 @@ export function SeccionAdjuntos({
   permiteDescarga = true,
   puedeEscribir = true,
   onRetirar,
-  onUsarComoFoto,
 }: AdjuntosProps) {
   const { t, px, texto } = useTheme();
 
@@ -142,7 +128,6 @@ export function SeccionAdjuntos({
           ) : (
             <SubidaDeAdjunto
               pacienteId={pacienteId}
-              tituloDeCamara={nombreDePaciente}
               bloqueado={bloqueado}
               motivoBloqueo={motivoBloqueo}
             />
@@ -195,7 +180,6 @@ export function SeccionAdjuntos({
               onDescargar={() => descargar.mutate(adjunto.id)}
               onRenombrar={() => setRenombrando(adjunto)}
               onRetirar={() => onRetirar(adjunto)}
-              onUsarComoFoto={onUsarComoFoto ? () => onUsarComoFoto(adjunto) : undefined}
             />
           ))}
         </View>
@@ -252,7 +236,6 @@ function FilaDeAdjunto({
   onDescargar,
   onRenombrar,
   onRetirar,
-  onUsarComoFoto,
 }: {
   adjunto: Adjunto;
   propio: boolean;
@@ -266,7 +249,6 @@ function FilaDeAdjunto({
   onDescargar: () => void;
   onRenombrar: () => void;
   onRetirar: () => void;
-  onUsarComoFoto?: () => void;
 }) {
   const { t, px, texto } = useTheme();
 
@@ -279,11 +261,6 @@ function FilaDeAdjunto({
   }
   if (propio && escribe) {
     acciones.push({ label: 'Cambiar el nombre', icono: 'pencil', onPress: onRenombrar });
-  }
-  // Marcar una desmarca la anterior sin preguntar: hay una sola, y la anterior
-  // no se borra — deja de ser la que se muestra (Reglas de Negocio, 4.14).
-  if (onUsarComoFoto && escribe && esImagen(adjunto) && !adjunto.es_foto_perfil) {
-    acciones.push({ label: 'Usar como foto', icono: 'image', onPress: onUsarComoFoto });
   }
   if (propio && escribe) {
     acciones.push({ label: 'Retirar', icono: 'trash-2', peligro: true, onPress: onRetirar });
@@ -353,14 +330,6 @@ function FilaDeAdjunto({
       ) : null}
     </View>
   );
-}
-
-/**
- * Solo una imagen puede ser la foto de la mascota: marcar un PDF dejaría a la
- * ficha sin nada que mostrar, y el backend lo rechaza igual.
- */
-function esImagen(adjunto: Adjunto): boolean {
-  return adjunto.content_type.startsWith('image/');
 }
 
 /** Lado de la miniatura de la fila: reconocer el archivo, no mirarlo. */

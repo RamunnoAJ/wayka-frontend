@@ -1,9 +1,14 @@
-import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 import { Linking } from 'react-native';
 
 import {
   listarAdjuntos,
-  marcarFotoDePerfil,
   obtenerAdjunto,
   partirPorPertenencia,
   renombrarAdjunto,
@@ -59,6 +64,7 @@ import {
   type Veterinario,
 } from '../../api/veterinario';
 import { useSesion } from '../../hooks/useSesion';
+import { hayCopiaLocal } from '../../lib/base-local';
 import { CONSULTA_DEL_PLANTEL } from '../veterinario/queries';
 import { hoyEnLaClinica } from './formato';
 
@@ -78,6 +84,19 @@ export const CLAVES = {
   medicaciones: (id: string) => ['paciente', id, 'medicaciones'] as const,
   citas: (id: string) => ['paciente', id, 'citas'] as const,
   adjuntos: (id: string) => ['paciente', id, 'adjuntos'] as const,
+  /**
+   * La ficha del tutor lee los mismos adjuntos por otra clave: en el
+   * dispositivo cuelgan del namespace de la copia local, que es lo que hace que
+   * la pantalla abra sin conexión (`useAdjuntosDeMiMascota`).
+   *
+   * Vive acá, al lado de la del veterinario, porque las mutaciones de adjuntos
+   * están todas en este módulo y tienen que alcanzar a las dos: con una sola, el
+   * tutor sube una foto y no la ve hasta volver a entrar a la mascota.
+   */
+  adjuntosDelTutor: (id: string) =>
+    (hayCopiaLocal
+      ? ['sincronizacion', 'copia', 'adjuntos', id]
+      : ['adjuntos', id]) as readonly unknown[],
   adjunto: (id: string) => ['adjunto', id] as const,
   plantel: () => ['veterinarios'] as const,
   veterinario: (id: string) => ['veterinario', id] as const,
@@ -146,6 +165,18 @@ export function useCitas(pacienteId: string): UseQueryResult<Cita[]> {
  * los de cada evento juntos, y se parten en el cliente. Pedirlos por evento
  * dispararía un request por fila del timeline.
  */
+/**
+ * Refresca los adjuntos de una mascota en las dos fichas que los muestran.
+ *
+ * Toda mutación sobre un adjunto pasa por acá y no por una `invalidateQueries`
+ * suelta: el recurso se lee por dos claves (`adjuntos` y `adjuntosDelTutor`) y
+ * la que se olvide deja esa pantalla mostrando la lista vieja.
+ */
+export function invalidarAdjuntos(cliente: QueryClient, pacienteId: string) {
+  void cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+  void cliente.invalidateQueries({ queryKey: CLAVES.adjuntosDelTutor(pacienteId) });
+}
+
 export function useAdjuntos(pacienteId: string): UseQueryResult<Adjunto[]> {
   return useQuery({
     queryKey: CLAVES.adjuntos(pacienteId),
@@ -382,24 +413,7 @@ export function useSubirAdjunto(pacienteId: string) {
   return useMutation({
     mutationFn: (entrada: SubirAdjuntoEntrada) => subirAdjunto(pacienteId, entrada),
     onSuccess: () => {
-      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
-    },
-  });
-}
-
-/**
- * Deja un adjunto como foto de la mascota. Desmarcar la anterior lo hace el
- * backend en el mismo pedido, así que acá no hay dos mutaciones que coordinar:
- * lo único que queda es refrescar el listado, que es de donde la ficha saca cuál
- * es la vigente.
- */
-export function useMarcarFotoDePerfil(pacienteId: string) {
-  const cliente = useQueryClient();
-  return useMutation({
-    mutationFn: (adjuntoId: string) => marcarFotoDePerfil(adjuntoId),
-    onSuccess: () => {
-      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
-      void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
+      invalidarAdjuntos(cliente, pacienteId);
     },
   });
 }
@@ -437,7 +451,7 @@ export function useRenombrarAdjunto(pacienteId: string) {
     mutationFn: ({ adjuntoId, nombre }: { adjuntoId: string; nombre: string }) =>
       renombrarAdjunto(adjuntoId, nombre),
     onSuccess: () => {
-      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+      invalidarAdjuntos(cliente, pacienteId);
       void cliente.invalidateQueries({ queryKey: ['sincronizacion'] });
     },
   });
@@ -448,7 +462,7 @@ export function useRetirarAdjunto(pacienteId: string) {
   return useMutation({
     mutationFn: (adjuntoId: string) => retirarAdjunto(adjuntoId),
     onSuccess: () => {
-      cliente.invalidateQueries({ queryKey: CLAVES.adjuntos(pacienteId) });
+      invalidarAdjuntos(cliente, pacienteId);
     },
   });
 }
