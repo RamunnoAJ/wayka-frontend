@@ -17,7 +17,7 @@ import { mensajeDeError } from '../../lib/errores';
 import { useTheme } from '../../theme';
 
 import { DialogoDeRenombre } from './DialogoDeRenombre';
-import { fechaCorta, tamanoDeArchivo } from './formato';
+import { capitalizar, fechaCorta, tamanoDeArchivo } from './formato';
 import { iconoDeArchivo } from './HistorialClinico';
 import { useDescargarAdjunto, useRenombrarAdjunto } from './queries';
 import { Seccion } from './Seccion';
@@ -306,7 +306,8 @@ function FilaDeAdjunto({
           {adjunto.nombre_archivo}
         </Text>
         <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
-          {`${adjunto.tipo.toUpperCase()} · ${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(
+          {/* Mayúscula solo inicial: la versalita del sistema es el overline, no esto. */}
+          {`${adjunto.tipo === 'pdf' ? 'PDF' : capitalizar(adjunto.tipo)} · ${tamanoDeArchivo(adjunto.tamano_bytes)} · ${fechaCorta(
             adjunto.created_at.slice(0, 10),
           )}`}
         </Text>

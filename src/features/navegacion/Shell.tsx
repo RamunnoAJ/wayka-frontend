@@ -46,7 +46,9 @@ const NOMBRE_DE_ROL: Record<string, string> = {
 function descripcionDeRol(rol: string, matricula?: string | null): string {
   const nombre = NOMBRE_DE_ROL[rol] ?? '';
   if (rol !== 'veterinario') return nombre;
-  return matricula ? `${nombre} · MP ${matricula}` : `${nombre} · sin matrícula`;
+  // El valor guardado ya trae el prefijo (`MP-4821`): anteponerle otro daba
+  // "MP MP-4821", y encima no entraba en los 248px de la barra.
+  return matricula ? `${nombre} · ${matricula}` : `${nombre} · sin matrícula`;
 }
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -67,7 +69,7 @@ export function Shell({ children }: { children: ReactNode }) {
   // Acá y no en el layout raíz: el marco solo se dibuja con sesión iniciada, y
   // sin sesión no hay telemetría que emitir ni ruta a la que se pueda entrar.
   useTelemetriaAutomatica(Boolean(sesion));
-  usePantallaVista(ruta);
+  usePantallaVista();
 
   const rol = sesion?.usuario.tipo_usuario;
   const items = rol ? NAVEGACION_POR_ROL[rol] : [];

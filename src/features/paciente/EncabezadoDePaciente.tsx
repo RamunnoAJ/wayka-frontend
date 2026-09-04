@@ -89,7 +89,7 @@ export function EncabezadoDePaciente({
               .join(' · ')}
           </Text>
           <Text style={[texto('body-sm'), { color: t['--text-subtle'], marginTop: 2 }]}>
-            Nacida el {fechaCorta(paciente.fecha_nacimiento)}
+            Nació el {fechaCorta(paciente.fecha_nacimiento)}
           </Text>
         </View>
 

@@ -1,3 +1,4 @@
+import { useSegments } from 'expo-router';
 import * as Network from 'expo-network';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -47,22 +48,44 @@ export function useTelemetriaAutomatica(habilitada: boolean): void {
  * La ruta viaja tal cual, sin los ids que la completan: `/pacientes/{id}` diría
  * qué mascota se miró, y eso es exactamente lo que la telemetría no guarda.
  */
-export function usePantallaVista(ruta: string): void {
+export function usePantallaVista(): void {
   const anterior = useRef<string | null>(null);
+  const segmentos = useSegments();
 
   useEffect(() => {
-    const pantalla = sinIdentificadores(ruta);
+    const pantalla = pantallaDeSegmentos(segmentos);
     if (!pantalla || pantalla === anterior.current) return;
     anterior.current = pantalla;
     emitir(EVENTO_DE_USO.PANTALLA_VISTA, { pantalla });
-  }, [ruta]);
+  }, [segmentos]);
 }
 
-const PARECE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/**
+ * La pantalla, derivada de los **segmentos declarados** de expo-router y no de
+ * la ruta con valores. `pantalla` es el enum de pantallas que el catálogo
+ * declara (Telemetría de Producto, 5.2), no el lugar donde termina guardado un
+ * dato.
+ *
+ * Los segmentos son nombres de archivo —`mascotas`, `[id]`—, así que por
+ * construcción no pueden traer un valor. Enmascarar por la forma del *valor*
+ * fallaba en silencio: el token de invitación son 32 bytes en base64url, no se
+ * parece a un UUID, y viajaba entero a una tabla con 13 meses de retención
+ * siendo una credencial canjeable.
+ *
+ * Cruzarlos contra la ruta tampoco sirve: `usePathname` y `useSegments` se
+ * actualizan en momentos distintos durante una navegación, y con los dos
+ * desfasados salían pantallas enmascaradas de más (`/:valor/:valor`), medido
+ * en el emulador.
+ */
+export function pantallaDeSegmentos(segmentos: readonly string[]): string {
+  const tramos = segmentos
+    // Los grupos —`(tutor)`— ordenan el árbol de archivos y no son pantallas.
+    .filter((segmento) => !segmento.startsWith('('))
+    .map((segmento) =>
+      segmento.startsWith('[')
+        ? `:${segmento.replace(/^\[\.{0,3}/, '').replace(/\]$/, '')}`
+        : segmento,
+    );
 
-export function sinIdentificadores(ruta: string): string {
-  return ruta
-    .split('/')
-    .map((tramo) => (PARECE_UUID.test(tramo) ? ':id' : tramo))
-    .join('/');
+  return `/${tramos.join('/')}`;
 }
