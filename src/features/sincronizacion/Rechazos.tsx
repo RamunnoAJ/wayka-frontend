@@ -1,10 +1,12 @@
+import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { Cita } from '../../api/cita';
+import { PRECISION_DE_FECHA } from '../../api/historial';
 import type { Paciente } from '../../api/paciente';
 import { Badge, Button, EmptyState, InlineError, SkeletonText } from '../../components';
 import { sombra, useTheme } from '../../theme';
-import { momentoCorto, peso } from '../paciente/formato';
+import { capitalizar, fechaConPrecision, momentoCorto, peso } from '../paciente/formato';
 
 import type { MutacionEnCola } from './almacen';
 import {
@@ -84,12 +86,86 @@ function TarjetaDeRechazo({ rechazo }: { rechazo: MutacionEnCola }) {
         {rechazo.motivo?.mensaje ?? 'El cambio no se pudo aplicar.'}
       </Text>
 
+      <LoQueSeQuisoCargar rechazo={rechazo} />
       <ValorEnElServidor rechazo={rechazo} />
       <Alternativas rechazo={rechazo} />
 
+      {/*
+        Corregir va primero y descartar queda de salida: descartar es tirar el
+        único lugar donde el dato estaba escrito, porque `marcarRechazada` ya
+        borró el registro provisional (Sincronización sin Conexión, 6).
+      */}
+      {esAntecedente(rechazo) ? (
+        <Button
+          onPress={() =>
+            router.push(`/(tutor)/mascotas/${rechazo.entidad_id}/antecedentes` as never)
+          }
+        >
+          Corregir y volver a cargar
+        </Button>
+      ) : null}
       <Button variant="ghost" onPress={() => descartar.mutate(rechazo.id_mutacion)}>
         Descartar este cambio
       </Button>
+    </View>
+  );
+}
+
+function esAntecedente(rechazo: MutacionEnCola): boolean {
+  return (
+    rechazo.tipo === 'cargar_antecedente_clinico' ||
+    rechazo.tipo === 'cargar_antecedente_de_medicacion'
+  );
+}
+
+/**
+ * Lo que el tutor había escrito. La cola es el único lugar donde quedó: el
+ * registro provisional se borró al marcar el rechazo, así que sin esto
+ * "descartar" tira un dato que nadie llegó a ver de nuevo.
+ */
+function LoQueSeQuisoCargar({ rechazo }: { rechazo: MutacionEnCola }) {
+  const { t, px, texto } = useTheme();
+
+  const lineas = rechazo.evento_clinico
+    ? [
+        capitalizar(rechazo.evento_clinico.tipo),
+        fechaConPrecision(
+          rechazo.evento_clinico.fecha,
+          rechazo.evento_clinico.fecha_precision ?? PRECISION_DE_FECHA.DIA,
+        ),
+        rechazo.evento_clinico.descripcion,
+      ]
+    : rechazo.medicacion
+      ? [
+          rechazo.medicacion.nombre_droga,
+          fechaConPrecision(
+            rechazo.medicacion.fecha_inicio,
+            rechazo.medicacion.fecha_precision ?? PRECISION_DE_FECHA.DIA,
+          ),
+          [rechazo.medicacion.dosis, rechazo.medicacion.frecuencia].filter(Boolean).join(' · '),
+        ]
+      : [];
+
+  const visibles = lineas.filter(Boolean);
+  if (visibles.length === 0) return null;
+
+  return (
+    <View
+      style={{
+        gap: 2,
+        padding: px('--gutter-card'),
+        borderRadius: px('--radius-card'),
+        backgroundColor: t['--surface-sunken'],
+      }}
+    >
+      <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-subtle'] }]}>
+        LO QUE ESCRIBISTE
+      </Text>
+      {visibles.map((linea) => (
+        <Text key={linea} style={[texto('body-sm'), { color: t['--text-body'] }]}>
+          {linea}
+        </Text>
+      ))}
     </View>
   );
 }
