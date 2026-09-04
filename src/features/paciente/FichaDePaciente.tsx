@@ -236,9 +236,16 @@ export function FichaDePaciente({
         motivoBloqueo={motivoBloqueo}
       />
 
+      {/*
+        La banda lee de dos consultas: sin las dos no puede afirmar que no hay
+        alergias ni medicación, que es lo que un veterinario ajeno viene a leer
+        acá en segundos.
+      */}
       <BandaDeUrgencia
         datos={criticos}
         esMovil={esMovil}
+        cargando={eventos.isPending || medicaciones.isPending}
+        error={eventos.isError || medicaciones.isError}
         onVerMedicacion={() => setPestania('medicacion')}
       />
 

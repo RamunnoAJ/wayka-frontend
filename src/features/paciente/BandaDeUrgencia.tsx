@@ -2,7 +2,14 @@ import { useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { camposDeAlergia, camposDeVacuna, type EventoClinico } from '../../api/evento-clinico';
-import { AllergyChip, Icon, MedicationItem, Presionable, StatusDot } from '../../components';
+import {
+  AllergyChip,
+  Icon,
+  MedicationItem,
+  Presionable,
+  SkeletonText,
+  StatusDot,
+} from '../../components';
 import { ESCALA_DE_PRESION, sombra, useTheme } from '../../theme';
 
 import { fechaConPrecision, fechaCorta } from './formato';
@@ -26,14 +33,28 @@ const MAX_MEDS_EN_BANDA = 3;
 interface BandaProps {
   datos: DatosCriticos;
   esMovil: boolean;
+  /** Las consultas que alimentan la banda todavía no resolvieron. */
+  cargando: boolean;
+  /** Alguna de esas consultas falló: no se sabe si hay datos o no los hay. */
+  error: boolean;
   onVerMedicacion: () => void;
 }
 
-export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps) {
+export function BandaDeUrgencia({ datos, esMovil, cargando, error, onVerMedicacion }: BandaProps) {
   const { t, px, texto } = useTheme();
   const [abiertaManual, setAbiertaManual] = useState<boolean | null>(null);
 
   const abierta = abiertaManual ?? datos.haySevera;
+  // Sin los datos no se afirma nada: un "sin alergias registradas" sobre un
+  // paciente cuyas consultas fallaron es un falso negativo clínico, y esta banda
+  // se lee en segundos durante una urgencia.
+  const sinDatos = cargando || error;
+  const resumen = error
+    ? 'No se pudieron leer los datos críticos'
+    : cargando
+      ? 'Leyendo los datos críticos…'
+      : resumir(datos);
+  const colorDelResumen = error ? t['--text-danger'] : t['--text-muted'];
   const enMedsBanda = datos.activas.slice(0, MAX_MEDS_EN_BANDA);
   const ocultas = datos.activas.length - enMedsBanda.length;
 
@@ -54,8 +75,8 @@ export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps)
         <Text style={[texto('overline'), { fontWeight: '700', color: t['--text-strong'] }]}>
           DATOS CRÍTICOS
         </Text>
-        <Text style={[texto('body-sm'), estilos.resumen, { color: t['--text-muted'] }]}>
-          {resumir(datos)}
+        <Text style={[texto('body-sm'), estilos.resumen, { color: colorDelResumen }]}>
+          {resumen}
         </Text>
         <Presionable
           accessibilityState={{ expanded: abierta }}
@@ -83,11 +104,13 @@ export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps)
             <TituloDeColumna
               texto="ALERGIAS"
               color={t['--alert-allergy-text']}
-              conteo={datos.alergias.length}
+              conteo={sinDatos ? undefined : datos.alergias.length}
               colorConteo={t['--danger-600']}
               fondoConteo={t['--danger-100']}
             />
-            {datos.alergias.length > 0 ? (
+            {sinDatos ? (
+              <SinLeer error={error} />
+            ) : datos.alergias.length > 0 ? (
               datos.alergias.map((alergia) => <FilaDeAlergia key={alergia.id} evento={alergia} />)
             ) : (
               <SinDato icono="check" texto="Sin alergias registradas" />
@@ -98,11 +121,13 @@ export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps)
             <TituloDeColumna
               texto="MEDICACIÓN ACTIVA"
               color={t['--text-subtle']}
-              conteo={datos.activas.length}
+              conteo={sinDatos ? undefined : datos.activas.length}
               colorConteo={t['--color-primary-strong']}
               fondoConteo={t['--color-primary-soft']}
             />
-            {enMedsBanda.length > 0 ? (
+            {sinDatos ? (
+              <SinLeer error={error} />
+            ) : enMedsBanda.length > 0 ? (
               <View style={estilos.lista}>
                 {enMedsBanda.map((medicacion) => (
                   <MedicationItem
@@ -134,7 +159,9 @@ export function BandaDeUrgencia({ datos, esMovil, onVerMedicacion }: BandaProps)
 
           <Columna fondo={t['--surface-card']}>
             <TituloDeColumna texto="VACUNAS" color={t['--text-subtle']} />
-            {datos.ultimaVacuna ? (
+            {sinDatos ? (
+              <SinLeer error={error} />
+            ) : datos.ultimaVacuna ? (
               <View style={estilos.lista}>
                 <View style={estilos.bloque}>
                   <Text style={[texto('caption'), { color: t['--text-subtle'] }]}>
@@ -243,6 +270,22 @@ function TituloDeColumna({
           </Text>
         </View>
       ) : null}
+    </View>
+  );
+}
+
+/**
+ * La columna cuando el dato no llegó. No dice "no hay": dice que no se sabe, que
+ * es lo único cierto — y con el error a la vista, porque en una urgencia la
+ * diferencia entre "no tiene alergias" y "no pudimos leerlas" es la decisión.
+ */
+function SinLeer({ error }: { error: boolean }) {
+  const { t, texto } = useTheme();
+  if (!error) return <SkeletonText lines={2} />;
+  return (
+    <View style={estilos.sinDato}>
+      <Icon name="alert-triangle" size={16} color={t['--text-danger']} />
+      <Text style={[texto('body-sm'), { color: t['--text-danger'] }]}>No se pudo leer</Text>
     </View>
   );
 }
