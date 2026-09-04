@@ -71,7 +71,7 @@ export function BarraDeActivacion({ paso, nombreDeClinica }: BarraProps) {
                   ]}
                 >
                   {hecho ? (
-                    <Icon name="check" size={12} color={t['--color-primary-fg']} />
+                    <Icon name="check" size={12} color={t['--color-primary-fill-fg']} />
                   ) : (
                     <Text
                       style={[

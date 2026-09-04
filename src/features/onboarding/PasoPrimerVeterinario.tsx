@@ -14,8 +14,8 @@ import { useTheme } from '../../theme';
  * Diferencias con el diseño del handoff, todas por contrato:
  * - El diseño parte el nombre en "Nombre" y "Apellido"; la entidad Veterinario
  *   tiene un único campo `nombre` (Modelo de Datos, 4.4).
- * - El diseño manda una invitación por correo. No hay endpoint de invitación: el
- *   alta fija la contraseña inicial, que es lo que el contrato define.
+ * - El alta no pide contraseña: al veterinario le llega un correo con un enlace
+ *   para definir la suya (Reglas de Negocio, 4.12).
  * - Especialidades y días de atención no existen en el modelo, y no se piden.
  */
 interface PasoProps {
@@ -31,8 +31,8 @@ export function PasoPrimerVeterinario({ onListo }: PasoProps) {
       <View style={estilos.intro}>
         <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Armá tu equipo</Text>
         <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
-          Cargá al primer veterinario. La ficha y su cuenta de acceso se crean juntas: al guardar ya
-          puede entrar con el correo y la contraseña que le pongas.
+          Cargá al primer veterinario. La ficha y su cuenta de acceso se crean juntas: al guardar le
+          llega un correo con un enlace para definir su contraseña.
         </Text>
       </View>
 

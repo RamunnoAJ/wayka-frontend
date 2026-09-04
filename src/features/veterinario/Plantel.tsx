@@ -69,7 +69,7 @@ export function Plantel() {
         >
           <View style={estilos.encabezado}>
             <View style={estilos.titulo}>
-              <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Veterinarios</Text>
+              <Text style={[texto('h1'), { color: t['--text-strong'] }]}>Plantel</Text>
               <Text style={[texto('body-lg'), { color: t['--text-muted'] }]}>
                 La ficha y la cuenta de acceso se crean juntas, y la baja desactiva las dos.
               </Text>
@@ -152,7 +152,7 @@ export function Plantel() {
             <EmptyState
               icon="user-round"
               title="Todavía no hay nadie en el plantel"
-              description="Cargá al primer veterinario: al guardarlo ya puede entrar con el correo y la contraseña que le pongas."
+              description="Cargá al primer veterinario: al guardarlo le llega un correo con un enlace para definir su contraseña."
               action={
                 <Button iconLeft="plus" onPress={() => setAbierto(true)}>
                   Agregar veterinario

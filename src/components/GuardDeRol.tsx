@@ -4,6 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { HOME_POR_ROL, RUTA_LOGIN, type TipoUsuario } from '../constants/roles';
 import { useSesion } from '../hooks/useSesion';
+import { useTheme } from '../theme';
 
 interface GuardDeRolProps {
   /** Roles que pueden alcanzar este grupo de rutas. */
@@ -28,11 +29,12 @@ export function GuardDeRol({
   children,
 }: GuardDeRolProps) {
   const { sesion, cargando } = useSesion();
+  const { t } = useTheme();
 
   if (cargando) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator />
+        <ActivityIndicator color={t['--color-primary-strong']} />
       </View>
     );
   }

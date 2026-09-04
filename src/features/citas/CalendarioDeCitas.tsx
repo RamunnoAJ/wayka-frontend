@@ -211,7 +211,7 @@ export function CalendarioDeCitas({
                         { fontWeight: '700', color: t['--color-primary-strong'] },
                       ]}
                     >
-                      HOY
+                      Hoy
                     </Text>
                   ) : null}
                   {/* El conteo aparece cuando hay más de una: "1 cita" arriba de
