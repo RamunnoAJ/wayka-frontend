@@ -4,12 +4,13 @@ import type { Veterinario } from '../../api/veterinario';
 import { render } from '../../pruebas/render';
 import { usePlantel as usePlantelComoLista } from '../veterinario/queries';
 
-import { usePlantelPorId } from './queries';
+import { usePlantelPorAutor } from './queries';
 
 /**
  * El plantel se consulta desde dos lugares con dos formas distintas: la agenda
- * y el panel lo quieren como lista, y el historial clínico como índice por id,
- * para resolver el autor de cada registro sin recorrer el array por evento.
+ * y el panel lo quieren como lista, y el historial clínico como índice por
+ * **cuenta** —que es lo que guarda el registro clínico, porque escriben los dos
+ * roles—, para resolver el autor sin recorrer el array por evento.
  *
  * Las dos consultas comparten la clave `['veterinarios']`, que es lo correcto —
  * es el mismo recurso y pedirlo dos veces sería pedirlo de más. Lo que no puede
@@ -28,19 +29,19 @@ const { listarVeterinarios } = jest.requireMock('../../api/veterinario') as {
 };
 
 const PLANTEL = [
-  { id: 'vet-1', nombre: 'Lucia Ferreyra', matricula: 'MP-4821' },
-  { id: 'vet-2', nombre: 'Martin Torres', matricula: 'MP-5507' },
+  { id: 'vet-1', usuario_id: 'cuenta-1', nombre: 'Lucia Ferreyra', matricula: 'MP-4821' },
+  { id: 'vet-2', usuario_id: 'cuenta-2', nombre: 'Martin Torres', matricula: 'MP-5507' },
 ] as Veterinario[];
 
 /** Monta las dos consultas a la vez, que es lo que pasa al navegar entre pantallas. */
 function DosConsultas() {
   const lista = usePlantelComoLista();
-  const porId = usePlantelPorId();
+  const porAutor = usePlantelPorAutor();
 
   return (
     <>
       <Text>{`lista: ${lista.data?.map((v) => v.nombre).join(', ') ?? '-'}`}</Text>
-      <Text>{`autor: ${porId.data?.get('vet-1')?.nombre ?? '-'}`}</Text>
+      <Text>{`autor: ${porAutor.data?.get('cuenta-1')?.nombre ?? '-'}`}</Text>
     </>
   );
 }

@@ -45,7 +45,7 @@ import {
   useMedicaciones,
   useMiFichaDeVeterinario,
   usePaciente,
-  usePlantelPorId,
+  usePlantelPorAutor,
   useReagendarCita,
   useRetirarAdjunto,
   useRetirarCita,
@@ -104,7 +104,7 @@ export function FichaDePaciente({
   const medicaciones = useMedicaciones(pacienteId);
   const citas = useCitas(pacienteId);
   const adjuntos = useAdjuntos(pacienteId);
-  const plantel = usePlantelPorId();
+  const plantel = usePlantelPorAutor();
   const miFicha = useMiFichaDeVeterinario();
   // La grilla la manda la clínica donde se agenda, que para el veterinario es la
   // suya: una mascota atendida también en otra tiene allá su propia agenda, con

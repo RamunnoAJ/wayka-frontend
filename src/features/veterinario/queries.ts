@@ -21,7 +21,7 @@ export const CLAVES = {
 
 /**
  * Consulta del plantel, compartida por las dos formas en que se lo mira: como
- * lista (acá) y como índice por id (`usePlantelPorId` en `../paciente`).
+ * lista (acá) y como índice por cuenta (`usePlantelPorAutor` en `../paciente`).
  *
  * Se exporta el objeto entero y no solo la clave porque lo que las dos tienen
  * que compartir es **cómo se trae y qué queda cacheado**, no únicamente dónde.

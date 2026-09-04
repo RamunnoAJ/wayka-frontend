@@ -53,7 +53,7 @@ import {
 } from '../../api/paciente';
 import { obtenerTutor, type Tutor } from '../../api/tutor';
 import {
-  indexarPorId,
+  indexarPorAutor,
   obtenerVeterinario,
   puedeEscribirClinico,
   type Veterinario,
@@ -169,8 +169,8 @@ export function useAdjuntos(pacienteId: string): UseQueryResult<Adjunto[]> {
  * Se llama distinto que el de `../veterinario` a propósito: dos hooks con el
  * mismo nombre y distinta forma es exactamente cómo se vuelve a romper.
  */
-export function usePlantelPorId(): UseQueryResult<Map<string, Veterinario>> {
-  return useQuery({ ...CONSULTA_DEL_PLANTEL, select: indexarPorId });
+export function usePlantelPorAutor(): UseQueryResult<Map<string, Veterinario>> {
+  return useQuery({ ...CONSULTA_DEL_PLANTEL, select: indexarPorAutor });
 }
 
 /**

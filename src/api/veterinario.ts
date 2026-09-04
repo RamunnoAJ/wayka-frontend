@@ -23,6 +23,13 @@ export interface Veterinario {
    */
   matricula?: string | null;
   clinica_id: string;
+  /**
+   * Cuenta de esta ficha, cuando la tiene. Es la clave con la que se resuelve
+   * quién firmó cada registro clínico: el historial guarda la cuenta que
+   * escribió y no la ficha, porque escriben los dos roles. Nula mientras la
+   * ficha no tenga cuenta — cargada sin correo, o con la cuenta dada de baja.
+   */
+  usuario_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -130,12 +137,22 @@ export function obtenerVeterinario(veterinarioId: string): Promise<Veterinario> 
 }
 
 /**
- * Índice `id → nombre` para resolver la autoría de eventos y medicación sin
- * pedir una ficha por registro. El backend no devuelve el nombre embebido: los
- * registros clínicos llevan `veterinario_id` y nada más.
+ * Índice `cuenta → ficha` para resolver la autoría de eventos y medicación sin
+ * pedir una ficha por registro.
+ *
+ * La clave es `usuario_id` y no `id`: el registro clínico guarda la **cuenta**
+ * que escribió, porque escriben los dos roles. Indexado por el id de la ficha
+ * no acertaba nunca, y todo el historial salía como "Autor fuera del plantel
+ * actual" —incluidos los registros de quien estaba mirando la pantalla.
+ *
+ * La ficha sin cuenta queda afuera: no puede haber firmado nada.
  */
-export function indexarPorId(veterinarios: Veterinario[]): Map<string, Veterinario> {
-  return new Map(veterinarios.map((v) => [v.id, v]));
+export function indexarPorAutor(veterinarios: Veterinario[]): Map<string, Veterinario> {
+  return new Map(
+    veterinarios
+      .filter((v): v is Veterinario & { usuario_id: string } => Boolean(v.usuario_id))
+      .map((v) => [v.usuario_id, v]),
+  );
 }
 
 /** Regla 2.1, reflejada en la UI: sin matrícula, la ficha es de solo lectura. */
