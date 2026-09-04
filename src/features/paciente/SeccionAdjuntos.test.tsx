@@ -179,4 +179,18 @@ describe('SeccionAdjuntos · descarga', () => {
 
     expect(pantalla.queryByText('Descargar')).toBeNull();
   });
+
+  // «El archivo no se descarga al dispositivo […] Una copia local sería
+  // historial clínico fuera del alcance del motor de permisos» y «No hay acción
+  // de descarga ni de compartir» — Alcance de Plataformas, 5.6. Es la ficha del
+  // tutor: para el veterinario la descarga sí está permitida (Reglas 3.2).
+  it('en la ficha del tutor no se ofrece bajar el archivo', async () => {
+    const pantalla = await render(seccion([adjunto()], { permiteDescarga: false }));
+
+    await abrirMenu(pantalla);
+
+    expect(pantalla.queryByText('Descargar')).toBeNull();
+    // El resto del menú sigue: mirar y renombrar lo propio no salen del sistema.
+    expect(pantalla.getByText('Cambiar el nombre')).toBeOnTheScreen();
+  });
 });

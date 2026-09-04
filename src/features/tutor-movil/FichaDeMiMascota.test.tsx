@@ -224,3 +224,91 @@ describe('FichaDeMiMascota', () => {
     expect(queryByLabelText('Luna')).toBeNull();
   });
 });
+
+/**
+ * «Lo cargado se ve como propio. En el historial aparece marcado como declarado
+ * por el tutor, y con las acciones […] de dar de baja que los registros del
+ * veterinario no tienen» — Alcance de Plataformas, 5.12.
+ *
+ * Sin eso, un antecedente mal cargado quedaba para siempre: fuera del resumen
+ * del alta no había ninguna forma de sacarlo.
+ */
+describe('FichaDeMiMascota · acciones sobre lo que cargó el tutor', () => {
+  function conHistorial(eventos: unknown[]) {
+    conNivel('dueno');
+    jest
+      .spyOn(consultas, 'useHistorialDeMiMascota')
+      .mockReturnValue(consultaResuelta(eventos as never));
+  }
+
+  const DEL_TUTOR = {
+    id: 'e-1',
+    paciente_id: 'p-1',
+    tipo: 'alergia',
+    fecha: '2023-03-01',
+    fecha_precision: 'mes',
+    descripcion: 'Polen',
+    cargado_por: 'tutor',
+    created_at: '2026-01-01T12:00:00Z',
+    updated_at: '2026-01-01T12:00:00Z',
+  };
+  const DE_LA_CLINICA = {
+    ...DEL_TUTOR,
+    id: 'e-2',
+    descripcion: 'Otitis',
+    cargado_por: 'veterinario',
+  };
+
+  it('ofrece quitar el antecedente que declaró el tutor', async () => {
+    conHistorial([DEL_TUTOR]);
+
+    const { findByLabelText } = await render(
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
+    );
+
+    expect(await findByLabelText('Acciones del antecedente que cargaste')).toBeOnTheScreen();
+  });
+
+  it('no ofrece nada sobre lo que escribió la clínica', async () => {
+    conHistorial([DE_LA_CLINICA]);
+
+    const { queryByLabelText } = await render(
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(queryByLabelText('Acciones del antecedente que cargaste')).toBeNull(),
+    );
+  });
+
+  // El de solo lectura no escribe nada, ni sobre lo suyo (Reglas de Negocio, 3.2).
+  it('el co-tutor de lectura no las ve', async () => {
+    conNivel('lectura');
+    jest
+      .spyOn(consultas, 'useHistorialDeMiMascota')
+      .mockReturnValue(consultaResuelta([DEL_TUTOR] as never));
+
+    const { queryByLabelText } = await render(
+      <FichaDeMiMascota
+        pacienteId="p-1"
+        onVerAccesos={jest.fn()}
+        onCompartir={jest.fn()}
+        onCargarAntecedente={jest.fn()}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(queryByLabelText('Acciones del antecedente que cargaste')).toBeNull(),
+    );
+  });
+});

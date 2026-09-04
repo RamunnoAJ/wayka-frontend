@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { camposDeAlergia, camposDeVacuna, TIPO_DE_EVENTO } from '../../api/evento-clinico';
+import { elTutorLoPuedeEditar } from '../../api/historial';
 import { fotoDePerfilDe } from '../../api/adjunto';
 import { partirPorVigencia } from '../../api/medicacion';
 import { puedeAdministrar, puedeEditar } from '../../api/paciente';
@@ -12,6 +13,7 @@ import {
   InlineError,
   Input,
   MedicationItem,
+  MenuDeAcciones,
   SkeletonText,
 } from '../../components';
 import { EntradaDeAccesos } from '../accesos/EntradaDeAccesos';
@@ -22,6 +24,7 @@ import { sombra, useTheme } from '../../theme';
 import { capitalizar, edad, fechaConPrecision, fechaCorta, peso } from '../paciente/formato';
 import { MarcaDeOrigen } from '../paciente/MarcaDeOrigen';
 import { useGuardarPesoDelTutor } from '../sincronizacion';
+import { useRetirarAntecedenteDelTutor } from '../sincronizacion/queries';
 import { derivarAdjuntos, useMarcarFotoDePerfil, useRetirarAdjunto } from '../paciente/queries';
 import {
   useAdjuntosDeMiMascota,
@@ -62,6 +65,10 @@ export function FichaDeMiMascota({
   const guardarPeso = useGuardarPesoDelTutor(paciente.data);
   const retirar = useRetirarAdjunto(pacienteId);
   const marcarFoto = useMarcarFotoDePerfil(pacienteId);
+  // Lo que el tutor cargó lo puede sacar desde acá y no solo desde el resumen
+  // del alta: fuera de esa pantalla un antecedente mal cargado quedaba para
+  // siempre (Alcance de Plataformas, 5.12).
+  const retirarAntecedente = useRetirarAntecedenteDelTutor();
   const { sesion } = useSesion();
 
   const [editandoPeso, setEditandoPeso] = useState(false);
@@ -311,6 +318,27 @@ export function FichaDeMiMascota({
                         la clínica: es donde entiende, sin que nadie se lo
                         explique, por qué una fila tiene acciones y otra no. */}
                     <MarcaDeOrigen registro={evento} compacta />
+                    {/* Solo sobre lo propio: los registros de la clínica no
+                        llevan acciones, y es donde el tutor entiende la
+                        diferencia sin que nadie se la explique. */}
+                    {puedeEscribir && elTutorLoPuedeEditar(evento) ? (
+                      <MenuDeAcciones
+                        accessibilityLabel="Acciones del antecedente que cargaste"
+                        acciones={[
+                          {
+                            label: 'Quitar',
+                            icono: 'trash-2',
+                            peligro: true,
+                            onPress: () =>
+                              retirarAntecedente.mutate({
+                                id: evento.id,
+                                enCola: false,
+                                clase: 'evento',
+                              }),
+                          },
+                        ]}
+                      />
+                    ) : null}
                   </View>
                   <Text style={[texto('body'), { color: t['--text-body'] }]}>
                     {evento.descripcion}
@@ -357,6 +385,8 @@ export function FichaDeMiMascota({
             bloqueado={false}
             motivoBloqueo=""
             soloMetadatos={adjuntos.data?.soloMetadatos ?? false}
+            // El archivo se mira en el visor y no sale de la app (Alcance 5.6).
+            permiteDescarga={false}
             puedeEscribir={puedeEscribir}
             onRetirar={(adjunto) => retirar.mutate(adjunto.id)}
             onUsarComoFoto={puedeEscribir ? (adjunto) => marcarFoto.mutate(adjunto.id) : undefined}

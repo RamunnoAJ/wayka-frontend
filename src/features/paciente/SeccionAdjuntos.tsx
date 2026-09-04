@@ -57,6 +57,15 @@ interface AdjuntosProps {
    */
   soloMetadatos?: boolean;
   /**
+   * Si se ofrece bajar el archivo al dispositivo. **Falso en las pantallas del
+   * tutor**: «El archivo no se descarga al dispositivo […] Una copia local sería
+   * historial clínico fuera del alcance del motor de permisos» y «No hay acción
+   * de descarga ni de compartir» (Alcance de Plataformas, 5.6). Para el
+   * veterinario sí está permitido (Reglas de Negocio, 3.2), y ahí es el valor
+   * por defecto.
+   */
+  permiteDescarga?: boolean;
+  /**
    * Quien mira puede subir, renombrar y retirar. Falso para el co-tutor de solo
    * lectura, que lista y mira y no escribe nada (Reglas de Negocio, 3.2):
    * ofrecerle una zona de carga —o un "Retirar" sobre un archivo que subió antes
@@ -88,6 +97,7 @@ export function SeccionAdjuntos({
   bloqueado,
   motivoBloqueo,
   soloMetadatos = false,
+  permiteDescarga = true,
   puedeEscribir = true,
   onRetirar,
   onUsarComoFoto,
@@ -179,6 +189,7 @@ export function SeccionAdjuntos({
               bloqueado={bloqueado}
               motivoBloqueo={motivoBloqueo}
               soloMetadatos={soloMetadatos}
+              permiteDescarga={permiteDescarga}
               puedeEscribir={puedeEscribir}
               onAbrir={(origen) => setMirando({ adjunto, origen })}
               onDescargar={() => descargar.mutate(adjunto.id)}
@@ -235,6 +246,7 @@ function FilaDeAdjunto({
   bloqueado,
   motivoBloqueo,
   soloMetadatos,
+  permiteDescarga,
   puedeEscribir,
   onAbrir,
   onDescargar,
@@ -248,6 +260,7 @@ function FilaDeAdjunto({
   bloqueado: boolean;
   motivoBloqueo: string;
   soloMetadatos: boolean;
+  permiteDescarga: boolean;
   puedeEscribir: boolean;
   onAbrir: (origen?: RectanguloEnPantalla) => void;
   onDescargar: () => void;
@@ -261,7 +274,7 @@ function FilaDeAdjunto({
   const escribe = puedeEscribir && enLinea && !bloqueado;
 
   const acciones: AccionDeMenu[] = [];
-  if (enLinea) {
+  if (enLinea && permiteDescarga) {
     acciones.push({ label: 'Descargar', icono: 'download', onPress: onDescargar });
   }
   if (propio && escribe) {

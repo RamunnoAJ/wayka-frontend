@@ -297,6 +297,8 @@ export function CargaDeAntecedentes({
             bloqueado={false}
             motivoBloqueo=""
             soloMetadatos={adjuntos.data?.soloMetadatos ?? false}
+            // El archivo se mira en el visor y no sale de la app (Alcance 5.6).
+            permiteDescarga={false}
             puedeEscribir
             onRetirar={() => undefined}
           />
