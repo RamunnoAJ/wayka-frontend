@@ -3,7 +3,7 @@ import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { usePresion, useTransicionDeControl } from '../hooks';
-import { ESCALA_DE_PRESION_LG } from '../theme';
+import { ESCALA_DE_PRESION_LG, useTheme } from '../theme';
 
 const PressableAnimado = Animated.createAnimatedComponent(Pressable);
 
@@ -30,7 +30,11 @@ interface PresionableProps {
   escala?: number;
   /** Fondo en reposo. */
   fondo?: string;
-  /** Fondo con el puntero encima o el dedo abajo. Sin esto, el fondo no cruza. */
+  /**
+   * Fondo con el puntero encima o el dedo abajo. Por defecto `--surface-hover`,
+   * que es lo que el sistema manda para filas y superficies: sin un valor acá,
+   * la superficie se quedaba sin ninguna señal de hover.
+   */
   fondoDestacado?: string;
   borde?: string;
   style?: StyleProp<ViewStyle>;
@@ -52,11 +56,18 @@ export function Presionable({
   accessibilityLabel,
   accessibilityState,
 }: PresionableProps) {
+  const { t } = useTheme();
   const [activo, setActivo] = useState(false);
   const presion = usePresion(escala);
 
+  // «Hover: cambio de fondo, no de opacidad — las filas y botones fantasma pasan
+  // a --surface-hover» (design system, Estados). El destacado es el del sistema
+  // salvo que la pantalla pida otro: una superficie sobre fondo tintado o
+  // seleccionada sí tiene que decir el suyo.
+  const destacado = fondoDestacado ?? t['--surface-hover'];
+
   const colores = useTransicionDeControl({
-    backgroundColor: activo && fondoDestacado ? fondoDestacado : fondo,
+    backgroundColor: activo ? destacado : fondo,
     borderColor: borde,
   });
 
