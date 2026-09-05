@@ -15,6 +15,7 @@ export const CODIGO_ERROR = {
   MATRICULA_EN_USO: 'matricula_en_uso',
   EMAIL_EN_USO: 'email_en_uso',
   ARCHIVO_DEMASIADO_GRANDE: 'archivo_demasiado_grande',
+  DEMASIADOS_PEDIDOS: 'demasiados_pedidos',
   ERROR_INTERNO: 'error_interno',
 } as const;
 
@@ -92,6 +93,10 @@ const COPY_POR_CODIGO: Record<string, string> = {
   [CODIGO_ERROR.MATRICULA_EN_USO]: 'Esa matrícula ya está cargada en otra ficha.',
   [CODIGO_ERROR.EMAIL_EN_USO]: 'Ese correo ya tiene una cuenta.',
   [CODIGO_ERROR.ARCHIVO_DEMASIADO_GRANDE]: 'El archivo es muy pesado. Probá con uno más liviano.',
+  // Llega al mismo formulario que `credenciales_invalidas` y la salida es otra:
+  // esto no se arregla escribiendo de nuevo, se arregla esperando.
+  [CODIGO_ERROR.DEMASIADOS_PEDIDOS]:
+    'Hubo demasiados intentos desde esta conexión. Esperá un minuto y probá de nuevo.',
   [CODIGO_ERROR.ERROR_INTERNO]: 'No se pudo completar. Probá de nuevo en un momento.',
 };
 

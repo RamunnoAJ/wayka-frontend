@@ -27,6 +27,16 @@ describe('mensajeDeError', () => {
     expect(mensajeDeError(delServidor(409, 'email_en_uso', 'x'))).toContain('correo');
   });
 
+  it('distingue el techo de intentos de una credencial mal escrita', () => {
+    // El 429 del limite de intentos y el 401 de credenciales llegan al mismo
+    // formulario, y la salida es distinta: uno se resuelve esperando y el otro
+    // escribiendo de nuevo.
+    const mensaje = mensajeDeError(delServidor(429, 'demasiados_pedidos', 'demasiados intentos'));
+
+    expect(mensaje).toContain('Esperá');
+    expect(mensaje).not.toContain('contraseña');
+  });
+
   it('deja que la pantalla afine el copy de un código con lo que ella sabe', () => {
     const error = delServidor(
       409,
