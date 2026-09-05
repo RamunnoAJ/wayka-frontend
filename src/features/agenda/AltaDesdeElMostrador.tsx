@@ -253,6 +253,9 @@ function FichaNuevaDeTutor({
                     nombre: tutor.nombre,
                     contacto: tutor.contacto,
                     tiene_documento: false,
+                    // El alta del mostrador lo pide siempre: sin el, la ficha no
+                    // se crea (regla 2.2).
+                    consentimiento_datos: true,
                   }),
               },
             )

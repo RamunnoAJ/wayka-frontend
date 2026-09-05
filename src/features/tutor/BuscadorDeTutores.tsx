@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { Tutor } from '../../api/tutor';
+import type { TutorEnElPadron } from '../../api/tutor';
 import {
   Avatar,
   Badge,
@@ -27,8 +27,14 @@ import { useBuscarTutores, useCrearTutor } from './queries';
  * alta se ofrece desde el vacío de la búsqueda, con el nombre ya escrito.
  */
 interface BuscadorProps {
-  /** Al elegir un tutor: abrir su ficha, o devolverlo al alta de paciente. */
-  onElegir: (tutor: Tutor) => void;
+  /**
+   * Al elegir un tutor: abrir su ficha, o devolverlo al alta de paciente.
+   *
+   * Lo que llega es la **proyección del padrón**, no la ficha: la búsqueda no se
+   * acota por clínica, así que el documento y la dirección salen solo al abrir la
+   * ficha, que sí exige vínculo (Reglas de Negocio, 3.2).
+   */
+  onElegir: (tutor: TutorEnElPadron) => void;
 }
 
 export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
@@ -88,7 +94,16 @@ export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
                 crear.mutate(entrada, {
                   onSuccess: (tutor) => {
                     setAbierto(false);
-                    onElegir(tutor);
+                    // El alta devuelve la ficha entera —quien la acaba de cargar
+                    // ya vio esos datos—, pero lo que sigue trabaja con la
+                    // proyeccion, que es lo que la búsqueda entrega.
+                    onElegir({
+                      id: tutor.id,
+                      nombre: tutor.nombre,
+                      contacto: tutor.contacto,
+                      tiene_documento: Boolean(tutor.numero_documento),
+                      consentimiento_datos: tutor.consentimiento_datos,
+                    });
                   },
                 })
               }
@@ -157,10 +172,13 @@ export function BuscadorDeTutores({ onElegir }: BuscadorProps) {
                       {tutor.contacto}
                     </Text>
                   </View>
-                  {tutor.numero_documento ? (
-                    <Badge tone="neutral">
-                      {`${(tutor.tipo_documento ?? '').toUpperCase()} ${tutor.numero_documento}`}
-                    </Badge>
+                  {/* El número no está en la respuesta y no puede estarlo: la
+                      búsqueda alcanza a cualquier ficha del sistema, así que
+                      devuelve si el documento está cargado y no cuál es. Sirve
+                      igual para lo que la lista tiene que resolver — distinguir
+                      dos fichas parecidas y ver cuál está completa. */}
+                  {tutor.tiene_documento ? (
+                    <Badge tone="neutral">Con documento</Badge>
                   ) : (
                     <Badge tone="warning">Sin documento</Badge>
                   )}

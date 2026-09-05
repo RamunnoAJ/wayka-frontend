@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { CrearPacienteEntrada } from '../../api/paciente';
-import type { Tutor } from '../../api/tutor';
+import type { TutorEnElPadron } from '../../api/tutor';
 import { Avatar, Badge, Button, InlineError, Input, Select } from '../../components';
 import { mensajeDeError } from '../../lib/errores';
 import { useTheme } from '../../theme';
@@ -39,7 +39,7 @@ interface AltaProps {
 
 export function FormularioDeAltaDePaciente({ enviando, error, onGuardar, onCancelar }: AltaProps) {
   const { t, px, texto } = useTheme();
-  const [tutor, setTutor] = useState<Tutor | null>(null);
+  const [tutor, setTutor] = useState<TutorEnElPadron | null>(null);
 
   return (
     <View
@@ -74,7 +74,7 @@ function ElegirTutor({
   onElegir,
   onCancelar,
 }: {
-  onElegir: (tutor: Tutor) => void;
+  onElegir: (tutor: TutorEnElPadron) => void;
   onCancelar: () => void;
 }) {
   const { t, px, texto } = useTheme();
@@ -162,7 +162,20 @@ function ElegirTutor({
           nombreInicial={busqueda}
           enviando={crear.isPending}
           error={crear.error ? mensajeDeError(crear.error) : undefined}
-          onGuardar={(entrada) => crear.mutate(entrada, { onSuccess: onElegir })}
+          onGuardar={(entrada) =>
+            crear.mutate(entrada, {
+              // El alta devuelve la ficha entera; lo que sigue trabaja con la
+              // proyeccion, que es lo que la busqueda entrega.
+              onSuccess: (creado) =>
+                onElegir({
+                  id: creado.id,
+                  nombre: creado.nombre,
+                  contacto: creado.contacto,
+                  tiene_documento: Boolean(creado.numero_documento),
+                  consentimiento_datos: creado.consentimiento_datos,
+                }),
+            })
+          }
           onCancelar={() => setCreando(false)}
         />
       ) : null}
@@ -182,7 +195,7 @@ function DatosDeLaMascota({
   onGuardar,
   onCancelar,
 }: {
-  tutor: Tutor;
+  tutor: TutorEnElPadron;
   enviando: boolean;
   error?: string;
   onCambiarTutor: () => void;

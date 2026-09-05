@@ -94,8 +94,19 @@ export interface ActualizarTutorEntrada {
   direccion_lng?: number;
 }
 
-export function listarTutores(filtros: FiltrosDeTutores = {}): Promise<Tutor[]> {
-  return http.get<Tutor[]>('/tutores', { params: { ...filtros } });
+/**
+ * La búsqueda del veterinario devuelve la **misma proyección reducida** que el
+ * padrón del clínica_admin, no la ficha completa: no se acota por clínica —antes
+ * del alta no hay vínculo contra el cual acotarla— así que lo que protege el dato
+ * es la proyección. El documento y la dirección salen solo por `obtenerTutor`,
+ * que sí exige vínculo (Reglas de Negocio, 3.2).
+ *
+ * **Sin criterio el backend responde 400.** El buscador existe para encontrar a
+ * una persona de la que ya se sabe algo; un listado sin filtro es el padrón
+ * entero.
+ */
+export function listarTutores(filtros: FiltrosDeTutores = {}): Promise<TutorEnElPadron[]> {
+  return http.get<TutorEnElPadron[]>('/tutores', { params: { ...filtros } });
 }
 
 /**
@@ -112,6 +123,13 @@ export interface TutorEnElPadron {
   nombre: string;
   contacto: string;
   tiene_documento: boolean;
+  /**
+   * Precondición del proceso que la búsqueda sirve: sin consentimiento no se le
+   * da de alta una mascota a esa persona (regla 2.2), y la pantalla tiene que
+   * poder decirlo **antes** del intento y no como el texto de un error (Alcance
+   * de Plataformas, 3.3).
+   */
+  consentimiento_datos: boolean;
 }
 
 /**

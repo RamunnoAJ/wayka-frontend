@@ -10,6 +10,7 @@ import {
   type CrearTutorEntrada,
   type FiltrosDeTutores,
   type Tutor,
+  type TutorEnElPadron,
 } from '../../api/tutor';
 
 export const CLAVES = {
@@ -22,8 +23,12 @@ export const CLAVES = {
  * si el tutor ya existe antes de que haya ningún vínculo (Reglas de Negocio,
  * 3.2). Leer una ficha concreta sí exige vínculo, así que un resultado de la
  * búsqueda puede no ser abrible — el 403 lo decide el backend.
+ *
+ * Por eso devuelve la **proyección del padrón** y no la ficha: lo que protege el
+ * dato de una búsqueda sin acotar es lo que sale de ella. El documento y la
+ * dirección se leen al abrir la ficha, con `useTutor`.
  */
-export function useBuscarTutores(filtros: FiltrosDeTutores): UseQueryResult<Tutor[]> {
+export function useBuscarTutores(filtros: FiltrosDeTutores): UseQueryResult<TutorEnElPadron[]> {
   return useQuery({
     queryKey: CLAVES.busqueda(filtros),
     queryFn: () => listarTutores(filtros),
