@@ -8,6 +8,22 @@
  * Copy en español rioplatense, voseo, mayúscula solo inicial (BRIEF, sección 5).
  */
 
+/**
+ * Techo de la regla 2.1, y no una decisión de producto: bcrypt no hashea más de
+ * 72 **bytes** y el backend rechaza lo que lo supere. Se mide en bytes porque es
+ * lo que bcrypt cuenta — los acentuados y la ñ ocupan dos, así que se llega al
+ * tope con menos letras de las que dice el número.
+ *
+ * No entra en la lista de indicadores: esos son requisitos que hay que cumplir y
+ * este es un techo que casi nadie roza. Ponerlo ahí sería un ítem en rojo desde
+ * el primer caracter.
+ */
+export const MAXIMO_BYTES_DE_CONTRASENA = 72;
+
+function bytesDe(valor: string): number {
+  return new TextEncoder().encode(valor).length;
+}
+
 /** Política de contraseña de la regla 2.1: 8+, una minúscula, una mayúscula, un dígito. */
 export const REGLAS_CONTRASENA = [
   { prueba: (v: string) => v.length >= 8, texto: 'Al menos 8 caracteres' },
@@ -35,8 +51,13 @@ export function validarContrasenaDeIngreso(valor: string): string | undefined {
 export function validarContrasenaNueva(valor: string): string | undefined {
   if (!valor) return 'Elegí una contraseña';
   const faltan = REGLAS_CONTRASENA.filter((regla) => !regla.prueba(valor));
-  if (faltan.length === 0) return undefined;
-  return `Le falta: ${faltan.map((regla) => regla.texto.toLowerCase()).join(', ')}`;
+  if (faltan.length > 0) {
+    return `Le falta: ${faltan.map((regla) => regla.texto.toLowerCase()).join(', ')}`;
+  }
+  if (bytesDe(valor) > MAXIMO_BYTES_DE_CONTRASENA) {
+    return `No puede pasar de ${MAXIMO_BYTES_DE_CONTRASENA} caracteres, y los acentuados y la ñ cuentan doble`;
+  }
+  return undefined;
 }
 
 /**
