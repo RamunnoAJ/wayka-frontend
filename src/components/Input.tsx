@@ -44,6 +44,13 @@ interface InputProps {
   editable?: boolean;
   /** Techo de caracteres, para no descubrir el límite recién en el rechazo. */
   maxLength?: number;
+  /**
+   * Campo de varias líneas. Cambia la altura fija del control por una mínima:
+   * un texto largo dentro de una línea de 40px se lee por una rendija.
+   */
+  multiline?: boolean;
+  /** Líneas visibles cuando es `multiline`. */
+  lineas?: number;
   onSubmitEditing?: () => void;
   returnKeyType?: TextInputProps['returnKeyType'];
 }
@@ -65,6 +72,8 @@ export function Input({
   textContentType,
   editable = true,
   maxLength,
+  multiline,
+  lineas = 4,
   onSubmitEditing,
   returnKeyType,
 }: InputProps) {
@@ -92,9 +101,11 @@ export function Input({
         style={[
           {
             flexDirection: 'row',
-            alignItems: 'center',
+            alignItems: multiline ? 'flex-start' : 'center',
             gap: 8,
-            height: px('--control-h-md'),
+            ...(multiline
+              ? { minHeight: px('--control-h-md') * lineas, paddingVertical: 10 }
+              : { height: px('--control-h-md') }),
             paddingHorizontal: 12,
             borderRadius: px('--radius-control'),
             borderWidth: enfocado ? ANCHO_BORDE_FOCO : 1,
@@ -116,6 +127,7 @@ export function Input({
           textContentType={textContentType}
           editable={editable && !readOnly}
           maxLength={maxLength}
+          multiline={multiline}
           onSubmitEditing={onSubmitEditing}
           returnKeyType={returnKeyType}
           onFocus={() => setEnfocado(true)}
@@ -124,6 +136,7 @@ export function Input({
           style={[
             texto('body'),
             estilos.campo,
+            multiline ? { textAlignVertical: 'top', height: '100%' } : null,
             // RN Web dibuja su propio contorno de foco encima del borde del token.
             { color: t['--text-strong'], outlineStyle: 'none' } as object,
           ]}

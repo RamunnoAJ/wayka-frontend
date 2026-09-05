@@ -46,6 +46,7 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['AccesosDelPaciente', 'src/api/acceso-a-paciente.ts', 'AccesosDelPaciente'],
     ['Invitacion', 'src/api/invitacion.ts', 'Invitacion'],
     ['InvitacionVistaPrevia', 'src/api/invitacion.ts', 'InvitacionVistaPrevia'],
+    ['Propuesta', 'src/api/propuesta.ts', 'Propuesta'],
   ];
 
   it.each(entidades)('%s tiene los mismos campos que su esquema', (_, ruta, esquema) => {
@@ -69,6 +70,8 @@ describeSiHayContrato('los tipos del cliente no derivaron del contrato', () => {
     ['OrigenDeCarga', 'src/api/historial.ts', 'OrigenDeCarga', 'ORIGEN_DE_CARGA'],
     ['PrecisionDeFecha', 'src/api/historial.ts', 'PrecisionDeFecha', 'PRECISION_DE_FECHA'],
     ['TipoDocumento', 'src/api/veterinario.ts', 'TipoDocumento', undefined],
+    ['EstadoDePropuesta', 'src/api/propuesta.ts', 'EstadoDePropuesta', 'ESTADO_DE_PROPUESTA'],
+    ['OrdenDePropuestas', 'src/api/propuesta.ts', 'OrdenDePropuestas', 'ORDEN_DE_PROPUESTAS'],
   ];
 
   it.each(enumerados)(

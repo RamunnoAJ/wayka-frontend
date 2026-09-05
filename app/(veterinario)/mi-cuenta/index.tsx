@@ -1,12 +1,20 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, InlineError, SkeletonText, EntradaDePantalla } from '../../src/components';
-import { BotonCerrarSesion } from '../../src/features/auth';
-import { FormularioDeContrasena } from '../../src/features/cuenta';
-import { useMiFichaDeVeterinario } from '../../src/features/paciente/queries';
-import { useSesion } from '../../src/hooks/useSesion';
-import { sombra, useTheme } from '../../src/theme';
+import {
+  Button,
+  Icon,
+  InlineError,
+  Presionable,
+  SkeletonText,
+  EntradaDePantalla,
+} from '../../../src/components';
+import { BotonCerrarSesion } from '../../../src/features/auth';
+import { FormularioDeContrasena } from '../../../src/features/cuenta';
+import { useMiFichaDeVeterinario } from '../../../src/features/paciente/queries';
+import { useSesion } from '../../../src/hooks/useSesion';
+import { sombra, useTheme } from '../../../src/theme';
 
 /**
  * Mi cuenta (rol veterinario).
@@ -100,6 +108,28 @@ export default function MiCuenta() {
             ) : null}
           </View>
 
+          {/*
+            El tablero cuelga de acá y no del menú (Alcance de Plataformas, 3.8):
+            el menú tiene paridad entre web y móvil, así que un ítem más son seis
+            pestañas en la barra del teléfono, que es donde el veterinario carga.
+          */}
+          <Presionable
+            onPress={() => router.push('/mi-cuenta/propuestas')}
+            fondo={t['--surface-card']}
+            borde={t['--border-default']}
+            accessibilityLabel="Propuestas"
+            style={[tarjeta, sombra('--shadow-sm'), estilos.entrada]}
+          >
+            <Icon name="lightbulb" size={20} color={t['--text-muted']} />
+            <View style={estilos.flexible}>
+              <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>Propuestas</Text>
+              <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                Lo que pide el resto de los profesionales, y qué está pasando con eso.
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={18} color={t['--text-subtle']} />
+          </Presionable>
+
           <View style={estilos.salida}>
             <BotonCerrarSesion />
           </View>
@@ -128,6 +158,8 @@ const estilos = StyleSheet.create({
   titulo: { gap: 6 },
   bloque: { gap: 14 },
   dato: { gap: 2 },
+  entrada: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  flexible: { flex: 1, gap: 2 },
   fila: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 },
   salida: { alignItems: 'flex-start', marginTop: 8 },
 });

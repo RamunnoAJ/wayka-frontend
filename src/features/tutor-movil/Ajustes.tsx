@@ -1,7 +1,8 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button } from '../../components';
+import { Button, Icon, Presionable } from '../../components';
 import { useSesion } from '../../hooks/useSesion';
 import { sombra, useTheme } from '../../theme';
 import { BotonCerrarSesion } from '../auth';
@@ -93,6 +94,31 @@ export function Ajustes() {
               </View>
             ) : null}
 
+            {/*
+              El tablero de propuestas cuelga de acá y no de una cuarta pestaña
+              (Alcance de Plataformas, 5.13): es una pantalla que se abre cada
+              varias semanas, y una pestaña le cobraría ancho permanente a las
+              tres que el tutor abre todos los días.
+            */}
+            <Presionable
+              onPress={() => router.push('/ajustes/propuestas')}
+              fondo={t['--surface-card']}
+              borde={t['--border-default']}
+              accessibilityLabel="Propuestas"
+              style={[tarjeta, sombra('--shadow-sm'), estilos.entrada]}
+            >
+              <Icon name="lightbulb" size={20} color={t['--text-muted']} />
+              <View style={estilos.flexible}>
+                <Text style={[texto('body-strong'), { color: t['--text-strong'] }]}>
+                  Propuestas
+                </Text>
+                <Text style={[texto('body-sm'), { color: t['--text-muted'] }]}>
+                  Qué le pide la gente al producto, y qué está pasando con eso.
+                </Text>
+              </View>
+              <Icon name="chevron-right" size={18} color={t['--text-subtle']} />
+            </Presionable>
+
             <View style={estilos.salida}>
               <BotonCerrarSesion />
             </View>
@@ -108,6 +134,8 @@ const estilos = StyleSheet.create({
   contenido: { paddingVertical: 24, gap: 28, paddingBottom: 48 },
   seccion: { gap: 16 },
   tarjeta: { gap: 14 },
+  entrada: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  flexible: { flex: 1, gap: 2 },
   fila: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12 },
   salida: { alignItems: 'flex-start' },
 });
